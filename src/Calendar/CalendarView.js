@@ -48,7 +48,7 @@ const CalendarView = () => {
   // Fetch all events from the API
   const fetchEvents = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/book');
+      const response = await axios.get('http://3.111.163.2:5000/api/book');
       const events = response.data.map(eventData => ({
         id: eventData._id, // Assuming _id is the ID field from your API
         title: eventData.bname,
@@ -68,7 +68,7 @@ const CalendarView = () => {
   // Fetch details of a specific booking by ID
   const fetchEventDetails = async (id) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/book/${id}`);
+      const response = await axios.get(`http://3.111.163.2:5000/api/book/${id}`);
       setSelectedEvent(response.data);
     } catch (error) {
       console.error('Error fetching event details:', error);

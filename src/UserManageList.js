@@ -45,7 +45,7 @@ const UserManageList = () => {
   // Fetch user data from the backend
   const fetchUserManageData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/user/');
+      const response = await axios.get('http://3.111.163.2:5000/api/user/');
       console.log("Fetched data:", response.data);
 
       if (Array.isArray(response.data.data)) {
@@ -76,7 +76,7 @@ const UserManageList = () => {
     formData.append('status', status);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/user/register', formData, {
+      const response = await axios.post('http://3.111.163.2:5000/api/user/register', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -102,7 +102,7 @@ const UserManageList = () => {
     formData.append('status', status);
 
     try {
-      const response = await axios.put(`http://localhost:5000/api/user/${editUserId}`, formData, {
+      const response = await axios.put(`http://3.111.163.2:5000/api/user/${editUserId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -127,7 +127,7 @@ const UserManageList = () => {
   // Delete user
   const handleDeleteUserManage = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/user/${id}`);
+      await axios.delete(`http://3.111.163.2:5000/api/user/${id}`);
       setUserManageData(userManageData.filter(user => user._id !== id));
       window.alert('User successfully deleted');
     } catch (error) {
@@ -156,7 +156,7 @@ const handleToggleStatus = async (id, currentStatus) => {
   const data = { id, status: newStatus };
 
   try {
-    const response = await axios.post('http://localhost:5000/api/user/status', data);
+    const response = await axios.post('http://3.111.163.2:5000/api/user/status', data);
     console.log("Status update response:", response.data);
 
     // Ensure the response contains the updated user data

@@ -41,7 +41,7 @@ const ProductOrder = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/productOrders');
+      const response = await axios.get('http://3.111.163.2:5000/api/productOrders');
       setOrders(response.data);
       setLoading(false);
     } catch (error) {
@@ -56,7 +56,7 @@ const ProductOrder = () => {
 
   const searchOrders = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/productOrders?buyerName=${searchBuyerName}`);
+      const response = await axios.get(`http://3.111.163.2:5000/api/productOrders?buyerName=${searchBuyerName}`);
       setOrders(response.data);
     } catch (error) {
       console.error('Error searching product orders:', error);
@@ -65,7 +65,7 @@ const ProductOrder = () => {
 
   const deleteOrder = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/productOrders/${id}`);
+      await axios.delete(`http://3.111.163.2:5000/api/productOrders/${id}`);
       setOrders(orders.filter((order) => order._id !== id));
     } catch (error) {
       console.error('Error deleting product order:', error);
@@ -98,7 +98,7 @@ const ProductOrder = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/productOrders/${currentOrderId}`,
+        `http://3.111.163.2:5000/api/productOrders/${currentOrderId}`,
         updatedOrder
       );
       setOrders(

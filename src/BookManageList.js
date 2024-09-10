@@ -39,7 +39,7 @@ const BookManageList = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/book');
+      const response = await axios.get('http://3.111.163.2:5000/api/book');
       setBookings(response.data);
     } catch (error) {
       console.error('Error fetching bookings:', error);
@@ -94,7 +94,7 @@ const BookManageList = () => {
         bpickDate,
         bdropDate
       };
-      await axios.post('http://localhost:5000/api/book/create', newBooking);
+      await axios.post('http://3.111.163.2:5000/api/book/create', newBooking);
       fetchBookings();
       setVisible(false);
     } catch (error) {
@@ -145,7 +145,7 @@ const BookManageList = () => {
         bpickDate,
         bdropDate
       };
-      await axios.put(`http://localhost:5000/api/book/${currentBooking._id}`, updatedBooking);
+      await axios.put(`http://3.111.163.2:5000/api/book/${currentBooking._id}`, updatedBooking);
       fetchBookings();
       setVisible(false);
     } catch (error) {
@@ -155,7 +155,7 @@ const BookManageList = () => {
 
   const deleteBooking = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/book/${id}`);
+      await axios.delete(`http://3.111.163.2:5000/api/book/${id}`);
       setBookings(bookings.filter(booking => booking._id !== id));
     } catch (error) {
       console.error('Error deleting booking:', error);

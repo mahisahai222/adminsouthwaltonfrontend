@@ -41,7 +41,7 @@ const Feedback = () => {
 
   const fetchFeedbackData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/feedback');
+      const response = await axios.get('http://3.111.163.2:5000/api/feedback');
       setFeedbackData(response.data);
       setLoading(false);
     } catch (error) {
@@ -59,7 +59,7 @@ const Feedback = () => {
     const feedback = { name, email, startDate, endDate, comments };
   
     try {
-      await axios.post('http://localhost:5000/api/feedback/add', feedback);
+      await axios.post('http://3.111.163.2:5000/api/feedback/add', feedback);
       fetchFeedbackData();
       resetForm();
       setVisible(false);
@@ -76,7 +76,7 @@ const Feedback = () => {
 
   const handleDeleteFeedback = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/feedback/${id}`);
+      await axios.delete(`http://3.111.163.2:5000/api/feedback/${id}`);
       setFeedbackData(feedbackData.filter((feedback) => feedback._id !== id));
       window.alert('Feedback successfully deleted');
     } catch (error) {

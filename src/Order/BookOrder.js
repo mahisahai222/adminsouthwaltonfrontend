@@ -46,7 +46,7 @@ const BookOrder = () => {
   }, [searchName]);
   const fetchOrders = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/Booking/',{searchName});
+      const response = await axios.post('http://3.111.163.2:5000/api/Booking/',{searchName});
       const filteredOrders = response.data.map(order => ({
         _id: order._id,
         name: order.name,
@@ -69,7 +69,7 @@ const BookOrder = () => {
 
   // const searchOrders = async () => {
   //   try {
-  //     const response = await axios.post('http://localhost:5000/api/Booking/', {searchName});
+  //     const response = await axios.post('http://3.111.163.2:5000/api/Booking/', {searchName});
 
   //     console.log('Search Response:', response.data);
   //     const filteredOrders = response.data.map(order => ({
@@ -88,7 +88,7 @@ const BookOrder = () => {
 
   const deleteOrder = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/Booking/${id}`);
+      await axios.delete(`http://3.111.163.2:5000/api/Booking/${id}`);
       setOrders(orders.filter(order => order._id !== id));
     } catch (error) {
       console.error('Error deleting order:', error);
@@ -109,7 +109,7 @@ const BookOrder = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/Booking/${currentOrderId}`,
+        `http://3.111.163.2:5000/api/Booking/${currentOrderId}`,
         updatedOrder
       );
       setOrders(

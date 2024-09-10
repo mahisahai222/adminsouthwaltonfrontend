@@ -39,7 +39,7 @@ const Billing = () => {
 
   const fetchBillingData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/billing');
+      const response = await axios.get('http://3.111.163.2:5000/api/billing');
       setBillingData(response.data);
       setLoading(false);
     } catch (error) {
@@ -54,7 +54,7 @@ const Billing = () => {
 
   const handleAddBilling = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/billing/add', {
+      const response = await axios.post('http://3.111.163.2:5000/api/billing/add', {
         userID,
         paymentStatus,
       });
@@ -78,7 +78,7 @@ const Billing = () => {
 
   const handleUpdateBilling = async () => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/billing/${currentBillingId}`, {
+      const response = await axios.put(`http://3.111.163.2:5000/api/billing/${currentBillingId}`, {
         userID,
         paymentStatus,
       });
@@ -102,7 +102,7 @@ const Billing = () => {
 
   const handleDeleteBilling = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/billing/${id}`);
+      await axios.delete(`http://3.111.163.2:5000/api/billing/${id}`);
       setBillingData(billingData.filter((billing) => billing._id !== id));
       window.alert('Billing successfully deleted');
     } catch (error) {

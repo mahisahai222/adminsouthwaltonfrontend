@@ -1,0 +1,166 @@
+/* VehicleManageList.css */
+
+/* Loading and no data styles */
+.loading-vehicle,
+.no-data-vehicle {
+  text-align: center;
+  font-size: 20px;
+  margin-top: 20px;
+  color: #333; /* Dark gray text */
+}
+
+.no-data-vehicle {
+  font-style: italic;
+}
+
+/* Card styles */
+.card-container-vehicle {
+  margin-top: 20px;
+  background-color: #f0f0f0; /* Light gray background */
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Shadow effect */
+}
+
+.card-header-vehicle {
+  background-color: #6c757d; /* Dark gray header background */
+  color: #fff; /* White text */
+  padding: 15px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header-vehicle .title-vehicle {
+  font-size: 24px;
+}
+
+.card-header-vehicle .add-button-vehicle {
+  background-color: #28a745; /* Green button background */
+  padding: 8px 16px;
+  border-radius: 5px;
+  border: none;
+  color: #fff; /* White text */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.card-header-vehicle .add-button-vehicle:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+.card-body-vehicle {
+  padding: 20px;
+}
+
+/* Table styles */
+.table-container-vehicle {
+  margin-top: 20px;
+  overflow-x: auto; /* Enable horizontal scroll if needed */
+}
+
+.table-vehicle {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-vehicle th,
+.table-vehicle td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd; /* Light gray border bottom */
+
+
+  background-color: grey; /* Grey background for header row */
+  color: #000; /* Black text for headings */
+
+}
+
+.table-vehicle th {
+  background-color: #007bff; /* Blue header background */
+  color: #fff; /* White text */
+}
+
+.table-vehicle tbody tr:nth-child(even) {
+  background-color: #f8f9fa; /* Light gray background for even rows */
+}
+
+/* Button styles */
+.btn-primary-vehicle,
+.btn-danger-vehicle {
+  color: #fff; /* White text */
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary-vehicle {
+  background-color: #007bff; /* Blue button background */
+}
+
+.btn-danger-vehicle {
+  background-color: #dc3545; /* Red button background */
+}
+
+.btn-primary-vehicle:hover,
+.btn-danger-vehicle:hover {
+  opacity: 0.8; /* Reduced opacity on hover */
+}
+
+/* Modal styles */
+.modal-container-vehicle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.modal-content-vehicle {
+  background-color: #fff; /* White background */
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  padding: 20px;
+  max-width: 80%;
+}
+
+.modal-title-vehicle {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: black; /* Dark gray text */
+}
+
+.modal-input-vehicle {
+  margin-bottom: 20px;
+}
+
+.modal-input-vehicle label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333; /* Dark gray text */
+}
+
+.modal-input-vehicle input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc; /* Light gray border */
+  border-radius: 5px;
+}
+
+.modal-buttons-vehicle {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-buttons-vehicle button {
+  margin-left: 10px;
+}
+
+/* Optional: Add more styles as needed */

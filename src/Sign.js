@@ -25,7 +25,7 @@ const Sign = () => {
     // Fetch signature data from backend API
     const fetchSignatureData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/sign');
+        const response = await axios.get('http://3.111.163.2:5000/api/sign');
         console.log('Signature Data:', response.data);
         
         setSignatureData(response.data);
@@ -41,7 +41,7 @@ const Sign = () => {
 
   const handleDeleteSignature = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/sign/${id}`);
+      await axios.delete(`http://3.111.163.2:5000/api/sign/${id}`);
       setSignatureData(signatureData.filter((sig) => sig._id !== id));
       window.alert('Signature successfully deleted');
     } catch (error) {

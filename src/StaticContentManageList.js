@@ -8,7 +8,7 @@ const StaticContentManageList = () => {
 
   const handleAddStaticContent = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/StaticContentManageData/StaticContent', { policy, termsandconditions });
+      const response = await axios.post('http://3.111.163.2:5000/api/StaticContentManageData/StaticContent', { policy, termsandconditions });
       console.log('New static content added:', response.data);
       setPolicy('');
       setTermsAndConditions('');
@@ -21,7 +21,7 @@ const StaticContentManageList = () => {
     try {
       // Assuming you have the ID of the static content you want to update
       const id = 'your_static_content_id';
-      const response = await axios.put(`http://localhost:5000/api/StaticContentManageData/${id}`, { policy, termsandconditions });
+      const response = await axios.put(`http://3.111.163.2:5000/api/StaticContentManageData/${id}`, { policy, termsandconditions });
       console.log('Static content updated:', response.data);
       setPolicy('');
       setTermsAndConditions('');

@@ -43,7 +43,7 @@ const TransacManageList = () => {
   useEffect(() => {
     const fetchTransacManageData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/TransacManageData/');
+        const response = await axios.get('http://3.111.163.2:5000/api/TransacManageData/');
         setTransacManageData(response.data);
         setLoading(false);
       } catch (error) {
@@ -61,7 +61,7 @@ const TransacManageList = () => {
 
   const handleAddTransacManage = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/TransacManageData/password', formData);
+      const response = await axios.post('http://3.111.163.2:5000/api/TransacManageData/password', formData);
       setTransacManageData([...transacManageData, response.data]);
       setFormData({
         sno: '',
@@ -80,7 +80,7 @@ const TransacManageList = () => {
 
   const handleDeleteTransacManage = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/TransacManageData/${id}`);
+      await axios.delete(`http://3.111.163.2:5000/api/TransacManageData/${id}`);
       setTransacManageData(transacManageData.filter((transac) => transac._id !== id));
     } catch (error) {
       console.error('Error deleting transac manage:', error);

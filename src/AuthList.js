@@ -11,7 +11,7 @@ const AuthList = () => {
 
   const fetchAuths = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/auths/');
+      const response = await axios.get('http://3.111.163.2:5000/api/auths/');
       setAuths(response.data);
       console.log(response)
       setLoading(false);
@@ -26,7 +26,7 @@ const AuthList = () => {
 
   const handleAddAuth = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auths/website', { username, email, password });
+      const response = await axios.post('http://3.111.163.2:5000/api/auths/website', { username, email, password });
       setAuths([...auths, response.data]);
       setUsername('');
       setEmail('');
@@ -38,7 +38,7 @@ const AuthList = () => {
 
   const handleDeleteAuth = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/auths/${id}`);
+      await axios.delete(`http://3.111.163.2:5000/api/auths/${id}`);
       setAuths(auths.filter(auth => auth._id !== id));
     } catch (error) {
       console.error(error);

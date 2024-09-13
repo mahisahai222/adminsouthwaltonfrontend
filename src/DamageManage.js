@@ -44,7 +44,7 @@ const DamageManage = () => {
 
   const fetchDamageManageData = async () => {
     try {
-      const response = await axios.get('http://3.111.163.2:5000/api/damage');
+      const response = await axios.get('http://localhost:5000/api/damage');
       setDamageManageData(response.data);
       setLoading(false);
     } catch (error) {
@@ -72,7 +72,7 @@ const DamageManage = () => {
 
     try {
       const response = await axios.post(
-        'http://3.111.163.2:5000/api/damage/add',
+        'http://localhost:5000/api/damage/add',
         formData,
         {
           headers: {
@@ -116,7 +116,7 @@ const DamageManage = () => {
 
     try {
       const response = await axios.put(
-        `http://3.111.163.2:5000/api/damage/${currentDamageId}`,
+        `http://localhost:5000/api/damage/${currentDamageId}`,
         formData,
         {
           headers: {
@@ -142,7 +142,7 @@ const DamageManage = () => {
 
   const handleDeleteDamageManage = async (id) => {
     try {
-      await axios.delete(`http://3.111.163.2:5000/api/damage/${id}`);
+      await axios.delete(`http://localhost:5000/api/damage/${id}`);
       setDamageManageData(damageManageData.filter((damage) => damage._id !== id));
       window.alert('Damage successfully deleted');
     } catch (error) {
@@ -211,7 +211,7 @@ const DamageManage = () => {
                           <CTableDataCell>
                             {damage.image && (
                               <img
-                              src={`http://3.111.163.2:5000/uploads/${damage.image}`}
+                              src={`http://localhost:5000/uploads/${damage.image}`}
                               alt="Damage"
                               style={{ width: '100px', height: 'auto' }}
                             />

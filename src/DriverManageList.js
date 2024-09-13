@@ -24,7 +24,7 @@ import {
   CTableDataCell,
 } from '@coreui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPenToSquare, faEye } from '@fortawesome/free-solid-svg-icons';
 
 const DriverManageList = () => {
   const [driverManageData, setDriverManageData] = useState([]);
@@ -39,10 +39,36 @@ const DriverManageList = () => {
   const [currentDriverId, setCurrentDriverId] = useState(null);
   const [visible, setVisible] = useState(false);
   const [searchName, setSearchName] = useState('');
+  const [bookingDetails, setBookingDetails] = useState([]);
+  const [bookingModalVisible, setBookingModalVisible] = useState(false);
+
+  const fetchDriverBookings = async (driverId) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/driver/${driverId}/bookings`);
+      setBookingDetails(response.data.driver.bookings);
+      setBookingModalVisible(true);
+    } catch (error) {
+      console.error('Error fetching driver bookings:', error);
+    }
+  };
+
+
+  const handleViewBookings = async (driverId) => {
+    await fetchDriverBookings(driverId);
+    setBookingModalVisible(true); // Assuming this shows a modal for booking details
+  };
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const options = { day: 'numeric', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+  };
+
+
 
   const fetchDriverManageData = async () => {
     try {
-      const response = await axios.get('http://3.111.163.2:5000/api/driver');
+      const response = await axios.get('http://localhost:5000/api/driver');
       setDriverManageData(response.data.data);
       setLoading(false);
     } catch (error) {
@@ -68,7 +94,7 @@ const DriverManageList = () => {
 
     try {
       const response = await axios.post(
-        'http://3.111.163.2:5000/api/driver/add',
+        'http://localhost:5000/api/driver/add',
         formData,
         {
           headers: {
@@ -110,7 +136,7 @@ const DriverManageList = () => {
 
     try {
       const response = await axios.put(
-        `http://3.111.163.2:5000/api/driver/${currentDriverId}`,
+        `http://localhost:5000/api/driver/${currentDriverId}`,
         formData,
         {
           headers: {
@@ -135,7 +161,7 @@ const DriverManageList = () => {
 
   const handleDeleteDriverManage = async (id) => {
     try {
-      await axios.delete(`http://3.111.163.2:5000/api/driver/${id}`);
+      await axios.delete(`http://localhost:5000/api/driver/${id}`);
       setDriverManageData(driverManageData.filter((driver) => driver._id !== id));
       window.alert('Driver successfully deleted');
     } catch (error) {
@@ -149,12 +175,12 @@ const DriverManageList = () => {
 
   const filteredDrivers = Array.isArray(driverManageData)
     ? driverManageData.filter(driver =>
-        driver.name.toLowerCase().includes(searchName.toLowerCase())
-      )
+      driver.name.toLowerCase().includes(searchName.toLowerCase())
+    )
     : [];
 
   const resetForm = () => {
-    
+
     setName('');
     setMobileNumber('');
     setEmail('');
@@ -186,7 +212,7 @@ const DriverManageList = () => {
               Add Driver
             </CButton>
             <CFormInput
-            size="sm"
+              size="sm"
               type="text"
               placeholder="Search by name"
               value={searchName}
@@ -212,6 +238,7 @@ const DriverManageList = () => {
                         <CTableHeaderCell scope="col">Email</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Password</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Address</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Status</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                       </CTableRow>
                     </CTableHead>
@@ -221,7 +248,7 @@ const DriverManageList = () => {
                           <CTableDataCell>
                             {driver.image && (
                               <img
-                                src={`http://3.111.163.2:5000/api/driver/image/${driver.image.filename}`}
+                                src={`http://localhost:5000/api/driver/image/${driver.image.filename}`}
                                 alt={driver.name}
                                 style={{ width: '50px', height: '50px' }}
                               />
@@ -234,19 +261,27 @@ const DriverManageList = () => {
                           <CTableDataCell>{driver.address}</CTableDataCell>
                           <CTableDataCell>
                             <CButton
-                              color="primary"
+                              size="lg"
+                              className="me-2"
+                              onClick={() => handleViewBookings(driver._id)}
+                            >
+                              <FontAwesomeIcon icon={faEye} style={{ color: '#b772ca', cursor: 'pointer', marginRight: '10px' }} />
+                            </CButton>
+
+                          </CTableDataCell>
+                          <CTableDataCell>
+                            <CButton
                               size="sm"
                               className="me-2"
                               onClick={() => handleEditDriverManage(driver)}
                             >
-                              <FontAwesomeIcon icon={faPenToSquare} />
+                              <FontAwesomeIcon icon={faPenToSquare} style={{ color: '#b3ae0f', cursor: 'pointer', marginRight: '10px' }} />
                             </CButton>
                             <CButton
-                              color="danger"
                               size="sm"
                               onClick={() => handleDeleteDriverManage(driver._id)}
                             >
-                              <FontAwesomeIcon icon={faTrash} />
+                              <FontAwesomeIcon icon={faTrash} style={{ color: '#bb1616', cursor: 'pointer' }} />
                             </CButton>
                           </CTableDataCell>
                         </CTableRow>
@@ -348,6 +383,55 @@ const DriverManageList = () => {
           )}
         </CModalFooter>
       </CModal>
+
+      <CModal visible={bookingModalVisible} onClose={() => setBookingModalVisible(false)} size='lg' >
+        <CModalHeader>
+          <CModalTitle>Booking Details</CModalTitle>
+        </CModalHeader>
+        <CModalBody style={{ width: '100%', margin: '0 auto' }}>
+          <CTable hover bordered striped responsive>
+            <CTableHead>
+              <CTableRow>
+                <CTableHeaderCell scope="col">Pickup</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Dropoff</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Pickup Date</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Dropoff Date</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Name</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Phone</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Email</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Size</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Address</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Address home</CTableHeaderCell>
+         </CTableRow>
+            </CTableHead>
+            <CTableBody>
+              {bookingDetails.map((booking) => (
+                <CTableRow key={booking._id}>
+                  <CTableDataCell>{booking.bpickup}</CTableDataCell>
+                  <CTableDataCell>{booking.bdrop}</CTableDataCell>
+                  <CTableDataCell>{formatDate(booking.bpickDate)}</CTableDataCell>
+                  <CTableDataCell>{formatDate(booking.bdropDate)}</CTableDataCell>
+                  <CTableDataCell>{booking.bname}</CTableDataCell>
+                  <CTableDataCell>{booking.bphone}</CTableDataCell>
+                  <CTableDataCell>{booking.bemail}</CTableDataCell>
+                  <CTableDataCell>{booking.bsize}</CTableDataCell>
+                  <CTableDataCell>{booking.baddress}</CTableDataCell>
+                  <CTableDataCell>{booking.baddressh}</CTableDataCell>
+                  
+
+
+                </CTableRow>
+              ))}
+            </CTableBody>
+          </CTable>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setBookingModalVisible(false)}>
+            Close
+          </CButton>
+        </CModalFooter>
+      </CModal>
+
     </>
   );
 };

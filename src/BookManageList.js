@@ -8,11 +8,12 @@ import { Autocomplete, useLoadScript } from '@react-google-maps/api';
 const libraries = ['places'];
 
 const BookManageList = () => {
+  const [currentDriver, setCurrentDriver] = useState(null);
+  const [currentBooking, setCurrentBooking] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [visible, setVisible] = useState(false);
   const [viewOnlyVisible, setViewOnlyVisible] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [currentBooking, setCurrentBooking] = useState(null);
   const [bname, setBname] = useState('');
   const [bphone, setBphone] = useState('');
   const [bemail, setBemail] = useState('');
@@ -21,15 +22,21 @@ const BookManageList = () => {
   const [baddressh, setBaddressh] = useState('');
   const [bpickup, setBpickup] = useState('');
   const [bdrop, setBdrop] = useState('');
+  const [pickDate, setPickDate] = useState('');
+  const [dropDate, setDropDate] = useState('');
+  const [clientid, setClientid] = useState('');
   const [bpickDate, setBpickDate] = useState('');
   const [bdropDate, setBdropDate] = useState('');
   const [searchName, setSearchName] = useState('');
+  const [availableDrivers, setAvailableDrivers] = useState([]);
+  const [assignDriverModalVisible, setAssignDriverModalVisible] = useState(false);
+
 
   const pickupRef = useRef(null);
   const dropRef = useRef(null);
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyAHWgq2_Us0Dq7UcVoP4FRGYcDqDh6XH_M', 
+    googleMapsApiKey: 'AIzaSyAHWgq2_Us0Dq7UcVoP4FRGYcDqDh6XH_M',
     libraries,
   });
 
@@ -37,13 +44,23 @@ const BookManageList = () => {
     fetchBookings();
   }, []);
 
+  useEffect(() => {
+    console.log('Available drivers:', availableDrivers);
+  }, [availableDrivers]);
+
   const fetchBookings = async () => {
     try {
-      const response = await axios.get('http://3.111.163.2:5000/api/book');
+      const response = await axios.get('http://localhost:5000/api/book');
       setBookings(response.data);
     } catch (error) {
       console.error('Error fetching bookings:', error);
     }
+  };
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const options = { day: 'numeric', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
   };
 
   const handleSearchChange = (e) => {
@@ -65,7 +82,7 @@ const BookManageList = () => {
     ? bookings.filter(booking => booking.bname.toLowerCase().includes(searchName.toLowerCase()))
     : [];
 
-  const viewBookingDetails = (booking) => {
+  const viewBookingDetails = async (booking) => {
     setCurrentBooking(booking);
     setBname(booking.bname || '');
     setBphone(booking.bphone || '');
@@ -77,8 +94,14 @@ const BookManageList = () => {
     setBdrop(booking.bdrop || '');
     setBpickDate(booking.bpickDate || '');
     setBdropDate(booking.bdropDate || '');
+
+    // Fetch available 
+    console.log("booking.bdropDate", booking.bdropDate);
+    await fetchAvailableDrivers(booking.bdropDate, booking.bdropDate);
+
     setViewOnlyVisible(true);
   };
+
 
   const addBooking = async () => {
     try {
@@ -94,7 +117,7 @@ const BookManageList = () => {
         bpickDate,
         bdropDate
       };
-      await axios.post('http://3.111.163.2:5000/api/book/create', newBooking);
+      await axios.post('http://localhost:5000/api/book/create', newBooking);
       fetchBookings();
       setVisible(false);
     } catch (error) {
@@ -145,7 +168,7 @@ const BookManageList = () => {
         bpickDate,
         bdropDate
       };
-      await axios.put(`http://3.111.163.2:5000/api/book/${currentBooking._id}`, updatedBooking);
+      await axios.put(`http://localhost:5000/api/book/${currentBooking._id}`, updatedBooking);
       fetchBookings();
       setVisible(false);
     } catch (error) {
@@ -155,7 +178,7 @@ const BookManageList = () => {
 
   const deleteBooking = async (id) => {
     try {
-      await axios.delete(`http://3.111.163.2:5000/api/book/${id}`);
+      await axios.delete(`http://localhost:5000/api/book/${id}`);
       setBookings(bookings.filter(booking => booking._id !== id));
     } catch (error) {
       console.error('Error deleting booking:', error);
@@ -192,6 +215,85 @@ const BookManageList = () => {
     }
     setVisible(true);
   };
+
+  // const fetchAvailableDrivers = async (bdropDate) => {
+  //   try {
+  //     console.log("running")
+  //     const response = await axios.post('http://localhost:5000/api/book/available-by-drop-date', { bdropDate: bdropDate });
+  //     console.log(bdropDate);
+  //     console.log('Available drivers fetched:', response.data);
+  //     if (response.data.success) {
+  //       setAvailableDrivers(response.data.drivers);
+  //     } else {
+  //       console.error('Failed to fetch drivers:', response.data.message);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching available drivers:', error);
+  //   }
+  // };
+  const fetchAvailableDrivers = async (pickDate, dropDate) => {
+    try {
+      // Fetch all drivers
+      const response = await axios.get('http://localhost:5000/api/driver/');
+      const drivers = response.data.data;
+
+      // Convert input dates to Date objects
+      const pickDateObj = new Date(pickDate);
+      const dropDateObj = new Date(dropDate);
+
+      // Function to check if the driver is available
+      const isDriverAvailable = (driver) => {
+        if (!driver.driverStatus || driver.driverStatus.length === 0) {
+          return true; // No status means the driver is free
+        }
+
+        return driver.driverStatus.every(status => {
+          const statusPickDate = new Date(status.pickDate);
+          const statusDropDate = new Date(status.dropDate);
+
+          // Check if the driver's booking overlaps with the given date range
+          return (statusDropDate < pickDateObj || statusPickDate > dropDateObj);
+        });
+      };
+
+      // Filter drivers based on availability
+      const availableDrivers = drivers.filter(driver => isDriverAvailable(driver));
+
+      console.log("Available drivers:", availableDrivers);
+      setAvailableDrivers(availableDrivers);
+    } catch (error) {
+      console.error("Error fetching drivers:", error.message);
+    }
+  };
+
+
+  const assignDriver = async () => {
+    try {
+      const requestData = {
+        clientId: clientid,  // You can replace this with dynamic data
+        pickDate: pickDate,  // ISO format date string
+        dropDate: dropDate
+      };
+      console.log(requestData)
+      const response = await axios.put(`http://localhost:5000/api/driver/assignDriver/${currentDriver}`, requestData)
+      console.log("Response:", response.data); // Handle success response
+
+      setAssignDriverModalVisible(false);
+      setViewOnlyVisible(false);
+
+    } catch (error) {
+      console.error("Error occurred:", error.response ? error.response.data : error.message); // Handle error response
+    }
+  };
+
+
+
+
+  const onDriverChange = (e) => {
+    setCurrentDriver(e.target.value); // This will set the selected driver
+  };
+
+
 
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading...</div>;
@@ -238,8 +340,8 @@ const BookManageList = () => {
                     <CTableDataCell>{booking.baddress}</CTableDataCell>
                     <CTableDataCell>{booking.bpickup}</CTableDataCell>
                     <CTableDataCell>{booking.bdrop}</CTableDataCell>
-                    <CTableDataCell>{booking.bpickDate}</CTableDataCell>
-                    <CTableDataCell>{booking.bdropDate}</CTableDataCell>
+                    <CTableDataCell>{formatDate(booking.bpickDate)}</CTableDataCell>
+                    <CTableDataCell>{formatDate(booking.bdropDate)}</CTableDataCell>
                     <CTableDataCell>
                       <FontAwesomeIcon
                         icon={faEdit}
@@ -253,7 +355,7 @@ const BookManageList = () => {
                       />
                       <FontAwesomeIcon
                         icon={faEye}
-                        onClick={() => viewBookingDetails(booking)}
+                        onClick={() => { viewBookingDetails(booking), setClientid(booking._id) }}
                         style={{ cursor: 'pointer', color: 'green' }}
                       />
                     </CTableDataCell>
@@ -331,6 +433,7 @@ const BookManageList = () => {
                   type="date"
                   value={bpickDate}
                   onChange={(e) => setBpickDate(e.target.value)}
+
                 />
                 <CFormInput
                   label="Drop Date"
@@ -352,6 +455,8 @@ const BookManageList = () => {
         </CModalFooter>
       </CModal>
 
+
+
       <CModal
         visible={viewOnlyVisible}
         onClose={() => setViewOnlyVisible(false)}
@@ -368,15 +473,53 @@ const BookManageList = () => {
           <p><strong>Address (House):</strong> {currentBooking?.baddressh}</p>
           <p><strong>Pickup Location:</strong> {currentBooking?.bpickup}</p>
           <p><strong>Drop Location:</strong> {currentBooking?.bdrop}</p>
-          <p><strong>Pickup Date:</strong> {currentBooking?.bpickDate}</p>
-          <p><strong>Drop Date:</strong> {currentBooking?.bdropDate}</p>
+          <p><strong>Pickup Date:</strong> {formatDate(currentBooking?.bpickDate)}</p>
+          <p><strong>Drop Date:</strong> {formatDate(currentBooking?.bdropDate)}</p>
+
         </CModalBody>
         <CModalFooter>
-          <CButton color="secondary" onClick={() => setViewOnlyVisible(false)}>
+          <CButton color="secondary" onClick={() => { setViewOnlyVisible(false) }}>
             Close
+          </CButton>
+          <CButton onClick={() => { setAssignDriverModalVisible(true), setPickDate(currentBooking.bpickDate), setDropDate(currentBooking.bdropDate) }}>
+            Assign Driver
+          </CButton>
+
+        </CModalFooter>
+      </CModal>
+      <CModal
+        visible={assignDriverModalVisible}
+        onClose={() => setAssignDriverModalVisible(false)}
+      >
+        <CModalHeader>
+          <CModalTitle>Assign Driver</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CForm>
+            <CRow>
+              <CCol xs={12}>
+                <label style={{ marginRight: '10px' }}>Select Driver</label>
+                <select onChange={onDriverChange} value={currentDriver}>
+                  <option value="">Select Driver</option>
+                  {availableDrivers.map(driver => (
+                    <option key={driver._id} value={driver._id}>{driver.name}</option>
+                  ))}
+                </select>
+
+
+              </CCol>
+            </CRow>
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="primary" onClick={() => { assignDriver() }}>
+            Assign
           </CButton>
         </CModalFooter>
       </CModal>
+
+
+
     </>
   );
 };

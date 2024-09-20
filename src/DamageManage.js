@@ -30,7 +30,7 @@ const DamageManage = () => {
 
   const fetchDamageManageData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/damage');
+      const response = await axios.get('http://3.111.163.2:8132/api/damage');
       setDamageManageData(response.data.data); // Adjusted to access the correct data structure
       setLoading(false);
     } catch (error) {
@@ -45,7 +45,7 @@ const DamageManage = () => {
 
   const handleDeleteDamageManage = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/damage/${id}`);
+      await axios.delete(`http://3.111.163.2:8132/api/damage/${id}`);
       setDamageManageData(damageManageData.filter((damage) => damage._id !== id));
       window.alert('Damage successfully deleted');
     } catch (error) {
@@ -62,7 +62,7 @@ const DamageManage = () => {
     if (!selectedDamage) return;
 
     try {
-      const response = await axios.post(`http://localhost:5000/api/damage/${selectedDamage._id}/process-refund`);
+      const response = await axios.post(`http://3.111.163.2:8132/api/damage/${selectedDamage._id}/process-refund`);
       alert(`Refund processed successfully: ${response.data.message}`);
       setDamageManageData(damageManageData.map((damage) =>
         damage._id === selectedDamage._id ? { ...damage, refunded: true } : damage
@@ -113,7 +113,7 @@ const DamageManage = () => {
                             {damage.images && damage.images.map((img, idx) => (
                               <img
                                 key={idx}
-                                src={`http://localhost:5000/uploads/${img}`}
+                                src={`http://3.111.163.2:8132/uploads/${img}`}
                                 alt="Damage"
                                 style={{ width: '100px', height: 'auto', marginRight: '5px' }}
                               />
@@ -194,7 +194,7 @@ export default DamageManage;
 
 //   const fetchDamageManageData = async () => {
 //     try {
-//       const response = await axios.get('http://localhost:5000/api/damage');
+//       const response = await axios.get('http://3.111.163.2:8132/api/damage');
 //       setDamageManageData(response.data);
 //       setLoading(false);
 //     } catch (error) {
@@ -209,7 +209,7 @@ export default DamageManage;
 
 //   const handleDeleteDamageManage = async (id) => {
 //     try {
-//       await axios.delete(`http://localhost:5000/api/damage/${id}`);
+//       await axios.delete(`http://3.111.163.2:8132/api/damage/${id}`);
 //       setDamageManageData(damageManageData.filter((damage) => damage._id !== id));
 //       window.alert('Damage successfully deleted');
 //     } catch (error) {
@@ -227,7 +227,7 @@ export default DamageManage;
   
 //     try {
 //       // Pass the selected damage's transactionId to the backend for refund processing
-//       const response = await axios.post(`http://localhost:5000/api/damage/${selectedDamage._id}/process-refund`, {
+//       const response = await axios.post(`http://3.111.163.2:8132/api/damage/${selectedDamage._id}/process-refund`, {
 //         transactionId: selectedDamage.transactionId
 //       });
 //       alert(`Refund processed successfully: ${response.data.message}`);
@@ -284,7 +284,7 @@ export default DamageManage;
 //                             {damage.images && damage.images.map((img, idx) => (
 //                               <img
 //                                 key={idx}
-//                                 src={`http://localhost:5000/uploads/${img}`}
+//                                 src={`http://3.111.163.2:8132/uploads/${img}`}
 //                                 alt="Damage"
 //                                 style={{ width: '100px', height: 'auto', marginRight: '5px' }}
 //                               />

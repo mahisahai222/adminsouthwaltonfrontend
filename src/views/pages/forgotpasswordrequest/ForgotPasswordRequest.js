@@ -8,7 +8,7 @@ const ForgotPasswordRequest = () => {
 
   const handleForgotPassword = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auths/send-email', { email });
+      const response = await axios.post('http://3.111.163.2:8132/api/auths/send-email', { email });
       setMessage(response.data.message);
     } catch (error) {
       setMessage("Failed to send password reset email");

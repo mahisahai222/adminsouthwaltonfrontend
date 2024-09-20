@@ -50,7 +50,7 @@ const BookManageList = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/book');
+      const response = await axios.get('http://3.111.163.2:8132/api/book');
       setBookings(response?.data?.data); // Ensure this is the correct data structure
     } catch (error) {
       console.error('Error fetching bookings:', error);
@@ -119,7 +119,7 @@ const BookManageList = () => {
         bpickDate,
         bdropDate
       };
-      await axios.post('http://localhost:5000/api/book/create', newBooking);
+      await axios.post('http://3.111.163.2:8132/api/book/create', newBooking);
       fetchBookings();
       setVisible(false);
     } catch (error) {
@@ -170,7 +170,7 @@ const BookManageList = () => {
         bpickDate,
         bdropDate
       };
-      await axios.put(`http://localhost:5000/api/book/${currentBooking._id}`, updatedBooking);
+      await axios.put(`http://3.111.163.2:8132/api/book/${currentBooking._id}`, updatedBooking);
       fetchBookings();
       setVisible(false);
     } catch (error) {
@@ -180,7 +180,7 @@ const BookManageList = () => {
 
   const deleteBooking = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/book/${id}`);
+      await axios.delete(`http://3.111.163.2:8132/api/book/${id}`);
       setBookings(bookings.filter(booking => booking._id !== id));
     } catch (error) {
       console.error('Error deleting booking:', error);
@@ -221,7 +221,7 @@ const BookManageList = () => {
   // const fetchAvailableDrivers = async (bdropDate) => {
   //   try {
   //     console.log("running")
-  //     const response = await axios.post('http://localhost:5000/api/book/available-by-drop-date', { bdropDate: bdropDate });
+  //     const response = await axios.post('http://3.111.163.2:8132/api/book/available-by-drop-date', { bdropDate: bdropDate });
   //     console.log(bdropDate);
   //     console.log('Available drivers fetched:', response.data);
   //     if (response.data.success) {
@@ -236,7 +236,7 @@ const BookManageList = () => {
   const fetchAvailableDrivers = async (pickDate, dropDate) => {
     try {
       // Fetch all drivers
-      const response = await axios.get('http://localhost:5000/api/driver/');
+      const response = await axios.get('http://3.111.163.2:8132/api/driver/');
       const drivers = response.data.data;
 
       // Convert input dates to Date objects
@@ -277,7 +277,7 @@ const BookManageList = () => {
         dropDate: dropDate
       };
       console.log(requestData)
-      const response = await axios.put(`http://localhost:5000/api/driver/assignDriver/${currentDriver}`, requestData)
+      const response = await axios.put(`http://3.111.163.2:8132/api/driver/assignDriver/${currentDriver}`, requestData)
       console.log("Response:", response.data); // Handle success response
 
       setAssignDriverModalVisible(false);

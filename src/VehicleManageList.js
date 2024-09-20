@@ -43,7 +43,7 @@ const VehicleManageList = () => {
 
   const fetchVehicleManageData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/vehicle')
+      const response = await axios.get('http://3.111.163.2:8132/api/vehicle')
       setVehicleManageData(response.data)
       setLoading(false)
     } catch (error) {
@@ -72,7 +72,7 @@ const VehicleManageList = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/vehicle',
+        'http://3.111.163.2:8132/api/vehicle',
         formData,
         {
           headers: {
@@ -120,7 +120,7 @@ const VehicleManageList = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/vehicle/${currentVehicleId}`,
+        `http://3.111.163.2:8132/api/vehicle/${currentVehicleId}`,
         formData,
         {
           headers: {
@@ -146,7 +146,7 @@ const VehicleManageList = () => {
 
   const handleDeleteVehicleManage = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/vehicle/${id}`)
+      await axios.delete(`http://3.111.163.2:8132/api/vehicle/${id}`)
       setVehicleManageData(vehicleManageData.filter((vehicle) => vehicle._id !== id))
       window.alert('Vehicle successfully deleted')
     } catch (error) {
@@ -217,7 +217,7 @@ const VehicleManageList = () => {
                           <CTableDataCell>
                             {vehicle.image && (
                               <img
-                                src={`http://localhost:5000/uploads/${vehicle.image}`}
+                                src={`http://3.111.163.2:8132/uploads/${vehicle.image}`}
                                 alt={vehicle.vname}
                                 style={{ width: '100px' }}
                               />
@@ -370,7 +370,7 @@ const VehicleManageList = () => {
                           <CTableDataCell>
                             {vehicle.image && (
                               <img
-                                src={`http://localhost:5000/uploads/${vehicle.image}`}
+                                src={`http://3.111.163.2:8132/uploads/${vehicle.image}`}
                                 alt={vehicle.vname}
                                 style={{ width: '100px' }}
                               />

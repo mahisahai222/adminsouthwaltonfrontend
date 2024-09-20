@@ -44,7 +44,7 @@ const DriverManageList = () => {
 
   const fetchDriverBookings = async (driverId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/driver/${driverId}/bookings`);
+      const response = await axios.get(`http://3.111.163.2:8132/api/driver/${driverId}/bookings`);
       setBookingDetails(response.data.driver.bookings);
       setBookingModalVisible(true);
     } catch (error) {
@@ -68,7 +68,7 @@ const DriverManageList = () => {
 
   const fetchDriverManageData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/driver');
+      const response = await axios.get('http://3.111.163.2:8132/api/driver');
       setDriverManageData(response.data.data);
       setLoading(false);
     } catch (error) {
@@ -94,7 +94,7 @@ const DriverManageList = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/driver/add',
+        'http://3.111.163.2:8132/api/driver/add',
         formData,
         {
           headers: {
@@ -136,7 +136,7 @@ const DriverManageList = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/driver/${currentDriverId}`,
+        `http://3.111.163.2:8132/api/driver/${currentDriverId}`,
         formData,
         {
           headers: {
@@ -161,7 +161,7 @@ const DriverManageList = () => {
 
   const handleDeleteDriverManage = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/driver/${id}`);
+      await axios.delete(`http://3.111.163.2:8132/api/driver/${id}`);
       setDriverManageData(driverManageData.filter((driver) => driver._id !== id));
       window.alert('Driver successfully deleted');
     } catch (error) {
@@ -248,7 +248,7 @@ const DriverManageList = () => {
                           <CTableDataCell>
                             {driver.image && (
                               <img
-                                src={`http://localhost:5000/api/driver/image/${driver.image.filename}`}
+                                src={`http://3.111.163.2:8132/api/driver/image/${driver.image.filename}`}
                                 alt={driver.name}
                                 style={{ width: '50px', height: '50px' }}
                               />

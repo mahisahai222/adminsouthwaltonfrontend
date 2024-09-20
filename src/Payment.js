@@ -22,10 +22,10 @@ const Payment = () => {
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 10;
 
-  // Fetch payment data from API
+  // Fetch payment data from MongoDB API
   const fetchPaymentData = async () => {
     try {
-      const response = await axios.get('http://3.111.163.2:5000/api/pay/stripe/payments'); 
+      const response = await axios.get('http://localhost:5000/api/pay/pays'); // Updated MongoDB endpoint
       console.log('API Response:', response.data);
       setPaymentData(response.data || []);
       setLoading(false);
@@ -72,19 +72,21 @@ const Payment = () => {
               <CTable hover bordered striped responsive>
                 <CTableHead>
                   <CTableRow>
+                    <CTableHeaderCell>Booking Id</CTableHeaderCell>
                     <CTableHeaderCell>Amount</CTableHeaderCell>
                     <CTableHeaderCell>Transaction ID</CTableHeaderCell>
                     <CTableHeaderCell>Email</CTableHeaderCell>
-                    <CTableHeaderCell>Status</CTableHeaderCell>
+                    
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
                   {displayData.map((payment) => (
-                    <CTableRow key={payment.balance_transaction}>
+                    <CTableRow key={payment._id}> {/* Use _id as unique key */}
+                      <CTableDataCell>{payment._id}</CTableDataCell> {/* MongoDB's unique ID */}
                       <CTableDataCell>{(payment.amount / 100).toFixed(2)} USD</CTableDataCell>
-                      <CTableDataCell>{payment.balance_transaction}</CTableDataCell>
-                      <CTableDataCell>{payment.billing_details?.email || 'N/A'}</CTableDataCell>
-                      <CTableDataCell>{payment.outcome?.seller_message || 'N/A'}</CTableDataCell>
+                      <CTableDataCell>{payment.transactionId || 'N/A'}</CTableDataCell>
+                      <CTableDataCell>{payment.email || 'N/A'}</CTableDataCell> {/* Adjusted field for email */}
+                      
                     </CTableRow>
                   ))}
                 </CTableBody>
@@ -121,110 +123,3 @@ const Payment = () => {
 };
 
 export default Payment;
-
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
-// import {
-//   CCard,
-//   CCardHeader,
-//   CCardBody,
-//   CTable,
-//   CTableHead,
-//   CTableRow,
-//   CTableHeaderCell,
-//   CTableBody,
-//   CTableDataCell,
- 
-// } from '@coreui/react';
-
-// // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// // import { faTrash } from '@fortawesome/free-solid-svg-icons';
-
-// const Payment = () => {
-//   const [paymentData, setPaymentData] = useState([]);
-//   const [loading, setLoading] = useState(true);
-  
-
-//   // Fetch payment data from Stripe API
-//   const fetchPaymentData = async () => {
-//     try {
-//       const response = await axios.get('http://3.111.163.2:5000/api/pay/stripe/payments'); 
-//       console.log(response.data);
-//       setPaymentData(response.data);
-//       setLoading(false);
-//     } catch (error) {
-//       console.error('Error fetching payment data:', error);
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchPaymentData();
-//   }, []);
-
-//   // const deletePayment = async (id) => {
-//   //   try {
-//   //     await axios.delete(`http://3.111.163.2:5000/api/pay/${id}`);
-//   //     alert('Payment deleted successfully');
-      
-//   //     // After deleting, refresh the payment list
-//   //     fetchPayments();
-//   //   } catch (error) {
-//   //     console.error('Error deleting payment:', error);
-//   //     alert('Failed to delete the payment');
-//   //   }
-//   // };
-
-//   if (loading) {
-//     return <div>Loading...</div>;
-//   }
-
-//   return (
-//     <>
-//       <CCard>
-//         <CCardHeader>
-//           <h1 style={{ fontSize: '24px', color: 'indianred' }}>Payment Management</h1>
-//         </CCardHeader>
-//         <CCardBody>
-//           {paymentData.length === 0 ? (
-//             <div>No payment data found.</div>
-//           ) : (
-//             <CTable hover bordered striped responsive>
-//               <CTableHead>
-//                 <CTableRow>
-//                   <CTableHeaderCell>Amount</CTableHeaderCell>
-//                   <CTableHeaderCell>Transaction ID</CTableHeaderCell>
-//                   <CTableHeaderCell>Email</CTableHeaderCell>
-//                   <CTableHeaderCell>Seller Message</CTableHeaderCell>
-//                   {/* <CTableHeaderCell>Actions</CTableHeaderCell> */}
-//                 </CTableRow>
-//               </CTableHead>
-//               <CTableBody>
-//                 {paymentData.map((payment) => (
-//                   <CTableRow key={payment.balance_transaction}>
-//                     {/* Format the amount to display in dollars, assuming cents */}
-//                     <CTableDataCell>{(payment.amount / 100).toFixed(2)} USD</CTableDataCell>
-//                     <CTableDataCell>{payment.balance_transaction}</CTableDataCell>
-//                     <CTableDataCell>{payment.billing_details?.email || 'N/A'}</CTableDataCell>
-//                     <CTableDataCell>{payment.outcome?.seller_message || 'N/A'}</CTableDataCell>
-//                     {/* <CTableDataCell>
-//                     <CButton
-//                               size="lg"
-//                               onClick={() => deletePayment(payment._id)}
-//                             >
-//                               <FontAwesomeIcon icon={faTrash} style={{ color: '#bb1616', cursor: 'pointer' }} />
-//                             </CButton>
-//                     </CTableDataCell> */}
-//                   </CTableRow>
-//                 ))}
-//               </CTableBody>
-//             </CTable>
-//           )}
-//         </CCardBody>
-//       </CCard>
-//     </>
-//   );
-// };
-
-// export default Payment;
-

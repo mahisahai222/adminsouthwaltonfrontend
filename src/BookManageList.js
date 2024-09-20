@@ -50,12 +50,14 @@ const BookManageList = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get('http://3.111.163.2:5000/api/book');
-      setBookings(response.data);
+      const response = await axios.get('http://localhost:5000/api/book');
+      setBookings(response?.data?.data); // Ensure this is the correct data structure
     } catch (error) {
       console.error('Error fetching bookings:', error);
     }
   };
+  
+  
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -77,10 +79,10 @@ const BookManageList = () => {
       }
     }
   };
-
-  const filteredBookings = Array.isArray(bookings)
-    ? bookings.filter(booking => booking.bname.toLowerCase().includes(searchName.toLowerCase()))
-    : [];
+  const filteredBookings = []
+  // Array.isArray(bookings)
+  //   ? bookings.filter(booking => booking.bname.toLowerCase().includes(searchName.toLowerCase()))
+  //   : [];
 
   const viewBookingDetails = async (booking) => {
     setCurrentBooking(booking);
@@ -117,7 +119,7 @@ const BookManageList = () => {
         bpickDate,
         bdropDate
       };
-      await axios.post('http://3.111.163.2:5000/api/book/create', newBooking);
+      await axios.post('http://localhost:5000/api/book/create', newBooking);
       fetchBookings();
       setVisible(false);
     } catch (error) {
@@ -168,7 +170,7 @@ const BookManageList = () => {
         bpickDate,
         bdropDate
       };
-      await axios.put(`http://3.111.163.2:5000/api/book/${currentBooking._id}`, updatedBooking);
+      await axios.put(`http://localhost:5000/api/book/${currentBooking._id}`, updatedBooking);
       fetchBookings();
       setVisible(false);
     } catch (error) {
@@ -178,7 +180,7 @@ const BookManageList = () => {
 
   const deleteBooking = async (id) => {
     try {
-      await axios.delete(`http://3.111.163.2:5000/api/book/${id}`);
+      await axios.delete(`http://localhost:5000/api/book/${id}`);
       setBookings(bookings.filter(booking => booking._id !== id));
     } catch (error) {
       console.error('Error deleting booking:', error);
@@ -219,7 +221,7 @@ const BookManageList = () => {
   // const fetchAvailableDrivers = async (bdropDate) => {
   //   try {
   //     console.log("running")
-  //     const response = await axios.post('http://3.111.163.2:5000/api/book/available-by-drop-date', { bdropDate: bdropDate });
+  //     const response = await axios.post('http://localhost:5000/api/book/available-by-drop-date', { bdropDate: bdropDate });
   //     console.log(bdropDate);
   //     console.log('Available drivers fetched:', response.data);
   //     if (response.data.success) {
@@ -234,7 +236,7 @@ const BookManageList = () => {
   const fetchAvailableDrivers = async (pickDate, dropDate) => {
     try {
       // Fetch all drivers
-      const response = await axios.get('http://3.111.163.2:5000/api/driver/');
+      const response = await axios.get('http://localhost:5000/api/driver/');
       const drivers = response.data.data;
 
       // Convert input dates to Date objects
@@ -275,7 +277,7 @@ const BookManageList = () => {
         dropDate: dropDate
       };
       console.log(requestData)
-      const response = await axios.put(`http://3.111.163.2:5000/api/driver/assignDriver/${currentDriver}`, requestData)
+      const response = await axios.put(`http://localhost:5000/api/driver/assignDriver/${currentDriver}`, requestData)
       console.log("Response:", response.data); // Handle success response
 
       setAssignDriverModalVisible(false);
@@ -304,14 +306,14 @@ const BookManageList = () => {
         <CCardHeader className="d-flex justify-content-between align-items-center">
           <h1 style={{ fontSize: '24px', color: 'chocolate' }}>Book Order List</h1>
           <CForm className="d-flex align-items-center">
-            <CFormInput
+            {/* <CFormInput
               type="text"
               placeholder="Search by Name"
               value={searchName}
               onChange={handleSearchChange}
               className="me-2"
               style={{ width: '180px' }}
-            />
+            /> */}
             <CButton color="primary" onClick={() => openModal()} style={{ padding: '6px 10px' }}>
               Add Bookings
             </CButton>
@@ -334,7 +336,7 @@ const BookManageList = () => {
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-                {filteredBookings.map((booking) => (
+                {bookings.map((booking) => (
                   <CTableRow key={booking._id}>
                     <CTableDataCell>{booking.bname}</CTableDataCell>
                     <CTableDataCell>{booking.baddress}</CTableDataCell>

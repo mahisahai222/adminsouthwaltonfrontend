@@ -9,9 +9,6 @@ import {
   CModalTitle,
   CModalBody,
   CModalFooter,
-  CForm,
-  CFormLabel,
-  CFormInput,
   CRow,
   CCol,
   CCardText,
@@ -23,23 +20,11 @@ import {
   CTableBody,
   CTableDataCell,
 } from '@coreui/react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPenToSquare, faComment } from '@fortawesome/free-solid-svg-icons';
-
 
 const DamageManage = () => {
   const [damageManageData, setDamageManageData] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const [vname, setVname] = useState('');
-  const [vnumber, setVnumber] = useState('');
-  const [damage, setDamage] = useState('');
-  const [username, setUsername] = useState('');
-  const [reason, setReason] = useState('');
-  const [image, setImage] = useState(null);
-
-  const [editMode, setEditMode] = useState(false);
-  const [currentDamageId, setCurrentDamageId] = useState(null);
+  const [selectedDamage, setSelectedDamage] = useState(null);
   const [visible, setVisible] = useState(false);
 
   const fetchDamageManageData = async () => {
@@ -57,89 +42,6 @@ const DamageManage = () => {
     fetchDamageManageData();
   }, []);
 
-  const handleAddDamageManage = async () => {
-    const formData = new FormData();
-
-    formData.append('vname', vname);
-    formData.append('vnumber', vnumber);
-    formData.append('damage', damage);
-    formData.append('username', username);
-    formData.append('reason', reason);
-
-    if (image) {
-      formData.append('image', image);
-    }
-
-    try {
-      const response = await axios.post(
-        'http://3.111.163.2:5000/api/damage/add',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      setDamageManageData([...damageManageData, response.data]);
-      resetForm();
-      setVisible(false);
-      window.alert('Damage successfully added');
-    } catch (error) {
-      console.error('Error adding damage:', error);
-    }
-  };
-
-  const handleEditDamageManage = (damage) => {
-    setVname(damage.vname);
-    setVnumber(damage.vnumber);
-    setDamage(damage.damage);
-    setUsername(damage.username);
-    setReason(damage.reason);
-
-    setEditMode(true);
-    setCurrentDamageId(damage._id);
-    setVisible(true);
-  };
-
-  const handleUpdateDamageManage = async () => {
-    const formData = new FormData();
-
-    formData.append('vname', vname);
-    formData.append('vnumber', vnumber);
-    formData.append('damage', damage);
-    formData.append('username', username);
-    formData.append('reason', reason);
-
-    if (image) {
-      formData.append('image', image);
-    }
-
-    try {
-      const response = await axios.put(
-        `http://3.111.163.2:5000/api/damage/${currentDamageId}`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      const updatedDamage = response.data;
-
-      setDamageManageData(damageManageData.map((damage) =>
-        damage._id === currentDamageId ? { ...damage, ...updatedDamage } : damage
-      ));
-
-      resetForm();
-      setEditMode(false);
-      setCurrentDamageId(null);
-      setVisible(false);
-      window.alert('Damage successfully updated');
-    } catch (error) {
-      console.error('Error updating damage manage:', error);
-    }
-  };
-
   const handleDeleteDamageManage = async (id) => {
     try {
       await axios.delete(`http://3.111.163.2:5000/api/damage/${id}`);
@@ -150,36 +52,43 @@ const DamageManage = () => {
     }
   };
 
-  const resetForm = () => {
-    setVname('');
-    setVnumber('');
-    setDamage('');
-    setUsername('');
-    setReason('');
-    setImage(null);
+  const handleRefund = async (damage) => {
+    setSelectedDamage(damage); 
+    setVisible(true); 
   };
+
+  const confirmRefund = async () => {
+    if (!selectedDamage) return;
+  
+    try {
+      // Pass the selected damage's transactionId to the backend for refund processing
+      const response = await axios.post(`http://3.111.163.2:5000/api/damage/${selectedDamage._id}/process-refund`, {
+        transactionId: selectedDamage.transactionId
+      });
+      alert(`Refund processed successfully: ${response.data.message}`);
+      
+      // Update the UI to reflect the refund status
+      setDamageManageData(damageManageData.map((damage) =>
+        damage._id === selectedDamage._id ? { ...damage, refunded: true } : damage
+      ));
+      setVisible(false); // Close the modal after refund
+    } catch (error) {
+      console.error('Error processing refund:', error.response ? error.response.data : error.message);
+      alert('Failed to process refund. ' + (error.response ? error.response.data.message : error.message));
+    }
+  };
+  
 
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
 
+
   return (
     <>
       <CCard className="d-flex 100%">
         <CCardHeader className="d-flex justify-content-between align-items-center">
-          <h1 style={{ fontSize: '24px', color: 'indianred' }}>Damage Management</h1>
-          <CButton
-            color="primary"
-            size="sm"
-            className="me-md-2"
-            onClick={() => {
-              resetForm();
-              setEditMode(false);
-              setVisible(true);
-            }}
-          >
-            {editMode ? 'Edit Damage' : 'Add Damage'}
-          </CButton>
+          <h1 style={{ fontSize: '24px', color: 'dodgerblue' }}>Damage Management</h1>
         </CCardHeader>
         <CCardBody>
           <CCardText>
@@ -189,146 +98,70 @@ const DamageManage = () => {
               <CRow>
                 <CCol>
                   <CTable hover bordered striped responsive>
-                    <CTableHead color= 'dark'>
+                    <CTableHead color="dark">
                       <CTableRow>
-                        <CTableHeaderCell scope="col">Vehicle Name</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Transaction ID</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Vehicle Number</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Damage Occur</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">User Name</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Reason</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Image</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Is Damage?</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Comment</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Images</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                       </CTableRow>
                     </CTableHead>
                     <CTableBody>
-                      {damageManageData.map((damage, index) => (
+                      {damageManageData.map((damage) => (
                         <CTableRow key={damage._id}>
-                          <CTableDataCell>{damage.vname}</CTableDataCell>
+                          <CTableDataCell>{damage.transactionId || 'N/A'}</CTableDataCell>
                           <CTableDataCell>{damage.vnumber}</CTableDataCell>
-                          <CTableDataCell>{damage.damage}</CTableDataCell>
-                          <CTableDataCell>{damage.username}</CTableDataCell>
+                          <CTableDataCell>{damage.damage ? 'Yes' : 'No'}</CTableDataCell>
                           <CTableDataCell>{damage.reason}</CTableDataCell>
                           <CTableDataCell>
-                            {damage.image && (
+                            {damage.images && damage.images.map((img, idx) => (
                               <img
-                              src={`http://3.111.163.2:5000/uploads/${damage.image}`}
-                              alt="Damage"
-                              style={{ width: '100px', height: 'auto' }}
-                            />
-                          )}
-                        </CTableDataCell>
-                        <CTableDataCell>
-                          <CButton
-                           
-                            onClick={() => handleDeleteDamageManage(damage._id)}
-                            className="me-2"
-                          >
-                            <FontAwesomeIcon icon={faTrash} style={{ color: '#bb1616'}} />
-                          </CButton>
-                          <CButton
-                            
-                            onClick={() => handleEditDamageManage(damage)}
-                            className="me-2"
-                          >
-                            <FontAwesomeIcon icon={faPenToSquare}  style={{ color: '#b3ae0f'}} />
-                          </CButton>
-                         
-                        </CTableDataCell>
-                      </CTableRow>
-                    ))}
-                  </CTableBody>
-                </CTable>
-              </CCol>
-            </CRow>
-          )}
-        </CCardText>
-      </CCardBody>
-    </CCard>
+                                key={idx}
+                                src={`http://3.111.163.2:5000/uploads/${img}`}
+                                alt="Damage"
+                                style={{ width: '100px', height: 'auto', marginRight: '5px' }}
+                              />
+                            ))}
+                          </CTableDataCell>
+                          <CTableDataCell className="d-flex justify-content-start align-items-center">
+                            <CButton size='sm' className="me-2" color="warning" onClick={() => handleRefund(damage)}>
+                              Refund
+                            </CButton>
+                            <CButton size='sm' onClick={() => handleDeleteDamageManage(damage._id)} className="me-2" color="danger">
+                              Delete
+                            </CButton>
+                          </CTableDataCell>
+                        </CTableRow>
+                      ))}
+                    </CTableBody>
+                  </CTable>
+                </CCol>
+              </CRow>
+            )}
+          </CCardText>
+        </CCardBody>
+      </CCard>
 
-    <CModal visible={visible} onClose={() => setVisible(false)}>
-      <CModalHeader>
-        <CModalTitle>{editMode ? 'Edit Damage' : 'Add Damage'}</CModalTitle>
-      </CModalHeader>
-      <CModalBody>
-        <CForm>
-          <CRow>
-            <CCol md={6}>
-              <CFormLabel htmlFor="vname">Vehicle Name</CFormLabel>
-              <CFormInput
-                type="text"
-                id="vname"
-                value={vname}
-                onChange={(e) => setVname(e.target.value)}
-              />
-            </CCol>
-            <CCol md={6}>
-              <CFormLabel htmlFor="vnumber">Vehicle Number</CFormLabel>
-              <CFormInput
-                type="text"
-                id="vnumber"
-                value={vnumber}
-                onChange={(e) => setVnumber(e.target.value)}
-              />
-            </CCol>
-          </CRow>
-          <CRow>
-            <CCol md={6}>
-              <CFormLabel htmlFor="damage">Damage Occur</CFormLabel>
-              <CFormInput
-                type="text"
-                id="damage"
-                value={damage}
-                onChange={(e) => setDamage(e.target.value)}
-              />
-            </CCol>
-            <CCol md={6}>
-              <CFormLabel htmlFor="username">User Name</CFormLabel>
-              <CFormInput
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </CCol>
-          </CRow>
-          <CRow>
-            <CCol md={12}>
-              <CFormLabel htmlFor="reason">Reason</CFormLabel>
-              <CFormInput
-                type="text"
-                id="reason"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-              />
-            </CCol>
-          </CRow>
-          <CRow>
-            <CCol md={12}>
-              <CFormLabel htmlFor="image">Image</CFormLabel>
-              <CFormInput
-                type="file"
-                id="image"
-                onChange={(e) => setImage(e.target.files[0])}
-              />
-            </CCol>
-          </CRow>
-        </CForm>
-      </CModalBody>
-      <CModalFooter>
-        <CButton color="secondary" onClick={() => setVisible(false)}>
-          Close
-        </CButton>
-        <CButton
-          color="primary"
-          onClick={editMode ? handleUpdateDamageManage : handleAddDamageManage}
-        >
-          {editMode ? 'Update' : 'Add'}
-        </CButton>
-      </CModalFooter>
-    </CModal>
-  </>
-);
+      <CModal visible={visible} onClose={() => setVisible(false)}>
+        <CModalHeader>
+          <CModalTitle>Confirm Refund</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          Are you sure you want to process a 25% refund for the selected damage record?
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setVisible(false)}>
+            Cancel
+          </CButton>
+          <CButton color="primary" onClick={confirmRefund}>
+            Confirm Refund
+          </CButton>
+        </CModalFooter>
+      </CModal>
+    </>
+  );
 };
 
 export default DamageManage;
-

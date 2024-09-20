@@ -73,21 +73,21 @@ const _nav = [
     },
   },
 
-  {
-    component: CNavItem,
-  name: 'Task Management',
-  to: '/TaskManageList',
-  icon: <FontAwesomeIcon icon={faListCheck} style={{ color: '#ff99f7' , fontSize: '1.5rem', marginRight: '0.5rem'}} />,
-  badge: {
-    color: 'info',
-      // text: 'NEW',
-    },
-  },
+  // {
+  //   component: CNavItem,
+  // name: 'Task Management',
+  // to: '/TaskManageList',
+  // icon: <FontAwesomeIcon icon={faListCheck} style={{ color: '#ff99f7' , fontSize: '1.5rem', marginRight: '0.5rem'}} />,
+  // badge: {
+  //   color: 'info',
+  //     // text: 'NEW',
+  //   },
+  // },
 
   {
     component: CNavItem,
-    name: 'Billing Management',
-    to: '/Billing',
+    name: 'Payment Management',
+    to: '/Payment',
     icon: <FontAwesomeIcon icon={faMoneyBill} style={{ color: '#db8251', fontSize: '1.5rem', marginRight: '0.5rem' }} />,
     badge: {
       color: 'info',

@@ -410,7 +410,7 @@ const BookManageList = () => {
                 />
                 <Autocomplete
                   onLoad={(autocomplete) => (pickupRef.current = autocomplete)}
-                  onPlaceChanged={() => handlePlaceChanged('pickupLocation', pickupRef)}
+                  onPlaceChanged={() => handlePlaceChanged(pickupRef, setBpickup)}
                 >
                   <CFormInput
                     label="Pickup Location"
@@ -420,7 +420,7 @@ const BookManageList = () => {
                 </Autocomplete>
                 <Autocomplete
                   onLoad={(autocomplete) => (dropRef.current = autocomplete)}
-                  onPlaceChanged={() => handlePlaceChanged('dropLocation', dropRef)}
+                  onPlaceChanged={() => handlePlaceChanged(dropRef, setBdrop)}
                 >
                   <CFormInput
                     label="Drop Location"
@@ -443,6 +443,7 @@ const BookManageList = () => {
                 />
               </CCol>
             </CRow>
+            
           </CForm>
         </CModalBody>
         <CModalFooter>

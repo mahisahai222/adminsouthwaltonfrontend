@@ -14,6 +14,7 @@ const DriverManageList = React.lazy(() => import('./DriverManageList'))
 const TaskManageList = React.lazy(() => import('./TaskManageList'))
 const Sign = React.lazy(() => import('./Sign'))
 const Feedback = React.lazy(() => import('./Feedback'))
+const Payment = React.lazy(() => import('./Payment'))
 
 const routes = [
   // { path: '/', exact: true, name: 'Home' },
@@ -30,7 +31,8 @@ const routes = [
   { path: '/DriverManageList', name: 'Driver Management', element: DriverManageList },
   { path: '/TaskManageList', name: 'Task Management', element: TaskManageList },
   { path: '/Sign', name: 'Sign Management', element: Sign },
-  { path: '/Feedback', name: 'Feedback Management', element: Feedback }
+  { path: '/Feedback', name: 'Feedback Management', element: Feedback },
+  { path: '/Payment', name: 'Payment Management', element: Payment }
  ]
 
 export default routes

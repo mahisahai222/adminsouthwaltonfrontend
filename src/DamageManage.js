@@ -32,7 +32,7 @@ const DamageManage = () => {
 
   const fetchDamageManageData = async () => {
     try {
-      const response = await axios.get('http://3.111.163.2:8132/api/damage');
+      const response = await axios.get('http://44.196.192.232:8132/api/damage');
       setDamageManageData(response.data.data);
       setLoading(false);
     } catch (error) {
@@ -47,7 +47,7 @@ const DamageManage = () => {
 
   const handleDeleteDamageManage = async (id) => {
     try {
-      await axios.delete(`http://3.111.163.2:8132/api/damage/${id}`);
+      await axios.delete(`http://44.196.192.232:8132/api/damage/${id}`);
       setDamageManageData(damageManageData.filter((damage) => damage._id !== id));
       window.alert('Damage successfully deleted');
     } catch (error) {
@@ -66,7 +66,7 @@ const DamageManage = () => {
     try {
       const stripe = await stripePromise; // Get Stripe instance
 
-      const response = await axios.post(`http://3.111.163.2:8132/api/damage/refund/${selectedDamage._id}`, {
+      const response = await axios.post(`http://44.196.192.232:8132/api/damage/refund/${selectedDamage._id}`, {
         transactionId: selectedDamage.transactionId,
       });
 
@@ -122,7 +122,7 @@ const DamageManage = () => {
                             {damage.images && damage.images.map((img, idx) => (
                               <img
                                 key={idx}
-                                src={`http://3.111.163.2:8132/uploads/${img}`}
+                                src={`http://44.196.192.232:8132/uploads/${img}`}
                                 alt="Damage"
                                 style={{ width: '100px', height: 'auto', marginRight: '5px' }}
                               />

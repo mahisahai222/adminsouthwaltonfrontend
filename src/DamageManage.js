@@ -22,6 +22,10 @@ import {
   CModalFooter,
 } from '@coreui/react';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
+
+
 const stripePromise = loadStripe('pk_test_51PsifGP6k3IQ77YBnQ4FXQCCb548b6cL50JVVuZxBRHqrkwxMfmcBTDGclAqwnVFiNtSvtNHgOPGxhJzlQjzrPPr00i340x8H3'); // Use your Stripe publishable key
 
 const DamageManage = () => {
@@ -56,8 +60,8 @@ const DamageManage = () => {
   };
 
   const handleRefund = async (damage) => {
-    setSelectedDamage(damage); 
-    setVisible(true); 
+    setSelectedDamage(damage);
+    setVisible(true);
   };
 
   const confirmRefund = async () => {
@@ -76,12 +80,34 @@ const DamageManage = () => {
           damage._id === selectedDamage._id ? { ...damage, refunded: true } : damage
         ));
       }
-      setVisible(false); 
+      setVisible(false);
     } catch (error) {
       console.error('Error processing refund:', error);
       alert('Failed to process refund: ' + error.message);
     }
   };
+
+  const handleGeneratePDF = async (damageId) => {
+    try {
+      const response = await axios({
+        url: `http://44.196.192.232:8132/api/damage/report/${damageId}`,
+        method: 'GET',
+        responseType: 'blob', // Important for downloading the file
+      });
+
+      // Create a link element to download the file
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `damage_report_${damageId}.pdf`); // Set the file name
+      document.body.appendChild(link);
+      link.click();
+      link.remove(); // Remove the link element after triggering download
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    }
+  };
+
 
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -105,9 +131,10 @@ const DamageManage = () => {
                       <CTableRow>
                         <CTableHeaderCell scope="col">Booking ID</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Transaction ID</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Is Damage?</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Reason</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Damage</CTableHeaderCell>
+
                         <CTableHeaderCell scope="col">Images</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">pdf</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                       </CTableRow>
                     </CTableHead>
@@ -117,7 +144,7 @@ const DamageManage = () => {
                           <CTableDataCell>{damage.bookingId || 'N/A'}</CTableDataCell>
                           <CTableDataCell>{damage.transactionId}</CTableDataCell>
                           <CTableDataCell>{damage.damage}</CTableDataCell>
-                          <CTableDataCell>{damage.reason}</CTableDataCell>
+
                           <CTableDataCell>
                             {damage.images && damage.images.map((img, idx) => (
                               <img
@@ -128,6 +155,14 @@ const DamageManage = () => {
                               />
                             ))}
                           </CTableDataCell>
+                          <CTableDataCell>
+                            <FontAwesomeIcon
+                              icon={faFilePdf}
+                              style={{ cursor: 'pointer', color: '#abd025' }}
+                              onClick={() => handleGeneratePDF(damage._id)}
+                            />
+                          </CTableDataCell>
+
                           <CTableDataCell className="d-flex justify-content-start align-items-center">
                             <CButton size='sm' className="me-2" color="warning" onClick={() => handleRefund(damage)}>
                               Refund

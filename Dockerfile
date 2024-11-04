@@ -1,3 +1,4 @@
+# Step 1: Build the application
 FROM node:18-alpine AS builder
 
 # Set the working directory inside the container
@@ -25,7 +26,7 @@ RUN npm install -g serve
 WORKDIR /app
 COPY --from=builder /app/build .
 
-# Expose port 3000 for the server
+# Expose port 2023 for the server
 EXPOSE 2023
 
 # Start the server using the "serve" command

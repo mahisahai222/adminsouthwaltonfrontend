@@ -44,9 +44,9 @@ const DriverManageList = () => {
 
   const fetchDriverBookings = async (driverId) => {
     try {
-      const response = await axios.get(`http://44.196.192.232:8132/api/driver/${driverId}/bookings`);
+      const response = await axios.get(`http://localhost:8132/api/driver/${driverId}/bookings`);
       setBookingDetails(response.data.driver.bookings);
-      console.log('Fetched bookings:', response.data.driver.bookings); 
+      console.log('Fetched bookings:', response.data.driver.bookings);
       console.log(response.data.driver.bookings);
       console.log('State after setting:', bookingDetails);
       setBookingModalVisible(true);
@@ -58,7 +58,7 @@ const DriverManageList = () => {
   useEffect(() => {
     console.log('Updated bookingDetails:', bookingDetails); // Log state after it's updated
   }, [bookingDetails]);
-  
+
 
 
   const handleViewBookings = async (driverId) => {
@@ -66,17 +66,12 @@ const DriverManageList = () => {
     setBookingModalVisible(true); // Assuming this shows a modal for booking details
   };
 
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    const options = { day: 'numeric', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
-  };
 
 
 
   const fetchDriverManageData = async () => {
     try {
-      const response = await axios.get('http://44.196.192.232:8132/api/driver');
+      const response = await axios.get('http://localhost:8132/api/driver');
       setDriverManageData(response.data.data);
       setLoading(false);
     } catch (error) {
@@ -102,7 +97,7 @@ const DriverManageList = () => {
 
     try {
       const response = await axios.post(
-        'http://44.196.192.232:8132/api/driver/add',
+        'http://localhost:8132/api/driver/add',
         formData,
         {
           headers: {
@@ -144,7 +139,7 @@ const DriverManageList = () => {
 
     try {
       const response = await axios.put(
-        `http://44.196.192.232:8132/api/driver/${currentDriverId}`,
+        `http://localhost:8132/api/driver/${currentDriverId}`,
         formData,
         {
           headers: {
@@ -169,7 +164,7 @@ const DriverManageList = () => {
 
   const handleDeleteDriverManage = async (id) => {
     try {
-      await axios.delete(`http://44.196.192.232:8132/api/driver/${id}`);
+      await axios.delete(`http://localhost:8132/api/driver/${id}`);
       setDriverManageData(driverManageData.filter((driver) => driver._id !== id));
       window.alert('Driver successfully deleted');
     } catch (error) {
@@ -256,7 +251,7 @@ const DriverManageList = () => {
                           <CTableDataCell>
                             {driver.image && (
                               <img
-                                src={`http://44.196.192.232:8132/api/driver/image/${driver.image.filename}`}
+                                src={`http://localhost:8132/api/driver/image/${driver.image.filename}`}
                                 alt={driver.name}
                                 style={{ width: '50px', height: '50px' }}
                               />
@@ -392,55 +387,62 @@ const DriverManageList = () => {
         </CModalFooter>
       </CModal>
 
-      <CModal visible={bookingModalVisible} onClose={() => setBookingModalVisible(false)} size='lg' >
-        <CModalHeader>
-          <CModalTitle>Booking Details</CModalTitle>
-        </CModalHeader>
-        <CModalBody style={{ width: '100%', margin: '0 auto' }}>
-          <CTable hover bordered striped responsive>
-            <CTableHead>
-              <CTableRow>
-                <CTableHeaderCell scope="col">Pickup</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Dropoff</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Pickup Date</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Dropoff Date</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Name</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Phone</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Email</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Size</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Address</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Address home</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Status</CTableHeaderCell>
-         </CTableRow>
-            </CTableHead>
-            <CTableBody>
-              {bookingDetails.map((booking) => (
-                <CTableRow key={booking.id}>
-                  <CTableDataCell>{booking.bpickup}</CTableDataCell>
-                  <CTableDataCell>{booking.bdrop}</CTableDataCell>
-                  <CTableDataCell>{formatDate(booking.bpickDate)}</CTableDataCell>
-                  <CTableDataCell>{formatDate(booking.bdropDate)}</CTableDataCell>
-                  <CTableDataCell>{booking.bname}</CTableDataCell>
-                  <CTableDataCell>{booking.bphone}</CTableDataCell>
-                  <CTableDataCell>{booking.bemail}</CTableDataCell>
-                  <CTableDataCell>{booking.bsize}</CTableDataCell>
-                  <CTableDataCell>{booking.baddress}</CTableDataCell>
-                  <CTableDataCell>{booking.baddressh}</CTableDataCell>
-                  <CTableDataCell>{booking.status}</CTableDataCell>
-                  
+      <CModal visible={bookingModalVisible} onClose={() => setBookingModalVisible(false)}>
+  <CModalHeader>
+    <CModalTitle>Booking Details</CModalTitle>
+  </CModalHeader>
+  <CModalBody style={{ maxHeight: '500px', overflowY: 'auto' }}>
+    <CTable striped hover bordered responsive>
+      <CTableHead>
+        <CTableRow>
+        <CTableDataCell>Name</CTableDataCell>
+        <CTableDataCell>Phone</CTableDataCell>
+        <CTableDataCell>Email</CTableDataCell>
+        <CTableDataCell>Size</CTableDataCell>
+        <CTableDataCell>Pickup</CTableDataCell>
+        <CTableDataCell>Drop</CTableDataCell>
+        <CTableDataCell>Pick Date</CTableDataCell>
+        <CTableDataCell>Drop Date</CTableDataCell>
+        <CTableDataCell>Status</CTableDataCell>
+        </CTableRow>
+      </CTableHead>
+      <CTableBody>
+        {bookingDetails.length > 0 ? (
+          bookingDetails.map((booking) => (
+            <CTableRow key={booking.id}>
+              
+              <CTableDataCell>{booking.name}</CTableDataCell>
+             
+              <CTableDataCell>{booking.phone}</CTableDataCell>
+             
+              <CTableDataCell>{booking.email}</CTableDataCell>
+             
+              <CTableDataCell>{booking.size}</CTableDataCell>
+             
+              <CTableDataCell>{booking.pickup}</CTableDataCell>
+             
+              <CTableDataCell>{booking.drop}</CTableDataCell>
+              
+              <CTableDataCell>{booking.pickDate}</CTableDataCell>
+            
+              <CTableDataCell>{booking.dropDate}</CTableDataCell>
+             
+              <CTableDataCell>{booking.status}</CTableDataCell>
+            </CTableRow>
+          ))
+        ) : (
+          <CTableRow>
+            <CTableDataCell colSpan="2">No booking details available.</CTableDataCell>
+          </CTableRow>
+        )}
+      </CTableBody>
+    </CTable>
+  </CModalBody>
+  <CModalFooter>
+    <CButton color="secondary" onClick={() => setBookingModalVisible(false)}>Close</CButton>
+  </CModalFooter>
+</CModal>
 
-
-                </CTableRow>
-              ))}
-            </CTableBody>
-          </CTable>
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setBookingModalVisible(false)}>
-            Close
-          </CButton>
-        </CModalFooter>
-      </CModal>
 
     </>
   );

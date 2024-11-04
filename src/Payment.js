@@ -25,7 +25,7 @@ const Payment = () => {
   // Fetch payment data from MongoDB API
   const fetchPaymentData = async () => {
     try {
-      const response = await axios.get('http://44.196.192.232:8132/api/pay/pays'); // Updated MongoDB endpoint
+      const response = await axios.get('http://localhost:8132/api/pay/pays'); // Updated MongoDB endpoint
       console.log('API Response:', response.data);
       setPaymentData(response.data || []);
       setLoading(false);
@@ -34,7 +34,7 @@ const Payment = () => {
       setLoading(false);
     }
   };
-
+     
   useEffect(() => {
     fetchPaymentData();
   }, []);

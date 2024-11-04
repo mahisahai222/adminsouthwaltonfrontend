@@ -65,6 +65,16 @@ const _nav = [
 
   {
     component: CNavItem,
+    name: 'Reservation Management',
+    to: '/Reservation',
+    icon: <FontAwesomeIcon icon={faSquareCheck} style={{ color: '#4ce637' , fontSize: '1.5rem', marginRight: '0.5rem' }} />,
+    badge: {
+      color: 'info',
+    },
+  },
+
+  {
+    component: CNavItem,
     name: 'Booking Management',
     to: '/BookManageList',
     icon: <FontAwesomeIcon icon={faSquareCheck} style={{ color: '#4ce637' , fontSize: '1.5rem', marginRight: '0.5rem' }} />,

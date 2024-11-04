@@ -45,17 +45,19 @@ const CalendarView = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Fetch all events from the API
+  
+
+  // Fetch details of a specific booking by ID
   const fetchEvents = async () => {
     try {
-      const response = await axios.get('http://44.196.192.232:8132/api/book');
-      const events = response.data.map(eventData => ({
-        id: eventData._id, // Assuming _id is the ID field from your API
-        title: eventData.bname,
-        start: new Date(eventData.bdropDate), 
-        end: new Date(eventData.bdropDate),
-        allDay: true,
-        ...eventData
+      const response = await axios.get('http://localhost:8132/api/book');
+      const events = response.data.data.map(eventData => ({ // Accessing 'data' from the response
+        id: eventData._id, // Ensure this is correct
+        title: eventData.bname || 'No Title', // Provide a fallback if title is missing
+        start: new Date(eventData.bdropDate), // Make sure this is a valid date
+        end: new Date(eventData.bdropDate), // Use the same date for all-day events
+        allDay: true, // Set to true if this is an all-day event
+        ...eventData // Include other properties if needed
       }));
       setMyEvents(events);
     } catch (error) {
@@ -64,16 +66,7 @@ const CalendarView = () => {
       setLoading(false);
     }
   };
-
-  // Fetch details of a specific booking by ID
-  const fetchEventDetails = async (id) => {
-    try {
-      const response = await axios.get(`http://44.196.192.232:8132/api/book/${id}`);
-      setSelectedEvent(response.data);
-    } catch (error) {
-      console.error('Error fetching event details:', error);
-    }
-  };
+  
 
   useEffect(() => {
     fetchEvents();

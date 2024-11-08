@@ -14,7 +14,7 @@
 
 //   const handleRegister = async () => {
 //     try {
-//       const response = await axios.post('http://localhost:8132/api/auths/register', { username, email, password, repeatpassword });
+//       const response = await axios.post('http://44.196.192.232:8132/api/auths/register', { username, email, password, repeatpassword });
 //       setMessage(response.data.message);
 //       if (response.status === 200) {
 //        // history.push('/login');

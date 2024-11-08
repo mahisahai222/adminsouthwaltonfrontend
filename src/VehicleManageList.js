@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
   CCard,
+  CFormSelect ,
   CCardBody,
   CCardHeader,
   CCardText,
@@ -38,6 +39,7 @@ const VehicleManageList = () => {
   });
   const [season, setSeason] = useState('');
   const [duration, setDuration] = useState('');
+  const [passengerType, setPassengerType] = useState('');
   const [price, setPrice] = useState('');
   const [editMode, setEditMode] = useState(false);
   const [currentVehicleId, setCurrentVehicleId] = useState(null);
@@ -46,9 +48,13 @@ const VehicleManageList = () => {
   const [priceModalVisible, setPriceModalVisible] = useState(false); // Track visibility of price modal
   const [selectedVehicle, setSelectedVehicle] = useState(null); // Track selected vehicle for price modal
 
+ 
+  const [dailyPrices, setDailyPrices] = useState(Array(7).fill(''));
+
+
   const fetchVehicleManageData = async () => {
     try {
-      const response = await axios.get('http://localhost:8132/api/vehicle');
+      const response = await axios.get('http://44.196.192.232:8132/api/vehicle');
       setVehicleManageData(response.data);
       setLoading(false);
     } catch (error) {
@@ -67,12 +73,13 @@ const VehicleManageList = () => {
     formData.append('vseats', vseats);
     formData.append('vprice', JSON.stringify(vprice));
 
+
     if (image) {
       formData.append('image', image);
     }
 
     try {
-      const response = await axios.post('http://localhost:8132/api/vehicle', formData, {
+      const response = await axios.post('http://44.196.192.232:8132/api/vehicle/add', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -106,7 +113,7 @@ const VehicleManageList = () => {
     }
 
     try {
-      const response = await axios.put(`http://localhost:8132/api/vehicle/${currentVehicleId}`, formData, {
+      const response = await axios.put(`http://44.196.192.232:8132/api/vehicle/${currentVehicleId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -129,7 +136,7 @@ const VehicleManageList = () => {
 
   const handleDeleteVehicleManage = async (id) => {
     try {
-      await axios.delete(`http://localhost:8132/api/vehicle/${id}`);
+      await axios.delete(`http://44.196.192.232:8132/api/vehicle/${id}`);
       setVehicleManageData(vehicleManageData.filter((vehicle) => vehicle._id !== id));
       window.alert('Vehicle successfully deleted');
     } catch (error) {
@@ -140,30 +147,31 @@ const VehicleManageList = () => {
   const resetForm = () => {
     setVname('');
     setVseats('');
-    setVprice({
-      offSeason: {},
-      secondarySeason: {},
-      peakSeason: {},
-    });
-    setImage(null);
+    setVprice({ offSeason: {}, secondarySeason: {}, peakSeason: {} });
     setSeason('');
     setDuration('');
     setPrice('');
   };
 
+
   const handlePriceUpdate = () => {
-    if (season && duration && price) {
+    if (season && passengerType && duration && price) {
       setVprice((prev) => ({
         ...prev,
         [season]: {
           ...prev[season],
-          [duration]: price,
+          [passengerType]: {
+            ...prev[season][passengerType],
+            [duration]: price,
+          },
         },
       }));
       setDuration('');
       setPrice('');
     }
   };
+
+
 
   const handleShowPriceTable = (vehicle) => {
     setSelectedVehicle(vehicle);
@@ -188,101 +196,111 @@ const VehicleManageList = () => {
               setEditMode(false);
               setVisible(true);
             }}
-          >
+          > 
             {editMode ? 'Edit Vehicle' : 'Add Vehicle'}
           </CButton>
         </CCardHeader>
         <CCardBody>
-          <CCardText>
-            {vehicleManageData.length === 0 ? (
-              <div className="no-data">No vehicle manage data found.</div>
-            ) : (
-              <CRow>
-                <CCol>
-                  <CTable hover bordered striped responsive>
-                    <CTableHead>
-                      <CTableRow>
-                        <CTableHeaderCell scope="col">Vehicle Name</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Vehicle Seats</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Vehicle Price</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Image</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
-                      </CTableRow>
-                    </CTableHead>
-                    <CTableBody>
-                      {vehicleManageData.map((vehicle) => (
-                        <CTableRow key={vehicle._id}>
-                          <CTableDataCell>{vehicle.vname}</CTableDataCell>
-                          <CTableDataCell>{vehicle.vseats}</CTableDataCell>
-                          <CTableDataCell>
-                            {/* Dropdown for price season */}
-                            <select onChange={(e) => handleShowPriceTable(vehicle)}>
-                              <option value="">Select Season</option>
-                              <option value="offSeason">Off Season</option>
-                              <option value="secondarySeason">Secondary Season</option>
-                              <option value="peakSeason">Peak Season</option>
-                            </select>
-                          </CTableDataCell>
-                          <CTableDataCell>
-                            {vehicle.image && (
-                              <img
-                                src={`http://localhost:8132/uploads/${vehicle.image}`}
-                                alt={vehicle.vname}
-                                style={{ width: '100px' }}
-                              />
-                            )}
-                          </CTableDataCell>
-                          <CTableDataCell>
-                            <FontAwesomeIcon
-                              icon={faPenToSquare}
-                              style={{ color: '#b3ae0f', cursor: 'pointer', marginRight: '10px' }}
-                              onClick={() => handleEditVehicleManage(vehicle)}
-                            />
-                            <FontAwesomeIcon
-                              icon={faTrash}
-                              style={{ color: '#bb1616', cursor: 'pointer' }}
-                              onClick={() => handleDeleteVehicleManage(vehicle._id)}
-                            />
-                          </CTableDataCell>
-                        </CTableRow>
-                      ))}
-                    </CTableBody>
-                  </CTable>
-                </CCol>
-              </CRow>
-            )}
-          </CCardText>
-        </CCardBody>
-      </CCard>
+  <CCardText>
+    {vehicleManageData.length === 0 ? (
+      <div className="no-data">No vehicle manage data found.</div>
+    ) : (
+      <CRow>
+        <CCol>
+          <CTable hover bordered striped responsive>
+            <CTableHead>
+              <CTableRow>
+                <CTableHeaderCell scope="col">Vehicle Name</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Vehicle Seats</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Off Season Price</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Secondary Season Price</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Peak Season Price</CTableHeaderCell>
+               
+                <CTableHeaderCell scope="col">Image</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
+              </CTableRow>
+            </CTableHead>
+            <CTableBody>
+              {vehicleManageData.map((vehicle) => (
+                <CTableRow key={vehicle._id}>
+                  <CTableDataCell>{vehicle.vname}</CTableDataCell>
+                  <CTableDataCell>{vehicle.vseats}</CTableDataCell>
+                  <CTableDataCell>{vehicle.prices?.offSeason}</CTableDataCell>
+                  <CTableDataCell>{vehicle.prices?.secondarySeason}</CTableDataCell>
+                  <CTableDataCell>{vehicle.prices?.peakSeason}</CTableDataCell>
+                  
+                  <CTableDataCell>
+                    {vehicle.image && (
+                      <img
+                        src={`http://44.196.192.232:8132/uploads/${vehicle.image}`}
+                        alt={vehicle.vname}
+                        style={{ width: '100px' }}
+                      />
+                    )}
+                  </CTableDataCell>
+                  <CTableDataCell>
+                    <FontAwesomeIcon
+                      icon={faPenToSquare}
+                      style={{ color: '#b3ae0f', cursor: 'pointer', marginRight: '10px' }}
+                      onClick={() => handleEditVehicleManage(vehicle)}
+                    />
+                    <FontAwesomeIcon
+                      icon={faTrash}
+                      style={{ color: '#bb1616', cursor: 'pointer' }}
+                      onClick={() => handleDeleteVehicleManage(vehicle._id)}
+                    />
+                  </CTableDataCell>
+                </CTableRow>
+              ))}
+            </CTableBody>
+          </CTable>
+        </CCol>
+      </CRow>
+    )}
+  </CCardText>
+</CCardBody>
 
+      </CCard>
+{/* 
       <CModal visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader>
           <CModalTitle>{editMode ? 'Edit Vehicle' : 'Add Vehicle'}</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <CForm>
-            <CFormLabel htmlFor="vehicleName">Vehicle Name</CFormLabel>
-            <CFormInput
-              type="text"
-              id="vehicleName"
-              value={vname}
-              onChange={(e) => setVname(e.target.value)}
-            />
+        <CForm>
+            <CFormLabel>Vehicle Name</CFormLabel>
+            <CFormInput value={vname} onChange={(e) => setVname(e.target.value)} />
 
-            <CFormLabel htmlFor="vehicleSeats">Vehicle Seats</CFormLabel>
-            <CFormInput
-              type="text"
-              id="vehicleSeats"
-              value={vseats}
-              onChange={(e) => setVseats(e.target.value)}
-            />
+            <CFormLabel>Seats</CFormLabel>
+            <CFormInput value={vseats} onChange={(e) => setVseats(e.target.value)} />
 
-            <CFormLabel htmlFor="vehicleImage">Vehicle Image</CFormLabel>
-            <CFormInput
-              type="file"
-              id="vehicleImage"
-              onChange={(e) => setImage(e.target.files[0])}
-            />
+            <CFormSelect value={season} onChange={(e) => setSeason(e.target.value)}>
+            <option value="">Select Season</option>
+            <option value="offSeason">Off Season</option>
+            <option value="secondarySeason">Secondary Season</option>
+            <option value="peakSeason">Peak Season</option>
+          </CFormSelect>
+            <CFormSelect value={passengerType} onChange={(e) => setPassengerType(e.target.value)}>
+            <option value="">Select Passenger Type</option>
+            <option value="fourPassenger">4 Passengers</option>
+            <option value="sixPassenger">6 Passengers</option>
+            <option value="eightPassenger">8 Passengers</option>
+          </CFormSelect>
+          <CFormSelect value={duration} onChange={(e) => setDuration(e.target.value)}>
+              <option>Select Duration</option>
+              <option value="oneDay">One Day</option>
+              <option value="twoDays">Two Days</option>
+              <option value="twoDays">Two Days</option>
+              <option value="threeDays">Two Days</option>
+              <option value="fourDays">Two Days</option>
+              <option value="fiveDays">Two Days</option>
+              <option value="sixDays">Two Days</option>
+              <option value="weeklyRental">Weekly</option>
+          
+            </CFormSelect>
+
+            <CFormLabel>Price</CFormLabel>
+            <CFormInput type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
 
             <CButton onClick={handlePriceUpdate}>Add Price</CButton>
           </CForm>
@@ -293,7 +311,91 @@ const VehicleManageList = () => {
             {editMode ? 'Update' : 'Add'}
           </CButton>
         </CModalFooter>
-      </CModal>
+      </CModal> */}
+<CModal visible={visible} onClose={() => setVisible(false)}>
+  <CModalHeader>
+    <CModalTitle>{editMode ? 'Edit Vehicle' : 'Add Vehicle'}</CModalTitle>
+  </CModalHeader>
+  <CModalBody>
+    <CForm>
+      <CFormLabel>Vehicle Name</CFormLabel>
+      <CFormInput value={vname} onChange={(e) => setVname(e.target.value)} />
+
+      {/* <CFormSelect value={season} onChange={(e) => setSeason(e.target.value)}>
+        <option value="">Select Season</option>
+        <option value="offSeason">Off Season</option>
+        <option value="secondarySeason">Secondary Season</option>
+        <option value="peakSeason">Peak Season</option>
+      </CFormSelect> */}
+
+      <CFormSelect value={passengerType} onChange={(e) => setPassengerType(e.target.value)}>
+        <option value="">Select Passenger Type</option>
+        <option value="fourPassenger">4 Passengers</option>
+        <option value="sixPassenger">6 Passengers</option>
+        <option value="eightPassenger">8 Passengers</option>
+      </CFormSelect>
+
+      {/* Price Table */}
+      <CFormLabel>Daily Prices</CFormLabel>
+      <table className="table table-bordered">
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Peak Season</th>
+            <th>Off Season</th>
+            <th>Mid Season</th>
+            <th>No Season</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dailyPrices.map((price, index) => (
+            <tr key={index}>
+              <td>Day {index + 1}</td>
+              <td>
+                <CFormInput
+                  type="number"
+                  value={price.peakSeason}
+                  onChange={(e) => handleDailyPriceChange(index, 'peakSeason', e.target.value)}
+                  placeholder={`Peak Season for Day ${index + 1}`}
+                />
+              </td>
+              <td>
+                <CFormInput
+                  type="number"
+                  value={price.offSeason}
+                  onChange={(e) => handleDailyPriceChange(index, 'offSeason', e.target.value)}
+                  placeholder={`Off Season for Day ${index + 1}`}
+                />
+              </td>
+              <td>
+                <CFormInput
+                  type="number"
+                  value={price.midSeason}
+                  onChange={(e) => handleDailyPriceChange(index, 'midSeason', e.target.value)}
+                  placeholder={`Mid Season for Day ${index + 1}`}
+                />
+              </td>
+              <td>
+                <CFormInput
+                  type="number"
+                  value={price.noSeason}
+                  onChange={(e) => handleDailyPriceChange(index, 'noSeason', e.target.value)}
+                  placeholder={`No Season for Day ${index + 1}`}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </CForm>
+  </CModalBody>
+  <CModalFooter>
+    <CButton color="secondary" onClick={() => setVisible(false)}>Close</CButton>
+    <CButton color="primary" onClick={editMode ? handleUpdateVehicleManage : handleAddVehicleManage}>
+      {editMode ? 'Update' : 'Add'}
+    </CButton>
+  </CModalFooter>
+</CModal>
 
       <CModal visible={priceModalVisible} onClose={() => setPriceModalVisible(false)}>
         <CModalHeader>

@@ -36,7 +36,7 @@ const DamageManage = () => {
 
   const fetchDamageManageData = async () => {
     try {
-      const response = await axios.get('http://localhost:8132/api/damage');
+      const response = await axios.get('http://44.196.192.232:8132/api/damage');
       console.log(response.data.data);
       setDamageManageData(response.data.data);
       setLoading(false);
@@ -52,7 +52,7 @@ const DamageManage = () => {
 
   const handleDeleteDamageManage = async (id) => {
     try {
-      await axios.delete(`http://localhost:8132/api/damage/${id}`);
+      await axios.delete(`http://44.196.192.232:8132/api/damage/${id}`);
       setDamageManageData(damageManageData.filter((damage) => damage._id !== id));
       window.alert('Damage successfully deleted');
     } catch (error) {
@@ -71,7 +71,7 @@ const DamageManage = () => {
     try {
       const stripe = await stripePromise;
 
-      const response = await axios.post(`http://localhost:8132/api/damage/refund/${selectedDamage._id}`, {
+      const response = await axios.post(`http://44.196.192.232:8132/api/damage/refund/${selectedDamage._id}`, {
         transactionId: selectedDamage.transactionId,
       });
 
@@ -90,7 +90,7 @@ const DamageManage = () => {
 
   const handleGeneratePDF = async (damageId) => {
     try {
-      const response = await axios.post('http://localhost:8132/api/damage/send-damage-report', { damageId }, { responseType: 'blob' });
+      const response = await axios.post('http://44.196.192.232:8132/api/damage/send-damage-report', { damageId }, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -107,7 +107,7 @@ const DamageManage = () => {
   const handleViewDamage = async (damage) => {
     console.log("Viewing Damage ID:", damage._id);
     try {
-      const response = await axios.get(`http://localhost:8132/api/damage/${damage._id}`);
+      const response = await axios.get(`http://44.196.192.232:8132/api/damage/${damage._id}`);
       if (response.data.success) {
         setViewDamage(response.data.data);
         setViewVisible(true);
@@ -157,7 +157,7 @@ const DamageManage = () => {
                           <CTableDataCell>
                             {damage.images && damage.images.length > 0 && (
                               <img
-                                src={`http://localhost:8132/uploads/${damage.images[0]}`}
+                                src={`http://44.196.192.232:8132/uploads/${damage.images[0]}`}
                                 alt="Damage"
                                 style={{ width: '100px', height: 'auto' }}
                               />
@@ -248,7 +248,7 @@ const DamageManage = () => {
               )}
               {viewDamage.images && viewDamage.images.length > 0 && (
                 <img
-                  src={`http://localhost:8132/uploads/${viewDamage.images[0]}`}
+                  src={`http://44.196.192.232:8132/uploads/${viewDamage.images[0]}`}
                   alt="Damage"
                   style={{ width: '100%', height: 'auto' }}
                 />

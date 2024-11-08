@@ -21,7 +21,7 @@ const BookManageList = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get('http://localhost:8132/api/book');
+      const response = await axios.get('http://44.196.192.232:8132/api/book');
       setBookings(response?.data); // Ensure this is the correct data structure
     } catch (error) {
       console.error('Error fetching bookings:', error);
@@ -30,7 +30,7 @@ const BookManageList = () => {
 
   const fetchAvailableDrivers = async () => {
     try {
-      const response = await axios.get('http://localhost:8132/api/driver/'); // Update API endpoint if necessary
+      const response = await axios.get('http://44.196.192.232:8132/api/driver/'); // Update API endpoint if necessary
       setAvailableDrivers(response.data.data); // Adjust if your response structure is different
     } catch (error) {
       console.error("Error fetching drivers:", error.message);
@@ -46,7 +46,7 @@ const BookManageList = () => {
 
   const deleteBooking = async (id) => {
     try {
-      await axios.delete(`http://localhost:8132/api/book/${id}`);
+      await axios.delete(`http://44.196.192.232:8132/api/book/${id}`);
       setBookings(bookings.filter(booking => booking._id !== id));
     } catch (error) {
       console.error('Error deleting booking:', error);
@@ -61,7 +61,7 @@ const BookManageList = () => {
         bookingId: currentBooking._id,
         driverId: currentDriver, 
       };
-      const response = await axios.post(`http://localhost:8132/api/driver/assignDriver`, requestData);
+      const response = await axios.post(`http://44.196.192.232:8132/api/driver/assignDriver`, requestData);
       console.log("Response:", response.data);
       setAssignDriverModalVisible(false);
       setCurrentBooking(null);

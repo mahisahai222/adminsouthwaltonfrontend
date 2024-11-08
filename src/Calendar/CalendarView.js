@@ -50,7 +50,7 @@ const CalendarView = () => {
   // Fetch details of a specific booking by ID
   const fetchEvents = async () => {
     try {
-      const response = await axios.get('http://localhost:8132/api/book');
+      const response = await axios.get('http://44.196.192.232:8132/api/book');
       const events = response.data.data.map(eventData => ({ // Accessing 'data' from the response
         id: eventData._id, // Ensure this is correct
         title: eventData.bname || 'No Title', // Provide a fallback if title is missing

@@ -33,10 +33,11 @@ const VehicleManageList = () => {
   const [vname, setVname] = useState('');
   const [vseats, setVseats] = useState('');
   const [vprice, setVprice] = useState({
-    offSeason: {},
-    secondarySeason: {},
-    peakSeason: {},
+    peakSeason: { fourPassenger: {}, sixPassenger: {}, eightPassenger: {} },
+    offSeason: { fourPassenger: {}, sixPassenger: {}, eightPassenger: {} },
+    secondarySeason: { fourPassenger: {}, sixPassenger: {}, eightPassenger: {} },
   });
+  
   const [season, setSeason] = useState('');
   const [duration, setDuration] = useState('');
   const [passengerType, setPassengerType] = useState('');
@@ -71,20 +72,17 @@ const VehicleManageList = () => {
     const formData = new FormData();
     formData.append('vname', vname);
     formData.append('vseats', vseats);
-    formData.append('vprice', JSON.stringify(vprice));
-
-
+    formData.append('vprice', JSON.stringify(vprice)); // Ensure nested price structure is correct
+    
     if (image) {
-      formData.append('image', image);
+      formData.append('image', image); // Add image as required
     }
-
+  
     try {
       const response = await axios.post('http://44.196.192.232:8132/api/vehicle/add', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setVehicleManageData([...vehicleManageData, response.data]);
+      setVehicleManageData([...vehicleManageData, response.data]); // Add new vehicle to list
       resetForm();
       setVisible(false);
       window.alert('Vehicle successfully added');
@@ -92,6 +90,7 @@ const VehicleManageList = () => {
       console.error('Error adding vehicle:', error);
     }
   };
+  
 
   const handleEditVehicleManage = (vehicle) => {
     setVname(vehicle.vname);
@@ -170,6 +169,7 @@ const VehicleManageList = () => {
       setPrice('');
     }
   };
+  
 
 
 

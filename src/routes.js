@@ -16,6 +16,7 @@ const Sign = React.lazy(() => import('./Sign'))
 const Feedback = React.lazy(() => import('./Feedback'))
 const Payment = React.lazy(() => import('./Payment'))
 const Reservation = React.lazy(() => import('./Reservation'))
+const Season = React.lazy(() => import('./Season'))
 
 const routes = [
   // { path: '/', exact: true, name: 'Home' },
@@ -34,7 +35,8 @@ const routes = [
   { path: '/Sign', name: 'Sign Management', element: Sign },
   { path: '/Feedback', name: 'Feedback Management', element: Feedback },
   { path: '/Payment', name: 'Payment Management', element: Payment },
-  { path: '/Reservation', name: 'Reservation Management', element: Reservation }
+  { path: '/Reservation', name: 'Reservation Management', element: Reservation },
+  { path: '/Season', name: 'Season Management', element: Season },
  ]
 
 export default routes

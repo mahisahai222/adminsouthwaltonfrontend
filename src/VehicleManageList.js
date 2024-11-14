@@ -37,7 +37,6 @@ const VehicleManageList = () => {
     offSeason: { fourPassenger: {}, sixPassenger: {}, eightPassenger: {} },
     secondarySeason: { fourPassenger: {}, sixPassenger: {}, eightPassenger: {} },
   });
-  
   const [season, setSeason] = useState('');
   const [duration, setDuration] = useState('');
   const [passengerType, setPassengerType] = useState('');
@@ -46,10 +45,8 @@ const VehicleManageList = () => {
   const [currentVehicleId, setCurrentVehicleId] = useState(null);
   const [image, setImage] = useState(null);
   const [visible, setVisible] = useState(false);
-  const [priceModalVisible, setPriceModalVisible] = useState(false); // Track visibility of price modal
-  const [selectedVehicle, setSelectedVehicle] = useState(null); // Track selected vehicle for price modal
-
- 
+  const [priceModalVisible, setPriceModalVisible] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [dailyPrices, setDailyPrices] = useState(Array(7).fill(''));
 
 
@@ -72,10 +69,10 @@ const VehicleManageList = () => {
     const formData = new FormData();
     formData.append('vname', vname);
     formData.append('vseats', vseats);
-    formData.append('vprice', JSON.stringify(vprice)); // Ensure nested price structure is correct
+    formData.append('vprice', JSON.stringify(vprice));
     
     if (image) {
-      formData.append('image', image); // Add image as required
+      formData.append('image', image); 
     }
   
     try {
@@ -146,9 +143,14 @@ const VehicleManageList = () => {
   const resetForm = () => {
     setVname('');
     setVseats('');
-    setVprice({ offSeason: {}, secondarySeason: {}, peakSeason: {} });
+    setVprice({
+      peakSeason: { fourPassenger: {}, sixPassenger: {}, eightPassenger: {} },
+      offSeason: { fourPassenger: {}, sixPassenger: {}, eightPassenger: {} },
+      secondarySeason: { fourPassenger: {}, sixPassenger: {}, eightPassenger: {} },
+    });
     setSeason('');
     setDuration('');
+    setPassengerType('');
     setPrice('');
   };
 
@@ -224,7 +226,7 @@ const VehicleManageList = () => {
               {vehicleManageData.map((vehicle) => (
                 <CTableRow key={vehicle._id}>
                   <CTableDataCell>{vehicle.vname}</CTableDataCell>
-                  <CTableDataCell>{vehicle.vseats}</CTableDataCell>
+                  <CTableDataCell>{vehicle.passenger}</CTableDataCell>
                   <CTableDataCell>{vehicle.prices?.offSeason}</CTableDataCell>
                   <CTableDataCell>{vehicle.prices?.secondarySeason}</CTableDataCell>
                   <CTableDataCell>{vehicle.prices?.peakSeason}</CTableDataCell>

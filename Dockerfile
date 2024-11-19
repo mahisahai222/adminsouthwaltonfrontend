@@ -5,10 +5,10 @@ FROM node:20-alpine AS build
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json to the container
-COPY package.json package-lock.json ./
+COPY package.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm install --force --legacy-peer-deps
 
 # Copy the entire application source code
 COPY . .

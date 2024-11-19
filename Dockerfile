@@ -1,5 +1,5 @@
-# Use an official Node.js runtime as the base image
-FROM node:20-alpine AS build
+# Use an official Node.js runtime based on Debian/Ubuntu as the base image
+FROM node:20-bullseye AS build
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json to the container
 COPY package.json ./
 
-# Install dependencies
+# Install dependencies with compatibility flags
 RUN npm install --force --legacy-peer-deps
 
 # Copy the entire application source code
@@ -16,8 +16,8 @@ COPY . .
 # Build the React application for production
 RUN npm run build
 
-# Use a lightweight Node.js runtime for serving the application
-FROM node:20-alpine AS production
+# Use the same Node.js image for serving the application
+FROM node:20-bullseye AS production
 
 # Set the working directory for the production container
 WORKDIR /usr/src/app

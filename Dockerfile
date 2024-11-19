@@ -1,33 +1,35 @@
-# Step 1: Build the application
-FROM node:18-alpine AS builder
+# Use an official Node.js runtime as the base image
+FROM node:20-alpine AS build
 
-# Set the working directory inside the container
-WORKDIR /app
+# Set the working directory in the container
+WORKDIR /usr/src/app
 
-# Copy the package.json and package-lock.json to install dependencies
-COPY package.json ./
+# Copy package.json and package-lock.json to the container
+COPY package.json package-lock.json ./
 
 # Install dependencies
-RUN npm install --legacy-peer-deps
+RUN npm install
 
-# Copy the rest of the application files
+# Copy the entire application source code
 COPY . .
 
-# Build the application for production
+# Build the React application for production
 RUN npm run build
 
-# Step 2: Serve the application
-FROM node:18-alpine
+# Use a lightweight Node.js runtime for serving the application
+FROM node:20-alpine AS production
 
-# Install a lightweight HTTP server to serve the static files
+# Set the working directory for the production container
+WORKDIR /usr/src/app
+
+# Install a lightweight HTTP server for serving static files
 RUN npm install -g serve
 
-# Set the working directory and copy the build files from the previous stage
-WORKDIR /app
-COPY --from=builder /app/build .
+# Copy the built application from the build stage
+COPY --from=build /usr/src/app/build ./build
 
-# Expose port 2023 for the server
+# Expose the desired port
 EXPOSE 2023
 
-# Start the server using the "serve" command
-CMD ["serve", "-s", ".", "-l", "2023"]
+# Command to serve the application
+CMD ["serve", "-s", "build", "-l", "2023"]

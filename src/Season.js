@@ -6,13 +6,13 @@ import {
   CTableBody, CTableDataCell,
 } from '@coreui/react';
 import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons'
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 const Season = () => {
-  const [seasonData, setSeasonData] = useState({ offSeason: [], secondarySeason: [], peakSeason: [] });
+  const [seasonData, setSeasonData] = useState([]);
   const [selectedSeasonType, setSelectedSeasonType] = useState('');
+  const [seasonId, setSeasonId] = useState('');  // Store the seasonId for API requests
   const [month, setMonth] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -28,11 +28,9 @@ const Season = () => {
     try {
       const response = await axios.get('http://44.196.192.232:8132/api/seasons');
       const data = response.data;
-      setSeasonData({
-        offSeason: data[0]?.offSeason || [],
-        secondarySeason: data[0]?.secondarySeason || [],
-        peakSeason: data[0]?.peakSeason || []
-      });
+      // Assuming there's only one season document in the collection, or you will need to adjust based on your actual data structure
+      setSeasonData(data);
+      setSeasonId(data[0]?._id);  // Set the first seasonId, or choose based on user selection
     } catch (error) {
       console.error('Error fetching seasons:', error);
     }
@@ -43,11 +41,14 @@ const Season = () => {
 
     try {
       if (editMode) {
-        await axios.put(`http://44.196.192.232:8132/api/seasons/${editEntryId}`, seasonEntry);
+        await axios.put(
+          `http://44.196.192.232:8132/api/seasons/${seasonId}/${editEntryId}`,
+          seasonEntry
+        );
       } else {
-        await axios.post('http://44.196.192.232:8132/api/seasons/add', seasonEntry);
+        await axios.post(`http://44.196.192.232:8132/api/seasons/${seasonId}/add-entry`, seasonEntry);
       }
-      fetchSeasons();
+      fetchSeasons();  
       setModalVisible(false);
       resetForm();
     } catch (error) {
@@ -71,7 +72,7 @@ const Season = () => {
 
   const handleDeleteSeason = async (id) => {
     try {
-      await axios.delete(`http://44.196.192.232:8132/api/seasons/${id}`);
+      await axios.delete(`http://44.196.192.232:8132/api/seasons/${seasonId}/${id}`);
       fetchSeasons();
     } catch (error) {
       console.error('Error deleting season:', error);
@@ -117,25 +118,26 @@ const Season = () => {
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                  {seasonData[seasonType]?.map((entry, index) => (
-                    <CTableRow key={entry._id || index}>
-                      <CTableDataCell>{entry.month}</CTableDataCell>
-                      <CTableDataCell>{new Date(entry.dateFrom).toLocaleDateString()}</CTableDataCell>
-                      <CTableDataCell>{new Date(entry.dateTo).toLocaleDateString()}</CTableDataCell>
-                      <CTableDataCell>
-                        <FontAwesomeIcon
-                          icon={faPenToSquare}
-                          style={{ color: '#b3ae0f', cursor: 'pointer', marginRight: '10px' }}
-                          onClick={() => handleOpenModal(seasonType, entry)}
-                        />
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          style={{ color: '#bb1616', cursor: 'pointer' }}
-                          onClick={() => handleDeleteSeason(entry._id)}
-                        />
-                      </CTableDataCell>
-
-                    </CTableRow>
+                  {seasonData?.map((season) => (
+                    season[seasonType]?.map((entry, index) => (
+                      <CTableRow key={entry._id || index}>
+                        <CTableDataCell>{entry.month}</CTableDataCell>
+                        <CTableDataCell>{new Date(entry.dateFrom).toLocaleDateString()}</CTableDataCell>
+                        <CTableDataCell>{new Date(entry.dateTo).toLocaleDateString()}</CTableDataCell>
+                        <CTableDataCell>
+                          <FontAwesomeIcon
+                            icon={faPenToSquare}
+                            style={{ color: '#b3ae0f', cursor: 'pointer', marginRight: '10px' }}
+                            onClick={() => handleOpenModal(seasonType, entry)}
+                          />
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            style={{ color: '#bb1616', cursor: 'pointer' }}
+                            onClick={() => handleDeleteSeason(entry._id)}
+                          />
+                        </CTableDataCell>
+                      </CTableRow>
+                    ))
                   ))}
                 </CTableBody>
               </CTable>

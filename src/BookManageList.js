@@ -54,12 +54,15 @@ const BookManageList = () => {
   };
 
   const assignDriver = async () => {
-    if (!currentDriver) return; 
-  
+    if (!currentDriver || !currentBooking) {
+      console.error("Driver or Booking not selected");
+      return;
+    }
     try {
       const requestData = {
         bookingId: currentBooking._id,
-        driverId: currentDriver, 
+      driverId: currentDriver,
+      paymentId: currentBooking.paymentId || null,
       };
       const response = await axios.post(`http://44.196.192.232:8132/api/driver/assignDriver`, requestData);
       console.log("Response:", response.data);

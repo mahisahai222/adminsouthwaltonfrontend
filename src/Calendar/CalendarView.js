@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -13,7 +11,6 @@ import {
 } from '@coreui/react';
 import '@coreui/coreui/dist/css/coreui.min.css';
 
-// Configure date-fns localizer
 const locales = {
   'en-US': enUS,
 };
@@ -26,7 +23,6 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-// Custom Event Component to highlight the title
 const CustomEvent = ({ event }) => {
   const customEventStyle = {
     fontWeight: 'bold',
@@ -45,25 +41,31 @@ const CalendarView = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  
-
-  // Fetch details of a specific booking by ID
   const fetchEvents = async () => {
     try {
+      console.log("Fetching events..."); 
       const response = await axios.get('http://44.196.192.232:8132/api/book');
-      const events = response.data.data.map(eventData => ({ // Accessing 'data' from the response
-        id: eventData._id, // Ensure this is correct
-        title: eventData.bname || 'No Title', // Provide a fallback if title is missing
-        start: new Date(eventData.bdropDate), // Make sure this is a valid date
-        end: new Date(eventData.bdropDate), // Use the same date for all-day events
-        allDay: true, // Set to true if this is an all-day event
-        ...eventData // Include other properties if needed
-      }));
-      setMyEvents(events);
+      console.log("API Response:", response); 
+  
+      if (response.data) {
+        const events = response.data.map(eventData => ({
+          id: eventData.paymentId, 
+          title: eventData.bookingDetails?.bname || 'No Title', 
+          start: new Date(eventData.reservationDetails?.dropdate),
+          end: new Date(eventData.reservationDetails?.dropdate), 
+          allDay: true,
+          ...eventData,
+        }));
+        console.log("Mapped Events:", events); 
+        setMyEvents(events); 
+      } else {
+        console.error("No data in API response:", response);
+      }
     } catch (error) {
-      console.error('Error fetching events data:', error);
+      console.error("Error fetching events data:", error); 
     } finally {
-      setLoading(false);
+      setLoading(false); 
+      console.log("Fetch complete."); 
     }
   };
   
@@ -74,7 +76,7 @@ const CalendarView = () => {
 
   const handleViewDetails = (event) => {
     console.log("Event clicked:", event);
-    fetchEventDetails(event.id);
+    fetchEventDetails(event.id); 
     setModalOpen(true);
   };
 
@@ -84,7 +86,7 @@ const CalendarView = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>; 
   }
 
   return (
@@ -99,7 +101,7 @@ const CalendarView = () => {
         components={{
           event: CustomEvent
         }}
-        onSelectEvent={handleViewDetails}
+        onSelectEvent={handleViewDetails} 
       />
 
       <CModal
@@ -144,31 +146,11 @@ const CalendarView = () => {
                   />
                 </CCol>
                 <CCol sm={6}>
-                  <CFormLabel htmlFor="bsize">Size</CFormLabel>
-                  <CFormInput
-                    id="bsize"
-                    name="bsize"
-                    value={selectedEvent.bsize || ''}
-                    readOnly
-                  />
-                </CCol>
-              </CRow>
-              <CRow className="mb-3">
-                <CCol sm={6}>
                   <CFormLabel htmlFor="baddress">Address</CFormLabel>
                   <CFormInput
                     id="baddress"
                     name="baddress"
                     value={selectedEvent.baddress || ''}
-                    readOnly
-                  />
-                </CCol>
-                <CCol sm={6}>
-                  <CFormLabel htmlFor="baddressh">Address H</CFormLabel>
-                  <CFormInput
-                    id="baddressh"
-                    name="baddressh"
-                    value={selectedEvent.baddressh || ''}
                     readOnly
                   />
                 </CCol>
@@ -229,4 +211,3 @@ const CalendarView = () => {
 };
 
 export default CalendarView;
-

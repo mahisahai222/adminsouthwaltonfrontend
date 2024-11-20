@@ -22,8 +22,15 @@ const Reservation = () => {
   // Fetch all reservations
   const fetchReservations = async () => {
     try {
-      const response = await axios.get('http://44.196.192.232:8132/api/reserve/reservations'); // Adjust the API URL
-      setReservations(response.data);
+      const response = await axios.get('http://44.196.192.232:8132/api/reserve/reservations'); 
+      console.log(response.data); 
+      if (response.data.success) {
+        const reservationsData = Array.isArray(response.data.data) ? response.data.data : [];
+        setReservations(reservationsData);
+        console.log('Updated Reservations:', reservationsData); 
+      } else {
+        console.error('Error fetching reservations: ', response.data.message);
+      }
       setLoading(false);
     } catch (error) {
       console.error('Error fetching reservations:', error);

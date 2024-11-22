@@ -1,245 +1,384 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
-  CButton,
   CCard,
-  CCardBody,
   CCardHeader,
-  CCol,
+  CCardBody,
+  CModal,
+  CModalHeader,
+  CModalTitle,
+  CModalBody,
+  CModalFooter,
   CForm,
+  CFormLabel,
   CFormInput,
-  CFormSelect,
-  CInputGroup,
   CRow,
+  CCol,
+  CCardText,
+  CButton,
   CTable,
+  CTableHead,
+  CTableRow,
+  CTableHeaderCell,
   CTableBody,
   CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
-  CImage,
 } from '@coreui/react';
-import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 const VehicleManageList = () => {
-  const [vehicles, setVehicles] = useState([]);
-  const [formData, setFormData] = useState({
-    vname: '',
-    passenger: '',
-    vprice: {
-      offseason: {},
-      secondaryseason: {},
-      peakseason: {},
-    },
-    image: null,
-  });
-  const [isEditing, setIsEditing] = useState(false);
-  const [editVehicleId, setEditVehicleId] = useState(null);
+  const [vehicleData, setVehicleData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [vname, setVname] = useState('');
+  const [passenger, setPassenger] = useState('');
+  const [vprice, setVprice] = useState([]); 
+  const [image, setImage] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [currentVehicleId, setCurrentVehicleId] = useState(null);
+  const [visible, setVisible] = useState(false);
+  const [priceModalVisible, setPriceModalVisible] = useState(false);
+  const [vehiclePrice, setVehiclePrice] = useState('');
 
-  useEffect(() => {
-    fetchVehicles();
-  }, []);
-
-  const fetchVehicles = async () => {
+  const fetchVehicleData = async () => {
     try {
       const response = await axios.get('http://44.196.192.232:8132/api/vehicle');
-      setVehicles(response.data);
+      setVehicleData(response.data || []);
+      setLoading(false);
     } catch (error) {
-      console.error("Error fetching vehicles:", error);
+      console.error('Error fetching vehicle data:', error);
+      setLoading(false);
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-  };
+  useEffect(() => {
+    fetchVehicleData();
+  }, []);
 
-  const handleVpriceChange = (e, season, dayType) => {
-    const { value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      vprice: {
-        ...prevData.vprice,
-        [season]: {
-          ...prevData.vprice[season],
-          [dayType]: value,
-        },
-      },
-    }));
-  };
-
-  const handleFileChange = (e) => {
-    setFormData((prevData) => ({ ...prevData, image: e.target.files[0] }));
-  };
-
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    const formDataObj = new FormData();
-    formDataObj.append('vname', formData.vname);
-    formDataObj.append('passenger', formData.passenger);
-    formDataObj.append('vprice', JSON.stringify(formData.vprice));
-    if (formData.image) formDataObj.append('image', formData.image);
+  const handleAddVehicle = async () => {
+    const formData = new FormData();
+    formData.append('vname', vname);
+    formData.append('passenger', passenger);
+    formData.append('vprice', JSON.stringify(vprice)); 
+    if (image) {
+      formData.append('image', image);
+    }
 
     try {
-      if (isEditing) {
-        await axios.put(`http://44.196.192.232:8132/api/vehicle/${editVehicleId}`, formDataObj);
-      } else {
-        await axios.post('http://44.196.192.232:8132/api/vehicle/add', formDataObj);
-      }
-      fetchVehicles();
+      const response = await axios.post('http://44.196.192.232:8132/api/vehicle/add', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      fetchVehicleData();
       resetForm();
+      setVisible(false);
+      window.alert('Vehicle successfully added');
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error('Error adding vehicle:', error);
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      vname: '',
-      passenger: '',
-      vprice: { offseason: {}, secondaryseason: {}, peakseason: {} },
-      image: null,
-    });
-    setIsEditing(false);
-    setEditVehicleId(null);
+  const handleEditVehicle = (vehicle) => {
+    setVname(vehicle.vname);
+    setPassenger(vehicle.passenger);
+    setVprice(vehicle.vprice);
+    setImage(null); 
+    setEditMode(true);
+    setCurrentVehicleId(vehicle._id);
+    setVisible(true);  
   };
+  
 
-  const handleEdit = (vehicle) => {
-    setFormData({
-      vname: vehicle.vname,
-      passenger: vehicle.passenger,
-      vprice: vehicle.vprice,
-      image: null,
-    });
-    setIsEditing(true);
-    setEditVehicleId(vehicle._id);
+  const handleUpdateVehicle = async () => {
+    const formData = new FormData();
+    formData.append('vname', vname);
+    formData.append('passenger', passenger);
+    formData.append('vprice', JSON.stringify(vprice));
+    if (image) {
+      formData.append('image', image);  // Include image if it's updated
+    }
+  
+    try {
+      const response = await axios.put(`http://44.196.192.232:8132/api/vehicle/${currentVehicleId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      const updatedVehicle = response.data;
+      // Update the vehicle list with the newly updated vehicle
+      setVehicleData(vehicleData.map((vehicle) =>
+        vehicle._id === currentVehicleId ? { ...vehicle, ...updatedVehicle } : vehicle
+      ));
+      fetchVehicleData();  // Optional: Fetch the updated data again
+      resetForm();
+      setEditMode(false);
+      setCurrentVehicleId(null);
+      setVisible(false);
+      window.alert('Vehicle successfully updated');
+    } catch (error) {
+      console.error('Error updating vehicle data:', error);
+    }
   };
-
-  const handleDelete = async (id) => {
+  
+  const handleDeleteVehicle = async (id) => {
     try {
       await axios.delete(`http://44.196.192.232:8132/api/vehicle/${id}`);
-      fetchVehicles();
+      setVehicleData(vehicleData.filter((vehicle) => vehicle._id !== id));
+      window.alert('Vehicle successfully deleted');
     } catch (error) {
-      console.error("Error deleting vehicle:", error);
+      console.error('Error deleting vehicle:', error);
     }
   };
 
+  const handleViewPrice = (vehicleId) => {
+    const vehicle = vehicleData.find((vehicle) => vehicle._id === vehicleId);
+    if (vehicle && Array.isArray(vehicle.vprice) && vehicle.vprice.length > 0) {
+      setVehiclePrice(vehicle.vprice);
+      setPriceModalVisible(true);
+    } else {
+      setVehiclePrice([]); 
+      setPriceModalVisible(true);
+    }
+  };
+
+
+  const resetForm = () => {
+    setVname('');
+    setPassenger('');
+    setVprice('');
+    setImage(null);
+  };
+
+  const handleAddPrice = () => {
+    // Make sure vprice is an array before adding new price data
+    if (Array.isArray(vprice)) {
+      setVprice([...vprice, { season: '', day: '', price: '' }]);
+    }
+  };
+
+  const handlePriceChange = (index, field, value) => {
+    const newPrices = [...vprice];
+    newPrices[index][field] = value;
+    setVprice(newPrices);
+  };
+
+  const handleDeletePrice = (index) => {
+    const newPrices = [...vprice];
+    newPrices.splice(index, 1);
+    setVprice(newPrices);
+  };
+
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
   return (
-    <CRow>
-      <CCol xs={12}>
-        <CCard>
-          <CCardHeader>
-            <strong>{isEditing ? 'Edit Vehicle' : 'Add New Vehicle'}</strong>
-          </CCardHeader>
-          <CCardBody>
-            <CForm onSubmit={handleFormSubmit}>
-              <CInputGroup className="mb-3">
-                <CFormInput
-                  placeholder="Vehicle Name"
-                  name="vname"
-                  value={formData.vname}
-                  onChange={handleInputChange}
-                  required
-                />
-                <CFormSelect
-                  name="passenger"
-                  value={formData.passenger}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Passenger Capacity</option>
-                  <option value="fourPassenger">Four Passengers</option>
-                  <option value="sixPassenger">Six Passengers</option>
-                  <option value="eightPassenger">Eight Passengers</option>
-                </CFormSelect>
-              </CInputGroup>
+    <>
+      <CCard className="d-flex w-100">
+        <CCardHeader className="d-flex justify-content-between align-items-center">
+          <h1 style={{ fontSize: '24px', color: 'indianred' }}>Vehicle Management</h1>
+          <div className="d-flex align-items-center">
+            <CButton
+              color="primary"
+              size="sm"
+              className="me-3"
+              onClick={() => {
+                resetForm();
+                setEditMode(false);
+                setVisible(true);
+              }}
+            >
+              Add Vehicle
+            </CButton>
+          </div>
+        </CCardHeader>
+        <CCardBody>
+          <CCardText>
+            {vehicleData.length === 0 ? (
+              <div className="no-data">No vehicle data found.</div>
+            ) : (
+              <CRow>
+                <CCol>
+                  <CTable hover bordered striped responsive>
+                    <CTableHead>
+                      <CTableRow>
+                        <CTableHeaderCell scope="col">Profile</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Name</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Passenger</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Price</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
+                      </CTableRow>
+                    </CTableHead>
+                    <CTableBody>
+                      {vehicleData.map((vehicle) => (
+                        <CTableRow key={vehicle._id}>
+                          <CTableDataCell>
+                            {vehicle.image && vehicle.image.length > 0 ? (
+                              vehicle.image.map((imgSrc, index) => (
+                                <img
+                                  key={index}
+                                  src={imgSrc}
+                                  alt={`${vehicle.name} ${index + 1}`}
+                                  style={{ width: '100px', marginRight: '10px' }}
+                                />
+                              ))
+                            ) : (
+                              <span>No images available</span>
+                            )}
+                          </CTableDataCell>
 
-              <div>
-                <h5>Vprice Details:</h5>
-                {['offseason', 'secondaryseason', 'peakseason'].map((season) => (
-                  <CRow key={season}>
-                    <CCol md={4}>
-                      <h6>{season.charAt(0).toUpperCase() + season.slice(1)}</h6>
-                      {['oneDay', 'twoDays', 'threeDays', 'fourDays', 'fiveDays', 'sixDays', 'weeklyRental'].map((dayType) => (
-                        <CFormInput
-                          key={dayType}
-                          placeholder={`${dayType} price`}
-                          value={formData.vprice[season][dayType] || ''}
-                          onChange={(e) => handleVpriceChange(e, season, dayType)}
-                        />
+                          <CTableDataCell>{vehicle.vname}</CTableDataCell>
+                          <CTableDataCell>{vehicle.passenger}</CTableDataCell>
+                          <CTableDataCell>
+                            <CButton
+                              size="sm"
+                              color='info'
+                              className="me-2"
+                              onClick={() => handleViewPrice(vehicle._id)}
+                            >
+                              View Price
+                            </CButton>
+                          </CTableDataCell>
+                          <CTableDataCell>
+                            <CButton
+                              size="sm"
+                              className="me-2"
+                              onClick={() => handleEditVehicle(vehicle)}
+                            >
+                              <FontAwesomeIcon icon={faPenToSquare} style={{ color: '#b3ae0f', cursor: 'pointer' }} />
+                            </CButton>
+                            <CButton
+                              size="sm"
+                              onClick={() => handleDeleteVehicle(vehicle._id)}
+                            >
+                              <FontAwesomeIcon icon={faTrash} style={{ color: '#bb1616', cursor: 'pointer' }} />
+                            </CButton>
+                          </CTableDataCell>
+                        </CTableRow>
                       ))}
-                    </CCol>
-                  </CRow>
-                ))}
+                    </CTableBody>
+                  </CTable>
+                </CCol>
+              </CRow>
+            )}
+          </CCardText>
+        </CCardBody>
+      </CCard>
+
+      {/* Price Modal */}
+      <CModal visible={priceModalVisible} onClose={() => setPriceModalVisible(false)}>
+        <CModalHeader>
+          <CModalTitle>Vehicle Price</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          {vehiclePrice && vehiclePrice.length > 0 ? (
+            vehiclePrice.map((priceData, index) => (
+               <div key={index} style={{ marginBottom: '20px' }}>
+                <div  style={{ marginBottom: '10px' }}>Season: {priceData.season || 'No season available'}</div>
+                <div  style={{ marginBottom: '10px' }}>Day: {priceData.day || 'No day available'}</div>
+                <div  style={{ marginBottom: '10px' }}>Price: {priceData.price ? `$${priceData.price}` : 'No price available'}</div>
+                <hr />
               </div>
+            ))
+          ) : (
+            <div>No price data available</div>
+          )}
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setPriceModalVisible(false)}>
+            Close
+          </CButton>
+        </CModalFooter>
+      </CModal>
 
-              <CFormInput
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="my-3"
-              />
-              <CButton type="submit" color="primary">
-                {isEditing ? 'Update Vehicle' : 'Add Vehicle'}
-              </CButton>
-              {isEditing && (
-                <CButton color="secondary" onClick={resetForm} className="ms-2">
-                  Cancel Edit
-                </CButton>
-              )}
-            </CForm>
-          </CCardBody>
-        </CCard>
-      </CCol>
 
-      <CCol xs={12} className="mt-4">
-        <CCard>
-          <CCardHeader>
-            <strong>Vehicle List</strong>
-          </CCardHeader>
-          <CCardBody>
-            <CTable hover>
-              <CTableHead>
-                <CTableRow>
-                  <CTableHeaderCell>Image</CTableHeaderCell>
-                  <CTableHeaderCell>Vehicle Name</CTableHeaderCell>
-                  <CTableHeaderCell>Passenger</CTableHeaderCell>
-                  <CTableHeaderCell>Vprice</CTableHeaderCell>
-                  <CTableHeaderCell>Actions</CTableHeaderCell>
-                </CTableRow>
-              </CTableHead>
-              <CTableBody>
-                {vehicles.map((vehicle) => (
-                  <CTableRow key={vehicle._id}>
-                    <CTableDataCell>
-                      {vehicle.image && <CImage src={vehicle.image[0]} width="100" />}
-                    </CTableDataCell>
-                    <CTableDataCell>{vehicle.vname}</CTableDataCell>
-                    <CTableDataCell>{vehicle.passenger}</CTableDataCell>
-                    <CTableDataCell>
-                      <div>
-                        Offseason: {JSON.stringify(vehicle.vprice.offseason)}
-                        <br />
-                        Secondary Season: {JSON.stringify(vehicle.vprice.secondaryseason)}
-                        <br />
-                        Peak Season: {JSON.stringify(vehicle.vprice.peakseason)}
-                      </div>
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      <CButton color="info" onClick={() => handleEdit(vehicle)} className="me-2">
-                        Edit
+      {/* Add/Edit Vehicle Modal */}
+      <CModal visible={visible} onClose={() => setVisible(false)}>
+        <CModalHeader>
+          <CModalTitle>{editMode ? 'Edit Vehicle' : 'Add Vehicle'}</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CForm>
+            <CRow>
+              <CCol xs={12}>
+                <CFormLabel htmlFor="vname">Name</CFormLabel>
+                <CFormInput
+                  id="vname"
+                  value={vname}
+                  onChange={(e) => setVname(e.target.value)}
+                />
+              </CCol>
+              <CCol xs={12}>
+                <CFormLabel htmlFor="passenger">Passenger</CFormLabel>
+                <CFormInput
+                  id="passenger"
+                  value={passenger}
+                  onChange={(e) => setPassenger(e.target.value)}
+                />
+              </CCol>
+
+              {/* Price Section */}
+              <CCol xs={12}>
+                <CFormLabel htmlFor="vprice">Price</CFormLabel>
+                <div>
+                  {vprice.map((priceData, index) => (
+                    <div key={index}>
+                      <CFormInput
+                        value={priceData.season}
+                        onChange={(e) => handlePriceChange(index, 'season', e.target.value)}
+                        placeholder="Season"
+                      />
+                      <CFormInput
+                        value={priceData.day}
+                        onChange={(e) => handlePriceChange(index, 'day', e.target.value)}
+                        placeholder="Day"
+                      />
+                      <CFormInput
+                        type="number"
+                        value={priceData.price}
+                        onChange={(e) => handlePriceChange(index, 'price', e.target.value)}
+                        placeholder="Price"
+                      />
+                      <CButton size='sm' color="danger" onClick={() => handleDeletePrice(index)}>
+                        Remove Price
                       </CButton>
-                      <CButton color="danger" onClick={() => handleDelete(vehicle._id)}>
-                        Delete
-                      </CButton>
-                    </CTableDataCell>
-                  </CTableRow>
-                ))}
-              </CTableBody>
-            </CTable>
-          </CCardBody>
-        </CCard>
-      </CCol>
-    </CRow>
+                    </div>
+                  ))}
+                  <CButton size='sm' color="success" onClick={handleAddPrice}>
+                    Add Price
+                  </CButton>
+                </div>
+              </CCol>
+
+              <CCol xs={12}>
+                <CFormLabel htmlFor="image">Upload Image</CFormLabel>
+                <CFormInput
+                  id="image"
+                  type="file"
+                  onChange={(e) => setImage(e.target.files[0])}
+                />
+              </CCol>
+            </CRow>
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton
+            color="secondary"
+            onClick={() => setVisible(false)}
+          >
+            Cancel
+          </CButton>
+          <CButton
+            color="primary"
+            onClick={editMode ? handleUpdateVehicle : handleAddVehicle}
+          >
+            {editMode ? 'Update' : 'Add'}
+          </CButton>
+        </CModalFooter>
+      </CModal>
+    </>
   );
 };
 

@@ -12,7 +12,7 @@ import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 const Season = () => {
   const [seasonData, setSeasonData] = useState([]);
   const [selectedSeasonType, setSelectedSeasonType] = useState('');
-  const [seasonId, setSeasonId] = useState('');  // Store the seasonId for API requests
+  const [seasonId, setSeasonId] = useState('');  
   const [month, setMonth] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -26,7 +26,7 @@ const Season = () => {
 
   const fetchSeasons = async () => {
     try {
-      const response = await axios.get('http://44.196.192.232:8132/api/seasons');
+      const response = await axios.get('http://18.209.197.35:8132/api/seasons');
       const data = response.data;
       // Assuming there's only one season document in the collection, or you will need to adjust based on your actual data structure
       setSeasonData(data);
@@ -42,11 +42,11 @@ const Season = () => {
     try {
       if (editMode) {
         await axios.put(
-          `http://44.196.192.232:8132/api/seasons/${seasonId}/${editEntryId}`,
+          `http://18.209.197.35:8132/api/seasons/${seasonId}/${editEntryId}`,
           seasonEntry
         );
       } else {
-        await axios.post(`http://44.196.192.232:8132/api/seasons/${seasonId}/add-entry`, seasonEntry);
+        await axios.post(`http://18.209.197.35:8132/api/seasons/${seasonId}/add-entry`, seasonEntry);
       }
       fetchSeasons();  
       setModalVisible(false);
@@ -70,14 +70,19 @@ const Season = () => {
     setModalVisible(true);
   };
 
-  const handleDeleteSeason = async (id) => {
+  const handleDeleteSeason = async (seasonType, entryId) => {
     try {
-      await axios.delete(`http://44.196.192.232:8132/api/seasons/${seasonId}/${id}`);
+     
+      await axios.delete(`http://18.209.197.35:8132/api/seasons/${seasonId}/${seasonType}/${entryId}`);
       fetchSeasons();
+      window.alert('Season Entry has been deleted successfully!')
     } catch (error) {
       console.error('Error deleting season:', error);
     }
   };
+  
+  
+
 
   const resetForm = () => {
     setEditMode(false);
@@ -133,7 +138,7 @@ const Season = () => {
                           <FontAwesomeIcon
                             icon={faTrash}
                             style={{ color: '#bb1616', cursor: 'pointer' }}
-                            onClick={() => handleDeleteSeason(entry._id)}
+                            onClick={() => handleDeleteSeason(seasonType, entry._id)}
                           />
                         </CTableDataCell>
                       </CTableRow>

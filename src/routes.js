@@ -17,6 +17,7 @@ const Feedback = React.lazy(() => import('./Feedback'))
 const Payment = React.lazy(() => import('./Payment'))
 const Reservation = React.lazy(() => import('./Reservation'))
 const Season = React.lazy(() => import('./Season'))
+const CustDamageManage = React.lazy(() => import('./CustDamageManage'))
 
 const routes = [
   // { path: '/', exact: true, name: 'Home' },
@@ -37,6 +38,7 @@ const routes = [
   { path: '/Payment', name: 'Payment Management', element: Payment },
   { path: '/Reservation', name: 'Reservation Management', element: Reservation },
   { path: '/Season', name: 'Season Management', element: Season },
+  { path: '/CustDamageManage', name: 'C. Damage Management', element: CustDamageManage },
  ]
 
 export default routes

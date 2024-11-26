@@ -24,10 +24,11 @@ const Sign = () => {
   useEffect(() => {
     const fetchSignatureData = async () => {
       try {
-        const response = await axios.get('http://44.196.192.232:8132/api/sign');
+        const response = await axios.get('http://18.209.197.35:5001/api/sign/get-sign');
         console.log('Signature Data:', response.data);
         
-        setSignatureData(response.data);
+        setSignatureData(response.data.data);  // If the data is nested inside the `data` field
+;
         setLoading(false);
       } catch (error) {
         console.error('Error fetching signature data:', error);
@@ -40,7 +41,7 @@ const Sign = () => {
 
   const handleDeleteSignature = async (id) => {
     try {
-      await axios.delete(`http://44.196.192.232:8132/api/sign/${id}`);
+      await axios.delete(`http://18.209.197.35:8132/api/sign/${id}`);
       setSignatureData(signatureData.filter((sig) => sig._id !== id));
       window.alert('Signature successfully deleted');
     } catch (error) {
@@ -76,10 +77,11 @@ const Sign = () => {
                     <CTableBody>
                       {signatureData.map((signature) => (
                         <CTableRow key={signature._id}>
-                          <CTableDataCell>{signature.name}</CTableDataCell>
+
+                           <CTableDataCell>{signature.userId}</CTableDataCell>
                           <CTableDataCell>
                             <img
-                              src={signature.signatureUrl} // Use signatureUrl instead of signatureData
+                              src={signature.image} 
                               alt="Signature"
                               style={{ width: '100px', height: 'auto' }}
                             />

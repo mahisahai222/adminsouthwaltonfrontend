@@ -139,14 +139,25 @@ const _nav = [
 
   {
     component: CNavItem,
-  name: 'Order Status Track',
-  to: '/OrderStatusTrack',
-  icon: <FontAwesomeIcon icon={faTruck} style={{ color: '#f73636', fontSize: '1.5rem', marginRight: '0.5rem' }} />,
-  badge: {
-    color: 'info',
+    name: 'C. Damage Management',
+    to: '/CustDamageManage',
+    icon: <FontAwesomeIcon icon={faCircleExclamation} style={{ color: '#eaf457', fontSize: '1.5rem', marginRight: '0.5rem'}} />,
+    badge: {
+      color: 'info',
       // text: 'NEW',
     },
   },
+
+  // {
+  //   component: CNavItem,
+  // name: 'Order Status Track',
+  // to: '/OrderStatusTrack',
+  // icon: <FontAwesomeIcon icon={faTruck} style={{ color: '#f73636', fontSize: '1.5rem', marginRight: '0.5rem' }} />,
+  // badge: {
+  //   color: 'info',
+  //     // text: 'NEW',
+  //   },
+  // },
 
   {
     component: CNavItem,

@@ -22,7 +22,7 @@ const Reservation = () => {
   // Fetch all reservations
   const fetchReservations = async () => {
     try {
-      const response = await axios.get('http://44.196.192.232:8132/api/reserve/reservations'); 
+      const response = await axios.get('http://18.209.197.35:8132/api/reserve/reservations'); 
       console.log(response.data); 
       if (response.data.success) {
         const reservationsData = Array.isArray(response.data.data) ? response.data.data : [];
@@ -45,7 +45,7 @@ const Reservation = () => {
   // Handle delete reservation
   const handleDeleteReservation = async (id) => {
     try {
-      await axios.delete(`http://44.196.192.232:8132/api/reserve/reservation/${id}`); // Adjust the API URL
+      await axios.delete(`http://18.209.197.35:8132/api/reserve/reservation/${id}`); // Adjust the API URL
       setReservations(reservations.filter((reservation) => reservation._id !== id));
       window.alert('Reservation successfully deleted');
     } catch (error) {
@@ -56,7 +56,7 @@ const Reservation = () => {
   // Handle accept reservation
   const handleAcceptReservation = async (id) => {
     try {
-      const response = await axios.put(`http://44.196.192.232:8132/api/reserve/reservation/${id}/accept`);
+      const response = await axios.put(`http://18.209.197.35:8132/api/reserve/reservation/${id}/accept`);
       alert(response.data.message); // Show success message
       fetchReservations(); // Refresh reservations
     } catch (error) {

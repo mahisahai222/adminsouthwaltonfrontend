@@ -22,11 +22,15 @@ import {
   CTableHeaderCell,
   CTableBody,
   CTableDataCell,
+  CFormSelect ,
+  
 } from '@coreui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 const VehicleManageList = () => {
+
+
   const [vehicleData, setVehicleData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [vname, setVname] = useState('');
@@ -37,11 +41,11 @@ const VehicleManageList = () => {
   const [currentVehicleId, setCurrentVehicleId] = useState(null);
   const [visible, setVisible] = useState(false);
   const [priceModalVisible, setPriceModalVisible] = useState(false);
-  const [vehiclePrice, setVehiclePrice] = useState('');
+  const [vehiclePrice, setVehiclePrice] = useState([]);
 
   const fetchVehicleData = async () => {
     try {
-      const response = await axios.get('http://44.196.192.232:8132/api/vehicle');
+      const response = await axios.get('http://18.209.197.35:8132/api/vehicle');
       setVehicleData(response.data || []);
       setLoading(false);
     } catch (error) {
@@ -60,11 +64,11 @@ const VehicleManageList = () => {
     formData.append('passenger', passenger);
     formData.append('vprice', JSON.stringify(vprice)); 
     if (image) {
-      formData.append('image', image);
+      formData.append('images', image);
     }
 
     try {
-      const response = await axios.post('http://44.196.192.232:8132/api/vehicle/add', formData, {
+      const response = await axios.post('http://18.209.197.35:8132/api/vehicle/add', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -81,12 +85,14 @@ const VehicleManageList = () => {
   const handleEditVehicle = (vehicle) => {
     setVname(vehicle.vname);
     setPassenger(vehicle.passenger);
-    setVprice(vehicle.vprice);
+    setVprice(vehicle.vprice || []);
     setImage(null); 
     setEditMode(true);
     setCurrentVehicleId(vehicle._id);
     setVisible(true);  
-  };
+};
+
+  
   
 
   const handleUpdateVehicle = async () => {
@@ -95,22 +101,21 @@ const VehicleManageList = () => {
     formData.append('passenger', passenger);
     formData.append('vprice', JSON.stringify(vprice));
     if (image) {
-      formData.append('image', image);  // Include image if it's updated
+      formData.append('images', image);  // Include image if it's updated
     }
   
     try {
-      const response = await axios.put(`http://44.196.192.232:8132/api/vehicle/${currentVehicleId}`, formData, {
+      const response = await axios.put(`http://18.209.197.35:8132/api/vehicle/${currentVehicleId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
   
       const updatedVehicle = response.data;
-      // Update the vehicle list with the newly updated vehicle
       setVehicleData(vehicleData.map((vehicle) =>
         vehicle._id === currentVehicleId ? { ...vehicle, ...updatedVehicle } : vehicle
       ));
-      fetchVehicleData();  // Optional: Fetch the updated data again
+      fetchVehicleData(); 
       resetForm();
       setEditMode(false);
       setCurrentVehicleId(null);
@@ -123,7 +128,7 @@ const VehicleManageList = () => {
   
   const handleDeleteVehicle = async (id) => {
     try {
-      await axios.delete(`http://44.196.192.232:8132/api/vehicle/${id}`);
+      await axios.delete(`http://18.209.197.35:8132/api/vehicle/${id}`);
       setVehicleData(vehicleData.filter((vehicle) => vehicle._id !== id));
       window.alert('Vehicle successfully deleted');
     } catch (error) {
@@ -146,12 +151,11 @@ const VehicleManageList = () => {
   const resetForm = () => {
     setVname('');
     setPassenger('');
-    setVprice('');
+    setVprice([]);
     setImage(null);
   };
 
   const handleAddPrice = () => {
-    // Make sure vprice is an array before adding new price data
     if (Array.isArray(vprice)) {
       setVprice([...vprice, { season: '', day: '', price: '' }]);
     }
@@ -308,6 +312,7 @@ const VehicleManageList = () => {
                   id="vname"
                   value={vname}
                   onChange={(e) => setVname(e.target.value)}
+                   className="mb-3"
                 />
               </CCol>
               <CCol xs={12}>
@@ -316,40 +321,54 @@ const VehicleManageList = () => {
                   id="passenger"
                   value={passenger}
                   onChange={(e) => setPassenger(e.target.value)}
+                   className="mb-3"
                 />
               </CCol>
 
               {/* Price Section */}
               <CCol xs={12}>
-                <CFormLabel htmlFor="vprice">Price</CFormLabel>
-                <div>
-                  {vprice.map((priceData, index) => (
-                    <div key={index}>
-                      <CFormInput
-                        value={priceData.season}
-                        onChange={(e) => handlePriceChange(index, 'season', e.target.value)}
-                        placeholder="Season"
-                      />
-                      <CFormInput
-                        value={priceData.day}
-                        onChange={(e) => handlePriceChange(index, 'day', e.target.value)}
-                        placeholder="Day"
-                      />
-                      <CFormInput
-                        type="number"
-                        value={priceData.price}
-                        onChange={(e) => handlePriceChange(index, 'price', e.target.value)}
-                        placeholder="Price"
-                      />
-                      <CButton size='sm' color="danger" onClick={() => handleDeletePrice(index)}>
-                        Remove Price
-                      </CButton>
-                    </div>
-                  ))}
-                  <CButton size='sm' color="success" onClick={handleAddPrice}>
-                    Add Price
-                  </CButton>
-                </div>
+                <CFormLabel>Price</CFormLabel>
+                {vprice.map((price, index) => (
+                  <div key={index} className="mb-3">
+                    <CFormSelect
+                      value={price.season}
+                      onChange={(e) => handlePriceChange(index, 'season', e.target.value)}
+                        className="mb-3"
+                    >
+                      <option value="">Select Season</option>
+                      <option value="offseason">Offseason</option>
+                      <option value="secondaryseason">Secondary Season</option>
+                      <option value="peakseason">Peak Season</option>
+                    </CFormSelect>
+                    <CFormSelect
+                      value={price.day}
+                      onChange={(e) => handlePriceChange(index, 'day', e.target.value)}
+                        className="mb-3"
+                    >
+                      <option value="">Select Day</option>
+                      <option value="oneDay">One Day</option>
+                      <option value="twoDay">Two Day</option>
+                      <option value="threeDay">Three Day</option>
+                      <option value="fourDay">Four Day</option>
+                      <option value="fiveDay">Five Day</option>
+                      <option value="sixDay">Six Day</option>
+                      <option value="weeklyRental">Weekly Rental</option>
+                    </CFormSelect>
+                    <CFormInput
+                      type="number"
+                      value={price.price}
+                      placeholder="Price"
+                      onChange={(e) => handlePriceChange(index, 'price', e.target.value)}
+                        className="mb-3"
+                    />
+                    <CButton size="sm" color="danger" onClick={() => handleDeletePrice(index)}>
+                      Remove
+                    </CButton>
+                  </div>
+                ))}
+                <CButton size="sm" color="success" onClick={handleAddPrice}>
+                  Add Price
+                </CButton>
               </CCol>
 
               <CCol xs={12}>
@@ -358,6 +377,7 @@ const VehicleManageList = () => {
                   id="image"
                   type="file"
                   onChange={(e) => setImage(e.target.files[0])}
+                   className="mb-3"
                 />
               </CCol>
             </CRow>

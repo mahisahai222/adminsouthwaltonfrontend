@@ -24,7 +24,7 @@ const Sign = () => {
   useEffect(() => {
     const fetchSignatureData = async () => {
       try {
-        const response = await axios.get('http://18.209.197.35:5001/api/sign/get-sign');
+        const response = await axios.get('http://44.196.64.110:5001/api/sign/get-sign');
         console.log('Signature Data:', response.data);
         
         setSignatureData(response.data.data);  // If the data is nested inside the `data` field
@@ -41,7 +41,7 @@ const Sign = () => {
 
   const handleDeleteSignature = async (id) => {
     try {
-      await axios.delete(`http://18.209.197.35:8132/api/sign/${id}`);
+      await axios.delete(`http://44.196.64.110:8132/api/sign/${id}`);
       setSignatureData(signatureData.filter((sig) => sig._id !== id));
       window.alert('Signature successfully deleted');
     } catch (error) {

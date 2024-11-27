@@ -34,7 +34,8 @@ const DriverManageList = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [address, setAddress] = useState('');
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [currentDriverId, setCurrentDriverId] = useState(null);
   const [visible, setVisible] = useState(false);
@@ -42,18 +43,22 @@ const DriverManageList = () => {
   const [bookingDetails, setBookingDetails] = useState([]);
   const [bookingModalVisible, setBookingModalVisible] = useState(false);
 
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImage(files); // Store selected files as an array
+  };
+
+
   const fetchDriverBookings = async (driverId) => {
     try {
-      const response = await axios.get(`http://18.209.197.35:8132/api/driver/${driverId}/bookings`);
-      setBookingDetails(response.data.driver.bookings);
-      console.log('Fetched bookings:', response.data.driver.bookings);
-      console.log(response.data.driver.bookings);
-      console.log('State after setting:', bookingDetails);
-      setBookingModalVisible(true);
+      const response = await axios.get(`http://44.196.64.110:8132/api/driver/${driverId}/bookings`);
+      setBookingDetails(response.data.driver.bookings);  // Set the booking data
+      console.log('Fetched bookings:', response.data.driver.bookings); // For debugging
     } catch (error) {
       console.error('Error fetching driver bookings:', error);
     }
   };
+
 
   useEffect(() => {
     console.log('Updated bookingDetails:', bookingDetails); // Log state after it's updated
@@ -71,8 +76,8 @@ const DriverManageList = () => {
 
   const fetchDriverManageData = async () => {
     try {
-      const response = await axios.get('http://18.209.197.35:8132/api/driver');
-      setDriverManageData(response.data.data);
+      const response = await axios.get('http://44.196.64.110:8132/api/driver');
+      setDriverManageData(response.data.drivers);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching driver manage data:', error);
@@ -91,13 +96,14 @@ const DriverManageList = () => {
     formData.append('email', email);
     formData.append('password', password);
     formData.append('address', address);
-    if (image) {
-      formData.append('image', image);
+    if (image && image.length > 0) {
+      image.forEach((file, index) => formData.append('images', file));
     }
+
 
     try {
       const response = await axios.post(
-        'http://18.209.197.35:8132/api/driver/add',
+        'http://44.196.64.110:8132/api/driver/add',
         formData,
         {
           headers: {
@@ -120,6 +126,8 @@ const DriverManageList = () => {
     setMobileNumber(driver.mobileNumber);
     setEmail(driver.email);
     setPassword(driver.password);
+    setImage([]);
+    setExistingImages(item.image || []);
     setAddress(driver.address);
     setEditMode(true);
     setCurrentDriverId(driver._id);
@@ -133,13 +141,15 @@ const DriverManageList = () => {
     formData.append('email', email);
     formData.append('password', password);
     formData.append('address', address);
-    if (image) {
-      formData.append('image', image);
+    if (image && image.length > 0) {
+      image.forEach((file) => formData.append('images', file));
+    } else if (existingImages && existingImages.length > 0) {
+      existingImages.forEach((img) => formData.append('images', img));
     }
 
     try {
       const response = await axios.put(
-        `http://18.209.197.35:8132/api/driver/${currentDriverId}`,
+        `http://44.196.64.110:8132/api/driver/${currentDriverId}`,
         formData,
         {
           headers: {
@@ -164,7 +174,7 @@ const DriverManageList = () => {
 
   const handleDeleteDriverManage = async (id) => {
     try {
-      await axios.delete(`http://18.209.197.35:8132/api/driver/${id}`);
+      await axios.delete(`http://44.196.64.110:8132/api/driver/${id}`);
       setDriverManageData(driverManageData.filter((driver) => driver._id !== id));
       window.alert('Driver successfully deleted');
     } catch (error) {
@@ -241,7 +251,7 @@ const DriverManageList = () => {
                         <CTableHeaderCell scope="col">Email</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Password</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Address</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">View Bookings</CTableHeaderCell>
+                        {/* <CTableHeaderCell scope="col">View Bookings</CTableHeaderCell> */}
                         <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                       </CTableRow>
                     </CTableHead>
@@ -249,20 +259,27 @@ const DriverManageList = () => {
                       {filteredDrivers.map((driver) => (
                         <CTableRow key={driver._id}>
                           <CTableDataCell>
-                            {driver.image && (
-                              <img
-                                src={`http://18.209.197.35:8132/api/driver/image/${driver.image.filename}`}
-                                alt={driver.name}
-                                style={{ width: '50px', height: '50px' }}
-                              />
+                            {driver.images && driver.images.length > 0 ? (
+                              driver.images.map((imgSrc, index) => (
+                                <img
+                                  key={index}
+                                  src={imgSrc}
+                                  alt={`driver ${index + 1}`} // Adjust alt text as needed
+                                  style={{ width: '100px', marginRight: '10px' }} // Adjust size and spacing as needed
+                                />
+                              ))
+                            ) : (
+                              <span>No images available</span>
                             )}
                           </CTableDataCell>
+
+
                           <CTableDataCell>{driver.name}</CTableDataCell>
                           <CTableDataCell>{driver.mobileNumber}</CTableDataCell>
                           <CTableDataCell>{driver.email}</CTableDataCell>
                           <CTableDataCell>{driver.password}</CTableDataCell>
                           <CTableDataCell>{driver.address}</CTableDataCell>
-                          <CTableDataCell>
+                          {/* <CTableDataCell>
                             <CButton
                               size="lg"
                               className="me-2"
@@ -271,7 +288,7 @@ const DriverManageList = () => {
                               <FontAwesomeIcon icon={faEye} style={{ color: '#b772ca', cursor: 'pointer', marginRight: '10px' }} />
                             </CButton>
 
-                          </CTableDataCell>
+                          </CTableDataCell> */}
                           <CTableDataCell>
                             <CButton
                               size="sm"
@@ -388,60 +405,60 @@ const DriverManageList = () => {
       </CModal>
 
       <CModal visible={bookingModalVisible} onClose={() => setBookingModalVisible(false)}>
-  <CModalHeader>
-    <CModalTitle>Booking Details</CModalTitle>
-  </CModalHeader>
-  <CModalBody style={{ maxHeight: '500px', overflowY: 'auto' }}>
-    <CTable striped hover bordered responsive>
-      <CTableHead>
-        <CTableRow>
-        <CTableDataCell>Name</CTableDataCell>
-        <CTableDataCell>Phone</CTableDataCell>
-        <CTableDataCell>Email</CTableDataCell>
-        <CTableDataCell>Size</CTableDataCell>
-        <CTableDataCell>Pickup</CTableDataCell>
-        <CTableDataCell>Drop</CTableDataCell>
-        <CTableDataCell>Pick Date</CTableDataCell>
-        <CTableDataCell>Drop Date</CTableDataCell>
-        <CTableDataCell>Status</CTableDataCell>
-        </CTableRow>
-      </CTableHead>
-      <CTableBody>
-        {bookingDetails.length > 0 ? (
-          bookingDetails.map((booking) => (
-            <CTableRow key={booking.id}>
-              
-              <CTableDataCell>{booking.name}</CTableDataCell>
-             
-              <CTableDataCell>{booking.phone}</CTableDataCell>
-             
-              <CTableDataCell>{booking.email}</CTableDataCell>
-             
-              <CTableDataCell>{booking.size}</CTableDataCell>
-             
-              <CTableDataCell>{booking.pickup}</CTableDataCell>
-             
-              <CTableDataCell>{booking.drop}</CTableDataCell>
-              
-              <CTableDataCell>{booking.pickDate}</CTableDataCell>
-            
-              <CTableDataCell>{booking.dropDate}</CTableDataCell>
-             
-              <CTableDataCell>{booking.status}</CTableDataCell>
-            </CTableRow>
-          ))
-        ) : (
-          <CTableRow>
-            <CTableDataCell colSpan="2">No booking details available.</CTableDataCell>
-          </CTableRow>
-        )}
-      </CTableBody>
-    </CTable>
-  </CModalBody>
-  <CModalFooter>
-    <CButton color="secondary" onClick={() => setBookingModalVisible(false)}>Close</CButton>
-  </CModalFooter>
-</CModal>
+        <CModalHeader>
+          <CModalTitle>Booking Details</CModalTitle>
+        </CModalHeader>
+        <CModalBody style={{ maxHeight: '500px', overflowY: 'auto' }}>
+          <CTable striped hover bordered responsive>
+            <CTableHead>
+              <CTableRow>
+                <CTableDataCell>Name</CTableDataCell>
+                <CTableDataCell>Phone</CTableDataCell>
+                <CTableDataCell>Email</CTableDataCell>
+                <CTableDataCell>Size</CTableDataCell>
+                <CTableDataCell>Pickup</CTableDataCell>
+                <CTableDataCell>Drop</CTableDataCell>
+                <CTableDataCell>Pick Date</CTableDataCell>
+                <CTableDataCell>Drop Date</CTableDataCell>
+                <CTableDataCell>Status</CTableDataCell>
+              </CTableRow>
+            </CTableHead>
+            <CTableBody>
+              {bookingDetails.length > 0 ? (
+                bookingDetails.map((booking) => (
+                  <CTableRow key={booking.id}>
+
+                    <CTableDataCell>{booking.name}</CTableDataCell>
+
+                    <CTableDataCell>{booking.phone}</CTableDataCell>
+
+                    <CTableDataCell>{booking.email}</CTableDataCell>
+
+                    <CTableDataCell>{booking.size}</CTableDataCell>
+
+                    <CTableDataCell>{booking.pickup}</CTableDataCell>
+
+                    <CTableDataCell>{booking.drop}</CTableDataCell>
+
+                    <CTableDataCell>{booking.pickDate}</CTableDataCell>
+
+                    <CTableDataCell>{booking.dropDate}</CTableDataCell>
+
+                    <CTableDataCell>{booking.status}</CTableDataCell>
+                  </CTableRow>
+                ))
+              ) : (
+                <CTableRow>
+                  <CTableDataCell colSpan="2">No booking details available.</CTableDataCell>
+                </CTableRow>
+              )}
+            </CTableBody>
+          </CTable>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setBookingModalVisible(false)}>Close</CButton>
+        </CModalFooter>
+      </CModal>
 
 
     </>

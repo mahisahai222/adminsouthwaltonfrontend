@@ -13,7 +13,7 @@ const ResetPassword = () => {
   const handleResetPassword = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://18.209.197.35:8132/api/auths/reset-password', {
+      const response = await fetch('http://44.196.64.110:8132/api/auths/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -21,7 +21,7 @@ const Feedback = () => {
 
   const fetchFeedbackData = async () => {
     try {
-      const response = await axios.get('http://18.209.197.35:5001/api/request/');
+      const response = await axios.get('http://44.196.64.110:5001/api/request/');
       console.log('API response:', response.data); // Debugging response
       // Ensure feedbackData is correctly set from response.data
       setFeedbackData(Array.isArray(response.data.data) ? response.data.data : []); 
@@ -39,7 +39,7 @@ const Feedback = () => {
 
   const handleDeleteFeedback = async (id) => {
     try {
-      await axios.delete(`http://18.209.197.35:8132/api/feedback/${id}`);
+      await axios.delete(`http://44.196.64.110:5001/api/request/${id}`);
       setFeedbackData(feedbackData.filter((feedback) => feedback._id !== id));
       window.alert('Feedback successfully deleted');
     } catch (error) {

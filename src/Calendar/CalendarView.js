@@ -44,7 +44,7 @@ const CalendarView = () => {
   const fetchEvents = async () => {
     try {
       console.log("Fetching events..."); 
-      const response = await axios.get('http://18.209.197.35:8132/api/book');
+      const response = await axios.get('http://44.196.64.110:8132/api/book');
       console.log("API Response:", response); 
   
       if (response.data) {

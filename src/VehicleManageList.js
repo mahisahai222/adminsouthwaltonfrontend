@@ -45,7 +45,7 @@ const VehicleManageList = () => {
 
   const fetchVehicleData = async () => {
     try {
-      const response = await axios.get('http://18.209.197.35:8132/api/vehicle');
+      const response = await axios.get('http://44.196.64.110:8132/api/vehicle');
       setVehicleData(response.data || []);
       setLoading(false);
     } catch (error) {
@@ -68,7 +68,7 @@ const VehicleManageList = () => {
     }
 
     try {
-      const response = await axios.post('http://18.209.197.35:8132/api/vehicle/add', formData, {
+      const response = await axios.post('http://44.196.64.110:8132/api/vehicle/add', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -105,7 +105,7 @@ const VehicleManageList = () => {
     }
   
     try {
-      const response = await axios.put(`http://18.209.197.35:8132/api/vehicle/${currentVehicleId}`, formData, {
+      const response = await axios.put(`http://44.196.64.110:8132/api/vehicle/${currentVehicleId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -128,7 +128,7 @@ const VehicleManageList = () => {
   
   const handleDeleteVehicle = async (id) => {
     try {
-      await axios.delete(`http://18.209.197.35:8132/api/vehicle/${id}`);
+      await axios.delete(`http://44.196.64.110:8132/api/vehicle/${id}`);
       setVehicleData(vehicleData.filter((vehicle) => vehicle._id !== id));
       window.alert('Vehicle successfully deleted');
     } catch (error) {

@@ -24,7 +24,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 
-const stripePromise = loadStripe('pk_test_51PsifGP6k3IQ77YBnQ4FXQCCb548b6cL50JVVuZxBRHqrkwxMfmcBTDGclAqwnVFiNtSvtNHgOPGxhJzlQjzrPPr00i340x8H3');
+const stripePromise = loadStripe('pk_test_51PsifGP6k3IQ77YBTqwaoWtH0Tc1sXZukLGML3nli4x83byajFihrC39BfXPWmbBY8RosI1QQgls6lqVGI15YSlS00Dt4ziZFP');
 
 const DamageManage = () => {
   const [damageManageData, setDamageManageData] = useState([]);
@@ -33,10 +33,11 @@ const DamageManage = () => {
   const [visible, setVisible] = useState(false);
   const [viewDamage, setViewDamage] = useState(null);
   const [viewVisible, setViewVisible] = useState(false);
+  const [image, setImage] = useState(null);
 
   const fetchDamageManageData = async () => {
     try {
-      const response = await axios.get('http://18.209.197.35:8132/api/damage');
+      const response = await axios.get('http://44.196.64.110:8132/api/damage');
       console.log(response.data.data);
       setDamageManageData(response.data.data);
       setLoading(false);
@@ -52,7 +53,7 @@ const DamageManage = () => {
 
   const handleDeleteDamageManage = async (id) => {
     try {
-      await axios.delete(`http://18.209.197.35:8132/api/damage/${id}`);
+      await axios.delete(`http://44.196.64.110:8132/api/damage/${id}`);
       setDamageManageData(damageManageData.filter((damage) => damage._id !== id));
       window.alert('Damage successfully deleted');
     } catch (error) {
@@ -69,28 +70,30 @@ const DamageManage = () => {
     if (!selectedDamage) return;
 
     try {
-      const stripe = await stripePromise;
-
-      const response = await axios.post(`http://18.209.197.35:8132/api/damage/refund/${selectedDamage._id}`, {
-        transactionId: selectedDamage.transactionId,
-      });
-
-      if (response.data.refund) {
+      // Send the payment ID in the URL as required by the backend
+      const response = await axios.post(`http://44.196.64.110:8132/api/damage/refund/${selectedDamage.paymentId}`);
+      if (response.data.success) {
         alert(`Refund processed successfully: ${response.data.message}`);
         setDamageManageData(damageManageData.map((damage) =>
-          damage._id === selectedDamage._id ? { ...damage, refunded: true } : damage
+          damage.paymentId === selectedDamage.paymentId ? { ...damage, refunded: true } : damage
         ));
+      } else {
+        alert(`Refund failed: ${response.data.message}`);
       }
       setVisible(false);
     } catch (error) {
       console.error('Error processing refund:', error);
-      alert('Failed to process refund: ' + error.message);
+      alert('Failed to process refund: ' + (error.response?.data?.message || error.message));
     }
   };
 
+
+
+
+
   const handleGeneratePDF = async (damageId) => {
     try {
-      const response = await axios.post('http://18.209.197.35:8132/api/damage/send-damage-report', { damageId }, { responseType: 'blob' });
+      const response = await axios.post('http://44.196.64.110:8132/api/damage/send-damage-report', { damageId }, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -107,7 +110,7 @@ const DamageManage = () => {
   const handleViewDamage = async (damage) => {
     console.log("Viewing Damage ID:", damage._id);
     try {
-      const response = await axios.get(`http://18.209.197.35:8132/api/damage/${damage._id}`);
+      const response = await axios.get(`http://44.196.64.110:8132/api/damage/${damage._id}`);
       if (response.data.success) {
         setViewDamage(response.data.data);
         setViewVisible(true);
@@ -118,7 +121,7 @@ const DamageManage = () => {
       console.error('Error fetching damage details:', error);
     }
   };
-  
+
 
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -155,16 +158,22 @@ const DamageManage = () => {
                           <CTableDataCell>{damage.transactionId}</CTableDataCell>
                           <CTableDataCell>{damage.damage}</CTableDataCell>
                           <CTableDataCell>
-                            {damage.images && damage.images.length > 0 && (
-                              <img
-                                src={`http://18.209.197.35:8132/uploads/${damage.images[0]}`}
-                                alt="Damage"
-                                style={{ width: '100px', height: 'auto' }}
-                              />
+                            {damage.images && damage.images.length > 0 ? (
+                              damage.images.map((imgSrc, index) => (
+                                <img
+                                  key={index}
+                                  src={imgSrc}
+                                  alt={`Damage ${index + 1}`}
+                                  style={{ width: '100px', marginRight: '10px' }}
+                                />
+                              ))
+                            ) : (
+                              <span>No images available</span>
                             )}
                           </CTableDataCell>
+
                           <CTableDataCell>
-                          <CButton
+                            <CButton
                               color="success"
                               size='sm'
                               style={{ padding: '2px 6px', fontSize: '12px' }}
@@ -248,7 +257,7 @@ const DamageManage = () => {
               )}
               {viewDamage.images && viewDamage.images.length > 0 && (
                 <img
-                  src={`http://18.209.197.35:8132/uploads/${viewDamage.images[0]}`}
+                  src={`http://44.196.64.110:8132/uploads/${viewDamage.images[0]}`}
                   alt="Damage"
                   style={{ width: '100%', height: 'auto' }}
                 />

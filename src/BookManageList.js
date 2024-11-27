@@ -22,7 +22,7 @@ const BookManageList = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get('http://18.209.197.35:8132/api/book');
+      const response = await axios.get('http://44.196.64.110:8132/api/book');
       if (response?.data && Array.isArray(response.data)) {
         setBookings(response.data);
       } else {
@@ -36,8 +36,8 @@ const BookManageList = () => {
 
   const fetchAvailableDrivers = async () => {
     try {
-      const response = await axios.get('http://18.209.197.35:8132/api/driver/'); // Update API endpoint if necessary
-      setAvailableDrivers(response.data.data); // Adjust if your response structure is different
+      const response = await axios.get('http://44.196.64.110:8132/api/driver/'); // Update API endpoint if necessary
+      setAvailableDrivers(response.data.drivers); // Adjust if your response structure is different
     } catch (error) {
       console.error("Error fetching drivers:", error.message);
     }
@@ -57,7 +57,7 @@ const BookManageList = () => {
 
   const deleteBooking = async (id) => {
     try {
-      await axios.delete(`http://18.209.197.35:8132/api/book/${id}`);
+      await axios.delete(`http://44.196.64.110:8132/api/book/${id}`);
       setBookings(bookings.filter(booking => booking._id !== id));
     } catch (error) {
       console.error('Error deleting booking:', error);
@@ -84,7 +84,7 @@ const BookManageList = () => {
   
     console.log("Assigning driver with data:", requestData);
     try {
-      const response = await axios.post('http://18.209.197.35:8132/api/driver/assignDriver', requestData);
+      const response = await axios.post('http://44.196.64.110:8132/api/driver/assignDriver', requestData);
       window.alert('Driver assigned successfully!')
       console.log("Response from server:", response.data);
       setAssignDriverModalVisible(false);
@@ -225,7 +225,7 @@ const BookManageList = () => {
               <CCol xs={12}>
                 <select onChange={e => setCurrentDriver(e.target.value)} value={currentDriver}>
                   <option value="">Select Driver</option>
-                  {availableDrivers.map(driver => (
+                  {(availableDrivers || []).map(driver => (
                     <option key={driver._id} value={driver._id}>{driver.name}</option>
                   ))}
                 </select>

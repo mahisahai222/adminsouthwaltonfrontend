@@ -45,7 +45,7 @@ const CalendarView = () => {
     try {
       console.log("Fetching events..."); 
       const response = await axios.get('http://44.196.64.110:8132/api/book');
-      console.log("API Response:", response); 
+      // console.log("API Response:", response); 
   
       if (response.data) {
         const events = response.data.map(eventData => ({
@@ -56,7 +56,7 @@ const CalendarView = () => {
           allDay: true,
           ...eventData,
         }));
-        console.log("Mapped Events:", events); 
+        // console.log("Mapped Events:", events); 
         setMyEvents(events); 
       } else {
         console.error("No data in API response:", response);
@@ -65,7 +65,7 @@ const CalendarView = () => {
       console.error("Error fetching events data:", error); 
     } finally {
       setLoading(false); 
-      console.log("Fetch complete."); 
+      // console.log("Fetch complete."); 
     }
   };
   
@@ -75,7 +75,7 @@ const CalendarView = () => {
   }, []);
 
   const handleViewDetails = (event) => {
-    console.log("Event clicked:", event);
+    // console.log("Event clicked:", event);
     fetchEventDetails(event.id); 
     setModalOpen(true);
   };

@@ -43,10 +43,13 @@ const DriverManageList = () => {
   const [bookingDetails, setBookingDetails] = useState([]);
   const [bookingModalVisible, setBookingModalVisible] = useState(false);
 
+
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setImage(files); // Store selected files as an array
+    setImage(files);
+    console.log("Selected files: ", files); // Debugging ke liye
   };
+  
 
 
   const fetchDriverBookings = async (driverId) => {
@@ -96,9 +99,10 @@ const DriverManageList = () => {
     formData.append('email', email);
     formData.append('password', password);
     formData.append('address', address);
+    
     if (image && image.length > 0) {
-      image.forEach((file, index) => formData.append('images', file));
-    }
+      image.forEach((file) => formData.append('images', file));
+  }
 
 
     try {
@@ -127,7 +131,7 @@ const DriverManageList = () => {
     setEmail(driver.email);
     setPassword(driver.password);
     setImage([]);
-    setExistingImages(item.image || []);
+    setExistingImages(driver.image || []);
     setAddress(driver.address);
     setEditMode(true);
     setCurrentDriverId(driver._id);
@@ -381,8 +385,9 @@ const DriverManageList = () => {
                 <CFormLabel htmlFor="image">Profile Image</CFormLabel>
                 <CFormInput
                   type="file"
-                  id="image"
-                  onChange={(e) => setImage(e.target.files[0])}
+                multiple
+                onChange={handleFileChange}
+                 accept="image/*"
                 />
               </CCol>
             </CRow>

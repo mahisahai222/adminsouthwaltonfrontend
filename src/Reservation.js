@@ -22,12 +22,12 @@ const Reservation = () => {
   // Fetch all reservations
   const fetchReservations = async () => {
     try {
-      const response = await axios.get('http://44.196.64.110:8132/api/reserve/reservations'); 
-      console.log(response.data); 
+      const response = await axios.get('http://44.196.64.110:8132/api/reserve/reservations');
+      console.log(response.data);
       if (response.data.success) {
         const reservationsData = Array.isArray(response.data.data) ? response.data.data : [];
         setReservations(reservationsData);
-        console.log('Updated Reservations:', reservationsData); 
+        console.log('Updated Reservations:', reservationsData);
       } else {
         console.error('Error fetching reservations: ', response.data.message);
       }
@@ -58,7 +58,13 @@ const Reservation = () => {
     try {
       const response = await axios.put(`http://44.196.64.110:8132/api/reserve/reservation/${id}/accept`);
       alert(response.data.message); // Show success message
-      fetchReservations(); // Refresh reservations
+  
+      // Update the state for the specific reservation
+      setReservations((prevReservations) =>
+        prevReservations.map((reservation) =>
+          reservation._id === id ? { ...reservation, status: 'ACCEPTED' } : reservation
+        )
+      );
     } catch (error) {
       console.error('Error accepting reservation:', error);
     }
@@ -96,9 +102,15 @@ const Reservation = () => {
                   <CTableDataCell>{new Date(reservation.pickdate).toLocaleDateString()}</CTableDataCell>
                   <CTableDataCell>{new Date(reservation.dropdate).toLocaleDateString()}</CTableDataCell>
                   <CTableDataCell>
-                    <CButton color="success" onClick={() => handleAcceptReservation(reservation._id)}>
-                      Accept
-                    </CButton>
+                    {reservation.status === 'ACCEPTED' ? (
+                      <CButton color="secondary" disabled>
+                        ACCEPTED
+                      </CButton>
+                    ) : (
+                      <CButton color="success" onClick={() => handleAcceptReservation(reservation._id)}>
+                        Accept
+                      </CButton>
+                    )}
                   </CTableDataCell>
                   <CTableDataCell>
                     <FontAwesomeIcon

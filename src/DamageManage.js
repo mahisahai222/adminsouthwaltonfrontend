@@ -247,21 +247,41 @@ const DamageManage = () => {
                   <li>Additional Address: {viewDamage.bookingDetails.baddressh}</li>
                 </ul>
               )}
+
               <h5>Vehicle Details:</h5>
               {viewDamage.vehicleDetails && (
                 <ul>
                   <li>Name: {viewDamage.vehicleDetails.vname}</li>
-                  <li>Seats: {viewDamage.vehicleDetails.vseats}</li>
-                  <li>Price: {viewDamage.vehicleDetails.vprice}</li>
+                  <li>Seats: {viewDamage.vehicleDetails.passenger}</li>
+                  <li>
+                    Image:
+                    {viewDamage.vehicleDetails.image && viewDamage.vehicleDetails.image.length > 0 ? (
+                      <img
+                        src={viewDamage.vehicleDetails.image[0]}
+                        alt="Vehicle"
+                        style={{ width: '200px', height: 'auto', marginTop: '10px' }}
+                      />
+                    ) : (
+                      <span> No image available</span>
+                    )}
+                  </li>
                 </ul>
               )}
-              {viewDamage.images && viewDamage.images.length > 0 && (
-                <img
-                  src={`http://44.196.64.110:8132/uploads/${viewDamage.images[0]}`}
-                  alt="Damage"
-                  style={{ width: '100%', height: 'auto' }}
-                />
+
+              <h5>Damage Images:</h5>
+              {viewDamage.images && viewDamage.images.length > 0 ? (
+                viewDamage.images.map((imgSrc, index) => (
+                  <img
+                    key={index}
+                    src={imgSrc}
+                    alt={`Damage ${index + 1}`}
+                    style={{ width: '100px', marginRight: '10px' }}
+                  />
+                ))
+              ) : (
+                <span>No images available</span>
               )}
+
             </div>
           )}
         </CModalBody>

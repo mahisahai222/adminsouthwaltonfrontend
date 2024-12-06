@@ -39,9 +39,12 @@ const DriverManageList = () => {
   const [editMode, setEditMode] = useState(false);
   const [currentDriverId, setCurrentDriverId] = useState(null);
   const [visible, setVisible] = useState(false);
-  const [searchName, setSearchName] = useState('');
   const [bookingDetails, setBookingDetails] = useState([]);
   const [bookingModalVisible, setBookingModalVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchName, setSearchName] = useState("");
+  const [limit] = useState(5); // Items per page
 
 
   const handleFileChange = (e) => {
@@ -49,7 +52,7 @@ const DriverManageList = () => {
     setImage(files);
     console.log("Selected files: ", files); // Debugging ke liye
   };
-  
+
 
 
   const fetchDriverBookings = async (driverId) => {
@@ -76,21 +79,25 @@ const DriverManageList = () => {
 
 
 
-
   const fetchDriverManageData = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get('http://44.196.64.110:8132/api/driver');
+      const response = await axios.get(
+        `http://44.196.64.110:8132/api/driver?page=${currentPage}&limit=${limit}&search=${searchName}`
+      );
       setDriverManageData(response.data.drivers);
-      setLoading(false);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.error('Error fetching driver manage data:', error);
+      console.error("Error fetching driver manage data:", error);
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchDriverManageData();
-  }, []);
+  }, [currentPage, searchName]);
+
 
   const handleAddDriverManage = async () => {
     const formData = new FormData();
@@ -99,10 +106,10 @@ const DriverManageList = () => {
     formData.append('email', email);
     formData.append('password', password);
     formData.append('address', address);
-    
+
     if (image && image.length > 0) {
       image.forEach((file) => formData.append('images', file));
-  }
+    }
 
 
     try {
@@ -186,15 +193,7 @@ const DriverManageList = () => {
     }
   };
 
-  const handleSearchChange = (e) => {
-    setSearchName(e.target.value);
-  };
 
-  const filteredDrivers = Array.isArray(driverManageData)
-    ? driverManageData.filter(driver =>
-      driver.name.toLowerCase().includes(searchName.toLowerCase())
-    )
-    : [];
 
   const resetForm = () => {
 
@@ -216,6 +215,15 @@ const DriverManageList = () => {
         <CCardHeader className="d-flex justify-content-between align-items-center">
           <h1 style={{ fontSize: '24px', color: 'indianred' }}>Driver Management</h1>
           <div className="d-flex align-items-center">
+          <CFormInput
+        
+            type="text"
+            placeholder="Search drivers"
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            className="ms-3"
+            style={{ width: "180px", marginRight: "1rem" }}
+          />
             <CButton
               color="primary"
               size="sm"
@@ -228,84 +236,58 @@ const DriverManageList = () => {
             >
               Add Driver
             </CButton>
-            <CFormInput
-              size="sm"
-              type="text"
-              placeholder="Search by name"
-              value={searchName}
-              onChange={handleSearchChange}
-              className="ms-3"
-              style={{ width: '180px', marginRight: "0rem" }}
-            />
+         
           </div>
         </CCardHeader>
         <CCardBody>
           <CCardText>
-            {filteredDrivers.length === 0 ? (
-              <div className="no-data">No driver manage data found.</div>
-            ) : (
+          {loading ? (
+            <div>Loading...</div>
+          ) : driverManageData.length === 0 ? (
+            <div className="no-data">No driver manage data found.</div>
+          ) : (
               <CRow>
                 <CCol>
                   <CTable hover bordered striped responsive>
                     <CTableHead>
                       <CTableRow>
-                        <CTableHeaderCell scope="col">Profile</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Name</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Mobile Number</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Email</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Password</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Address</CTableHeaderCell>
-                        {/* <CTableHeaderCell scope="col">View Bookings</CTableHeaderCell> */}
-                        <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
+                        <CTableHeaderCell>Profile</CTableHeaderCell>
+                        <CTableHeaderCell>Name</CTableHeaderCell>
+                        <CTableHeaderCell>Mobile Number</CTableHeaderCell>
+                        <CTableHeaderCell>Email</CTableHeaderCell>
+                        <CTableHeaderCell>Password</CTableHeaderCell>
+                        <CTableHeaderCell>Address</CTableHeaderCell>
+                        <CTableHeaderCell>Actions</CTableHeaderCell>
                       </CTableRow>
                     </CTableHead>
                     <CTableBody>
-                      {filteredDrivers.map((driver) => (
+                      {driverManageData.map((driver) => (
                         <CTableRow key={driver._id}>
                           <CTableDataCell>
-                            {driver.images && driver.images.length > 0 ? (
+                            {driver.images?.length > 0 ? (
                               driver.images.map((imgSrc, index) => (
                                 <img
                                   key={index}
                                   src={imgSrc}
-                                  alt={`driver ${index + 1}`} // Adjust alt text as needed
-                                  style={{ width: '100px', marginRight: '10px' }} // Adjust size and spacing as needed
+                                  alt={`driver ${index + 1}`}
+                                  style={{ width: "100px", marginRight: "10px" }}
                                 />
                               ))
                             ) : (
                               <span>No images available</span>
                             )}
                           </CTableDataCell>
-
-
                           <CTableDataCell>{driver.name}</CTableDataCell>
                           <CTableDataCell>{driver.mobileNumber}</CTableDataCell>
                           <CTableDataCell>{driver.email}</CTableDataCell>
                           <CTableDataCell>{driver.password}</CTableDataCell>
                           <CTableDataCell>{driver.address}</CTableDataCell>
-                          {/* <CTableDataCell>
-                            <CButton
-                              size="lg"
-                              className="me-2"
-                              onClick={() => handleViewBookings(driver._id)}
-                            >
-                              <FontAwesomeIcon icon={faEye} style={{ color: '#b772ca', cursor: 'pointer', marginRight: '10px' }} />
-                            </CButton>
-
-                          </CTableDataCell> */}
                           <CTableDataCell>
-                            <CButton
-                              size="sm"
-                              className="me-2"
-                              onClick={() => handleEditDriverManage(driver)}
-                            >
-                              <FontAwesomeIcon icon={faPenToSquare} style={{ color: '#b3ae0f', cursor: 'pointer', marginRight: '10px' }} />
+                            <CButton size="sm" className="me-2" onClick={() => handleEditDriverManage(driver)}>
+                              <FontAwesomeIcon icon={faPenToSquare} style={{ color: "#b3ae0f", cursor: "pointer", marginRight: "10px" }} />
                             </CButton>
-                            <CButton
-                              size="sm"
-                              onClick={() => handleDeleteDriverManage(driver._id)}
-                            >
-                              <FontAwesomeIcon icon={faTrash} style={{ color: '#bb1616', cursor: 'pointer' }} />
+                            <CButton size="sm" onClick={() => handleDeleteDriverManage(driver._id)}>
+                              <FontAwesomeIcon icon={faTrash} style={{ color: "#bb1616", cursor: "pointer" }} />
                             </CButton>
                           </CTableDataCell>
                         </CTableRow>
@@ -314,8 +296,33 @@ const DriverManageList = () => {
                   </CTable>
                 </CCol>
               </CRow>
+
             )}
           </CCardText>
+          <div className="pagination d-flex">
+          <CButton
+            disabled={currentPage === 1 || driverManageData.length === 0 || loading}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            color="primary"
+            size="sm"
+          >
+            Previous
+          </CButton>
+          <span style={{ margin: "0 10px" }}>
+            Page {currentPage} of {totalPages}
+          </span>
+          <CButton
+            disabled={
+              currentPage === totalPages || driverManageData.length === 0 || loading
+            }
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            color="primary"
+            size="sm"
+          >
+            Next
+          </CButton>
+        </div>
+
         </CCardBody>
       </CCard>
 
@@ -385,9 +392,9 @@ const DriverManageList = () => {
                 <CFormLabel htmlFor="image">Profile Image</CFormLabel>
                 <CFormInput
                   type="file"
-                multiple
-                onChange={handleFileChange}
-                 accept="image/*"
+                  multiple
+                  onChange={handleFileChange}
+                  accept="image/*"
                 />
               </CCol>
             </CRow>

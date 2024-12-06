@@ -34,12 +34,17 @@ const DamageManage = () => {
   const [viewDamage, setViewDamage] = useState(null);
   const [viewVisible, setViewVisible] = useState(false);
   const [image, setImage] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5); // Default page size
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchDamageManageData = async () => {
+  const fetchDamageManageData = async (page = 1, limit = 5) => {
     try {
-      const response = await axios.get('http://44.196.64.110:8132/api/damage');
-      console.log(response.data.data);
-      setDamageManageData(response.data.data);
+      const response = await axios.get(`http://44.196.64.110:8132/api/damage?page=${page}&limit=${limit}`);
+      const { data, totalPages } = response.data;
+      console.log(response.data.data)
+      setDamageManageData(data);
+      setTotalPages(totalPages);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching damage manage data:', error);
@@ -48,8 +53,13 @@ const DamageManage = () => {
   };
 
   useEffect(() => {
-    fetchDamageManageData();
-  }, []);
+    fetchDamageManageData(currentPage, pageSize);
+  }, [currentPage, pageSize]);
+
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
 
   const handleDeleteDamageManage = async (id) => {
     try {
@@ -138,71 +148,86 @@ const DamageManage = () => {
             {damageManageData.length === 0 ? (
               <div className="no-data">No damage manage data found.</div>
             ) : (
-              <CRow>
-                <CCol>
-                  <CTable hover bordered striped responsive>
-                    <CTableHead color="dark">
-                      <CTableRow>
-                        <CTableHeaderCell scope="col">Booking ID</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Transaction ID</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Damage</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Images</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">pdf</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
-                      </CTableRow>
-                    </CTableHead>
-                    <CTableBody>
-                      {damageManageData.map((damage) => (
-                        <CTableRow key={damage._id}>
-                          <CTableDataCell>{damage.bookingId}</CTableDataCell>
-                          <CTableDataCell>{damage.transactionId}</CTableDataCell>
-                          <CTableDataCell>{damage.damage}</CTableDataCell>
-                          <CTableDataCell>
-                            {damage.images && damage.images.length > 0 ? (
-                              damage.images.map((imgSrc, index) => (
-                                <img
-                                  key={index}
-                                  src={imgSrc}
-                                  alt={`Damage ${index + 1}`}
-                                  style={{ width: '100px', marginRight: '10px' }}
-                                />
-                              ))
-                            ) : (
-                              <span>No images available</span>
-                            )}
-                          </CTableDataCell>
-
-                          <CTableDataCell>
-                            <CButton
-                              color="success"
-                              size='sm'
-                              style={{ padding: '2px 6px', fontSize: '12px' }}
-                              onClick={() => handleGeneratePDF(damage._id)}
-                              className="me-2"
-                            >
-                              <FontAwesomeIcon icon={faFilePdf} style={{ fontSize: '10px' }} /> Generate PDF
-                            </CButton>
-                            <CButton size='sm' className="me-2" color="info" style={{ padding: '2px 6px', fontSize: '12px' }} >
-                              Approve
-                            </CButton>
-                          </CTableDataCell>
-                          <CTableDataCell className="d-flex justify-content-start align-items-center">
-                            <CButton size='sm' className="me-2" color="info" onClick={() => handleViewDamage(damage)}>
-                              View
-                            </CButton>
-                            <CButton size='sm' className="me-2" color="warning" onClick={() => handleRefund(damage)}>
-                              Refund
-                            </CButton>
-                            <CButton size='sm' onClick={() => handleDeleteDamageManage(damage._id)} className="me-2" color="danger">
-                              Delete
-                            </CButton>
-                          </CTableDataCell>
+              <>
+                <CRow>
+                  <CCol>
+                    <CTable hover bordered striped responsive>
+                      <CTableHead color="dark">
+                        <CTableRow>
+                          <CTableHeaderCell scope="col">Booking ID</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Transaction ID</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Damage</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Images</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">PDF</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                         </CTableRow>
-                      ))}
-                    </CTableBody>
-                  </CTable>
-                </CCol>
-              </CRow>
+                      </CTableHead>
+                      <CTableBody>
+                        {damageManageData.map((damage) => (
+                          <CTableRow key={damage._id}>
+                            <CTableDataCell>{damage.bookingId}</CTableDataCell>
+                            <CTableDataCell>{damage.transactionId}</CTableDataCell>
+                            <CTableDataCell>{damage.damage}</CTableDataCell>
+                            <CTableDataCell>
+                              {damage.images && damage.images.length > 0 ? (
+                                damage.images.map((imgSrc, index) => (
+                                  <img
+                                    key={index}
+                                    src={imgSrc}
+                                    alt={`Damage ${index + 1}`}
+                                    style={{ width: '100px', marginRight: '10px' }}
+                                  />
+                                ))
+                              ) : (
+                                <span>No images available</span>
+                              )}
+                            </CTableDataCell>
+                            <CTableDataCell>
+                              <CButton
+                                color="success"
+                                size="sm"
+                                style={{ padding: '2px 6px', fontSize: '12px' }}
+                                onClick={() => handleGeneratePDF(damage._id)}
+                                className="me-2"
+                              >
+                                <FontAwesomeIcon icon={faFilePdf} style={{ fontSize: '10px' }} /> Generate PDF
+                              </CButton>
+                            </CTableDataCell>
+                            <CTableDataCell>
+                              <CButton size="sm" color="info" onClick={() => handleViewDamage(damage)}>
+                                View
+                              </CButton>
+                              <CButton size="sm" color="warning" onClick={() => handleRefund(damage)}>
+                                Refund
+                              </CButton>
+                              <CButton size="sm" color="danger" onClick={() => handleDeleteDamageManage(damage._id)}>
+                                Delete
+                              </CButton>
+                            </CTableDataCell>
+                          </CTableRow>
+                        ))}
+                      </CTableBody>
+                    </CTable>
+                  </CCol>
+                </CRow>
+                <div className="pagination-controls">
+                  <CButton
+                    color="primary"
+                    disabled={currentPage === 1}
+                    onClick={() => handlePageChange(currentPage - 1)}
+                  >
+                    Previous
+                  </CButton>
+                  <span style={{ margin: '0 10px' }}>Page {currentPage} of {totalPages}</span>
+                  <CButton
+                    color="primary"
+                    disabled={currentPage === totalPages}
+                    onClick={() => handlePageChange(currentPage + 1)}
+                  >
+                    Next
+                  </CButton>
+                </div>
+              </>
             )}
           </CCardText>
         </CCardBody>

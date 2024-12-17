@@ -170,16 +170,16 @@ const _nav = [
     },
   },
 
-  {
-    component: CNavItem,
-    name: 'Static Content Management',
-    to: '/StaticContentManageList',
-    icon: <FontAwesomeIcon icon={faBars} style={{color: "#54c9ac", fontSize: '1.5rem', marginRight: '0.5rem'}} />,
-    badge: {
-      color: 'info',
-      // text: 'NEW',
-    },
-  },
+  // {
+  //   component: CNavItem,
+  //   name: 'Static Content Management',
+  //   to: '/StaticContentManageList',
+  //   icon: <FontAwesomeIcon icon={faBars} style={{color: "#54c9ac", fontSize: '1.5rem', marginRight: '0.5rem'}} />,
+  //   badge: {
+  //     color: 'info',
+  //     // text: 'NEW',
+  //   },
+  // },
 
   
 

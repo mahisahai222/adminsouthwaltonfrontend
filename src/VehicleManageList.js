@@ -34,6 +34,7 @@ const VehicleManageList = () => {
   const [vehicleData, setVehicleData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [vname, setVname] = useState('');
+  const [tagNumber, setTagNumber] = useState('');
   const [passenger, setPassenger] = useState('');
   const [vprice, setVprice] = useState([]);
   const [image, setImage] = useState(null);
@@ -71,6 +72,7 @@ const VehicleManageList = () => {
   const handleAddVehicle = async () => {
     const formData = new FormData();
     formData.append('vname', vname);
+    formData.append('tagNumber', tagNumber);
     formData.append('passenger', passenger);
     formData.append('vprice', JSON.stringify(vprice));
     if (image) {
@@ -94,6 +96,7 @@ const VehicleManageList = () => {
 
   const handleEditVehicle = (vehicle) => {
     setVname(vehicle.vname);
+    setTagNumber(vehicle.tagNumber);
     setPassenger(vehicle.passenger);
     setVprice(vehicle.vprice || []);
     setImage(null);
@@ -108,6 +111,7 @@ const VehicleManageList = () => {
   const handleUpdateVehicle = async () => {
     const formData = new FormData();
     formData.append('vname', vname);
+    formData.append('tagNumber', tagNumber);
     formData.append('passenger', passenger);
     formData.append('vprice', JSON.stringify(vprice));
     if (image) {
@@ -160,6 +164,7 @@ const VehicleManageList = () => {
 
   const resetForm = () => {
     setVname('');
+    setTagNumber('');
     setPassenger('');
     setVprice([]);
     setImage(null);
@@ -232,6 +237,7 @@ const VehicleManageList = () => {
                           <CTableHeaderCell scope="col">Profile</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Name</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Passenger</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Tag Number</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Price</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                         </CTableRow>
@@ -255,6 +261,7 @@ const VehicleManageList = () => {
                             </CTableDataCell>
                             <CTableDataCell>{vehicle.vname}</CTableDataCell>
                             <CTableDataCell>{vehicle.passenger}</CTableDataCell>
+                            <CTableDataCell>{vehicle.tagNumber}</CTableDataCell>
                             <CTableDataCell>
                               <CButton
                                 size="sm"
@@ -372,7 +379,15 @@ const VehicleManageList = () => {
                   className="mb-3"
                 />
               </CCol>
-
+              <CCol xs={12}>
+                <CFormLabel htmlFor="tagNumber">Tag Number (Must be Unique )</CFormLabel>
+                <CFormInput
+                  id="tagNumber"
+                  value={tagNumber}
+                  onChange={(e) => setTagNumber(e.target.value)}
+                  className="mb-3"
+                />
+              </CCol>
               {/* Price Section */}
               <CCol xs={12}>
                 <CFormLabel>Price</CFormLabel>
@@ -415,7 +430,7 @@ const VehicleManageList = () => {
                   </div>
                 ))}
                 <CButton size="sm" color="success" onClick={handleAddPrice}>
-                  Add Price
+                   Add Price
                 </CButton>
               </CCol>
 

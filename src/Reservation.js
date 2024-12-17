@@ -90,7 +90,7 @@ const Reservation = () => {
                 <CTableHeaderCell scope="col">Drop</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Pick Date</CTableHeaderCell>
                 <CTableHeaderCell scope="col">Drop Date</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Accept</CTableHeaderCell>
+                {/* <CTableHeaderCell scope="col">Accept</CTableHeaderCell> */}
                 <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
               </CTableRow>
             </CTableHead>
@@ -101,7 +101,7 @@ const Reservation = () => {
                   <CTableDataCell>{reservation.drop}</CTableDataCell>
                   <CTableDataCell>{new Date(reservation.pickdate).toLocaleDateString()}</CTableDataCell>
                   <CTableDataCell>{new Date(reservation.dropdate).toLocaleDateString()}</CTableDataCell>
-                  <CTableDataCell>
+                  {/* <CTableDataCell>
                     {reservation.status === 'ACCEPTED' ? (
                       <CButton color="secondary" disabled>
                         ACCEPTED
@@ -111,7 +111,7 @@ const Reservation = () => {
                         Accept
                       </CButton>
                     )}
-                  </CTableDataCell>
+                  </CTableDataCell> */}
                   <CTableDataCell>
                     <FontAwesomeIcon
                       icon={faTrash}

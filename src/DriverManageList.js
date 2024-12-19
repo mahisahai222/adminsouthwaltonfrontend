@@ -282,13 +282,6 @@ const DriverManageList = () => {
                           <CTableDataCell>{driver.email}</CTableDataCell>
                           <CTableDataCell>{driver.address}</CTableDataCell>
                           <CTableDataCell>
-                            <CButton
-                              color="info"
-                              size="sm"
-                              className="me-3" 
-                            >
-                              Send Mail
-                            </CButton>
                             <CButton size="sm" className="me-2" onClick={() => handleEditDriverManage(driver)}>
                               <FontAwesomeIcon icon={faPenToSquare} style={{ color: "#b3ae0f", cursor: "pointer", marginRight: "10px" }} />
                             </CButton>

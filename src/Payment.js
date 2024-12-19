@@ -32,7 +32,7 @@ const Payment = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [searchEmail, setSearchEmail] = useState("");
 
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   // Fetch payment data from MongoDB API
   const fetchPaymentData = async (page = 1, email = "") => {

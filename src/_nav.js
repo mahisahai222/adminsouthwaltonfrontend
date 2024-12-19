@@ -118,16 +118,6 @@ const _nav = [
 
   {
     component: CNavItem,
-    name: 'Sign Management',
-    to: '/Sign',
-    icon: <FontAwesomeIcon icon={faSignature} style={{ color: '#cb575d', fontSize: '1.5rem', marginRight: '0.5rem' }} />, // Use the signature icon
-    badge: {
-      color: 'info',
-    },
-  },
-
-  {
-    component: CNavItem,
     name: 'Damage Management',
     to: '/DamageManage',
     icon: <FontAwesomeIcon icon={faCircleExclamation} style={{ color: '#eaf457', fontSize: '1.5rem', marginRight: '0.5rem'}} />,
@@ -147,7 +137,15 @@ const _nav = [
       // text: 'NEW',
     },
   },
-
+  {
+    component: CNavItem,
+    name: 'Sign Management',
+    to: '/Sign',
+    icon: <FontAwesomeIcon icon={faSignature} style={{ color: '#cb575d', fontSize: '1.5rem', marginRight: '0.5rem' }} />, // Use the signature icon
+    badge: {
+      color: 'info',
+    },
+  },
   // {
   //   component: CNavItem,
   // name: 'Order Status Track',

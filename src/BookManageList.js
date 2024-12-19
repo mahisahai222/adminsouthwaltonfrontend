@@ -14,25 +14,52 @@ const BookManageList = () => {
   const [assignDriverModalVisible, setAssignDriverModalVisible] = useState(false);
   const [currentDriver, setCurrentDriver] = useState('');
   const [customerDriverDetails, setCustomerDriverDetails] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit] = useState(5); // Fixed limit per page
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchBookings();
-  }, []);
+  }, [searchTerm, page]);
+
 
 
   const fetchBookings = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get('http://44.196.64.110:8132/api/book');
-      if (response?.data && Array.isArray(response.data)) {
-        setBookings(response.data);
+      const response = await axios.get('http://44.196.64.110:8132/api/book', {
+        params: {
+          search: searchTerm,
+          page,
+          limit,
+        },
+      });
+
+      if (response?.data) {
+        setBookings(response.data.data);
+        setTotalPages(response.data.totalPages);
       } else {
         console.error('Unexpected response structure:', response.data);
       }
     } catch (error) {
       console.error('Error fetching bookings:', error);
+    } finally {
+      setLoading(false);
     }
   };
-  
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    setPage(1); // Reset to the first page on search
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+    }
+  };
+
 
   const fetchAvailableDrivers = async () => {
     try {
@@ -48,10 +75,10 @@ const BookManageList = () => {
     setCurrentBooking(booking);
     console.log("Current Booking after setting:", booking);
     await fetchAvailableDrivers();
-    setCustomerDriverDetails(booking.customerDrivers); 
+    setCustomerDriverDetails(booking.customerDrivers);
     setViewOnlyVisible(true);
   };
-  
+
 
 
 
@@ -69,19 +96,19 @@ const BookManageList = () => {
       console.error("Driver or Booking not selected. Current Booking:", currentBooking, "Current Driver:", currentDriver);
       return;
     }
-  
-    const bookingId = currentBooking.bookingDetails.bookingId;  
+
+    const bookingId = currentBooking.bookingDetails.bookingId;
     if (!bookingId) {
       console.error("Booking ID is missing for the selected booking.");
       return;
     }
-  
+
     const requestData = {
-      bookingId: bookingId,  
+      bookingId: bookingId,
       driverId: currentDriver,
       paymentId: currentBooking.paymentId || null,
     };
-  
+
     console.log("Assigning driver with data:", requestData);
     try {
       const response = await axios.post('http://44.196.64.110:8132/api/driver/assignDriver', requestData);
@@ -96,9 +123,9 @@ const BookManageList = () => {
       alert('Error assigning driver: ' + (error.response?.data?.message || error.message));
     }
   };
-  
-  
-  
+
+
+
 
 
   return (
@@ -107,37 +134,38 @@ const BookManageList = () => {
         <CCardHeader className="d-flex justify-content-between align-items-center">
           <h1 style={{ fontSize: '24px', color: 'chocolate' }}>Book Order List</h1>
           <CForm className="d-flex align-items-center">
+            <CFormInput
+              type="text"
+              placeholder="Search by Email"
+              value={searchTerm}
+              onChange={handleSearch}
+              style={{ marginRight: '10px' }}
+            />
           </CForm>
         </CCardHeader>
         <CCardBody>
-          {bookings.length === 0 ? (
+          {loading ? (
+            <p>Loading...</p>
+          ) : bookings.length === 0 ? (
             <p>No bookings available</p>
           ) : (
             <CTable hover bordered striped responsive>
               <CTableHead color="dark">
                 <CTableRow>
-                <CTableHeaderCell>Pickup Location</CTableHeaderCell>
-          <CTableHeaderCell>Drop Location</CTableHeaderCell>
-          <CTableHeaderCell>Pick Date</CTableHeaderCell>
-          <CTableHeaderCell>Drop Date</CTableHeaderCell>
-          <CTableHeaderCell>Booking Name</CTableHeaderCell>
-          <CTableHeaderCell>Phone</CTableHeaderCell>
-          <CTableHeaderCell>Email</CTableHeaderCell>
-          <CTableHeaderCell>Address</CTableHeaderCell>
-          <CTableHeaderCell>Address H.</CTableHeaderCell> 
-          
-          <CTableHeaderCell>Actions</CTableHeaderCell>
-
+                  <CTableHeaderCell>Pickup Location</CTableHeaderCell>
+                  <CTableHeaderCell>Drop Location</CTableHeaderCell>
+                  <CTableHeaderCell>Pick Date</CTableHeaderCell>
+                  <CTableHeaderCell>Drop Date</CTableHeaderCell>
+                  <CTableHeaderCell>Booking Name</CTableHeaderCell>
+                  <CTableHeaderCell>Phone</CTableHeaderCell>
+                  <CTableHeaderCell>Email</CTableHeaderCell>
+                  <CTableHeaderCell>Address</CTableHeaderCell>
+                  <CTableHeaderCell>Address H.</CTableHeaderCell>
+                  <CTableHeaderCell>Actions</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
               <CTableBody>
-             {bookings
-                .filter(booking =>
-                  booking.bookingDetails.bname
-                    .toLowerCase()
-                    .includes(searchName.toLowerCase())
-                )
-                .map((booking, index) => (
+                {bookings.map((booking, index) => (
                   <CTableRow key={index}>
                     <CTableDataCell>{booking.reservationDetails.pickup}</CTableDataCell>
                     <CTableDataCell>{booking.reservationDetails.drop}</CTableDataCell>
@@ -154,63 +182,86 @@ const BookManageList = () => {
                         onClick={() => deleteBooking(booking._id)}
                         style={{ cursor: 'pointer', marginRight: '10px', color: 'red' }}
                       />
-                       <FontAwesomeIcon
-                          icon={faEye}
-                          onClick={() => viewBookingDetails(booking)}
-                          style={{ cursor: 'pointer', color: 'green' }}
-                        />
+                      <FontAwesomeIcon
+                        icon={faEye}
+                        onClick={() => viewBookingDetails(booking)}
+                        style={{ cursor: 'pointer', color: 'green' }}
+                      />
                     </CTableDataCell>
                   </CTableRow>
                 ))}
-            </CTableBody>
-          </CTable>
-        )}
-      </CCardBody>
-    </CCard>
-  
-      <CModal
-  visible={viewOnlyVisible}
-  onClose={() => setViewOnlyVisible(false)}
->
-  <CModalHeader>
-    <CModalTitle>Booking Details</CModalTitle>
-  </CModalHeader>
-  <CModalBody>
-    <p><strong>Name:</strong> {currentBooking?.bookingDetails.bname}</p>
-    <p><strong>Phone:</strong> {currentBooking?.bookingDetails.bphone}</p>
-    <p><strong>Email:</strong> {currentBooking?.bookingDetails.bemail}</p>
-    <p><strong>Address:</strong> {currentBooking?.bookingDetails.baddress}</p>
-    <p><strong>Address H:</strong> {currentBooking?.bookingDetails.baddressh}</p>
-    <p><strong>Pickup Location:</strong> {currentBooking?.reservationDetails.pickup}</p>
-    <p><strong>Drop Location:</strong> {currentBooking?.reservationDetails.drop}</p>
-    <p><strong>Pickup Date:</strong> {currentBooking?.reservationDetails.pickdate}</p>
-    <p><strong>Drop Date:</strong> {currentBooking?.reservationDetails.dropdate}</p>
+              </CTableBody>
+            </CTable>
+          )}
+          <div className="pagination d-flex align-items-center mt-3">
+            <CButton
+              disabled={page === 1 || bookings.length === 0 || loading}
+              onClick={() => handlePageChange(page - 1)}
+              color="primary"
+              size="sm"
+            >
+              Previous
+            </CButton>
+            <span style={{ margin: '0 10px' }}>
+              Page {page} of {totalPages}
+            </span>
+            <CButton
+              disabled={page === totalPages || bookings.length === 0 || loading}
+              onClick={() => handlePageChange(page + 1)}
+              color="primary"
+              size="sm"
+            >
+              Next
+            </CButton>
+          </div>
 
-    <h5>Customer Driver Details:</h5>
-    {currentBooking?.bookingDetails.customerDrivers && currentBooking.bookingDetails.customerDrivers.length > 0 ? (
-      currentBooking.bookingDetails.customerDrivers.map((driver, index) => (
-        <div key={index}>
-          <p><strong>Name:</strong> {driver.dname}</p>
-          <p><strong>Phone:</strong> {driver.dphone}</p>
-          <p><strong>Email:</strong> {driver.demail}</p>
-          <p><strong>Experience:</strong> {driver.dexperience}</p>
-          <p><strong>License:</strong> <a href={driver.dlicense} target="_blank" rel="noopener noreferrer">View License</a></p>
-          <p><strong>Policy:</strong> <a href={driver.dpolicy} target="_blank" rel="noopener noreferrer">View Policy</a></p>
-        </div>
-      ))
-    ) : (
-      <p>No driver details available.</p>
-    )}
-  </CModalBody>
-  <CModalFooter>
-    <CButton color="secondary" onClick={() => setViewOnlyVisible(false)}>
-      Close
-    </CButton>
-    <CButton size="sm" onClick={() => { setAssignDriverModalVisible(true); fetchAvailableDrivers(); }}>
-      Assign Driver
-    </CButton>
-  </CModalFooter>
-</CModal>
+        </CCardBody>
+      </CCard>
+
+
+      <CModal
+        visible={viewOnlyVisible}
+        onClose={() => setViewOnlyVisible(false)}
+      >
+        <CModalHeader>
+          <CModalTitle>Booking Details</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <p><strong>Name:</strong> {currentBooking?.bookingDetails.bname}</p>
+          <p><strong>Phone:</strong> {currentBooking?.bookingDetails.bphone}</p>
+          <p><strong>Email:</strong> {currentBooking?.bookingDetails.bemail}</p>
+          <p><strong>Address:</strong> {currentBooking?.bookingDetails.baddress}</p>
+          <p><strong>Address H:</strong> {currentBooking?.bookingDetails.baddressh}</p>
+          <p><strong>Pickup Location:</strong> {currentBooking?.reservationDetails.pickup}</p>
+          <p><strong>Drop Location:</strong> {currentBooking?.reservationDetails.drop}</p>
+          <p><strong>Pickup Date:</strong> {currentBooking?.reservationDetails.pickdate}</p>
+          <p><strong>Drop Date:</strong> {currentBooking?.reservationDetails.dropdate}</p>
+
+          <h5>Customer Driver Details:</h5>
+          {currentBooking?.bookingDetails.customerDrivers && currentBooking.bookingDetails.customerDrivers.length > 0 ? (
+            currentBooking.bookingDetails.customerDrivers.map((driver, index) => (
+              <div key={index}>
+                <p><strong>Name:</strong> {driver.dname}</p>
+                <p><strong>Phone:</strong> {driver.dphone}</p>
+                <p><strong>Email:</strong> {driver.demail}</p>
+                <p><strong>Experience:</strong> {driver.dexperience}</p>
+                <p><strong>License:</strong> <a href={driver.dlicense} target="_blank" rel="noopener noreferrer">View License</a></p>
+                <p><strong>Policy:</strong> <a href={driver.dpolicy} target="_blank" rel="noopener noreferrer">View Policy</a></p>
+              </div>
+            ))
+          ) : (
+            <p>No driver details available.</p>
+          )}
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setViewOnlyVisible(false)}>
+            Close
+          </CButton>
+          <CButton size="sm" onClick={() => { setAssignDriverModalVisible(true); fetchAvailableDrivers(); }}>
+            Assign Driver
+          </CButton>
+        </CModalFooter>
+      </CModal>
 
       <CModal
         visible={assignDriverModalVisible}
@@ -234,10 +285,10 @@ const BookManageList = () => {
           </CForm>
         </CModalBody>
         <CModalFooter>
-          <CButton  size='sm'  color="secondary" onClick={() => setAssignDriverModalVisible(false)}>
+          <CButton size='sm' color="secondary" onClick={() => setAssignDriverModalVisible(false)}>
             Cancel
           </CButton>
-          <CButton  size='sm' color="primary" onClick={assignDriver}>
+          <CButton size='sm' color="primary" onClick={assignDriver}>
             Assign Driver
           </CButton>
         </CModalFooter>

@@ -61,7 +61,7 @@ const UserManageList = () => {
       const response = await axios.get('http://44.196.64.110:8132/api/user/', {
         params: {
           page,
-          limit: 5, // Adjust limit as needed
+          limit: 8, // Adjust limit as needed
           query,
         },
       });
@@ -159,18 +159,18 @@ const UserManageList = () => {
   };
 
   // Set form values for editing
-  const handleEditUserManage = (user) => {
+  // const handleEditUserManage = (user) => {
 
-    setFullName(user.fullName);
-    setEmail(user.email);
-    setPassword(user.password);
-    setPhoneNumber(user.phoneNumber);
-    setState(user.state);
-    setStatus(user.status);
-    setEditUserId(user._id);
-    setEditing(true);
-    setVisible(true);
-  };
+  //   setFullName(user.fullName);
+  //   setEmail(user.email);
+  //   setPassword(user.password);
+  //   setPhoneNumber(user.phoneNumber);
+  //   setState(user.state);
+  //   setStatus(user.status);
+  //   setEditUserId(user._id);
+  //   setEditing(true);
+  //   setVisible(true);
+  // };
 
 
   // Activate or deactivate user
@@ -182,20 +182,24 @@ const UserManageList = () => {
       const response = await axios.post('http://44.196.64.110:8132/api/user/status', data);
       console.log("Status update response:", response.data);
 
-      // Ensure the response contains the updated user data
-      if (response.data && response.data.data && response.data.data._id) {
-        setUserManageData(userManageData.map(user => user._id === id ? response.data.data : user));
+      if (response.data && response.data.success) {
+        // Update local state with new user data
+        setUserManageData((prevData) =>
+          prevData.map((user) =>
+            user._id === id ? { ...user, isActive: newStatus } : user
+          )
+        );
         window.alert('User status updated successfully');
       } else {
-        console.error('Unexpected response format:', response.data);
+        console.error('Unexpected response:', response.data);
         window.alert('Failed to update user status');
       }
-      fetchUserManageData();
     } catch (error) {
       console.error('Error updating user status:', error);
-      window.alert('Failed to update user status');
+      window.alert('Error occurred while updating status');
     }
   };
+
 
 
   // Reset form fields
@@ -232,17 +236,7 @@ const UserManageList = () => {
               className="me-3"
               style={{ width: "180px", marginRight: "0rem" }}
             />
-            <CButton
-              color="primary"
-              size="sm"
-              className="ms-3"
-              onClick={() => {
-                resetForm();
-                setVisible(true);
-              }}
-            >
-              Add User
-            </CButton>
+
           </div>
 
         </CCardHeader>
@@ -259,7 +253,6 @@ const UserManageList = () => {
                     <CTable hover bordered striped responsive>
                       <CTableHead>
                         <CTableRow>
-                          <CTableHeaderCell scope="col">Image</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Name</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Email</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Mobile No.</CTableHeaderCell>
@@ -271,31 +264,35 @@ const UserManageList = () => {
                       <CTableBody>
                         {userManageData.map((user) => (
                           <CTableRow key={user._id}>
-                            <CTableDataCell>
-                              <img
-                                src={user.image || 'placeholder.jpg'}
-                                alt="User"
-                                width="50"
-                                height="50"
-                              />
-                            </CTableDataCell>
                             <CTableDataCell>{user.fullName}</CTableDataCell>
                             <CTableDataCell>{user.email}</CTableDataCell>
                             <CTableDataCell>{user.phoneNumber}</CTableDataCell>
                             <CTableDataCell>{user.state}</CTableDataCell>
                             <CTableDataCell>
-                              {user.isActive === 'Active' ? 'ACTIVE' : 'INACTIVE'}
+                              <span
+                                style={{
+                                  color: user.isActive === 'Active' ? 'green' : 'red',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                {user.isActive === 'Active' ? 'ACTIVE' : 'INACTIVE'}
+                              </span>
                             </CTableDataCell>
                             <CTableDataCell>
-                              <FontAwesomeIcon
-                                icon={faPenToSquare}
+                              <button
                                 style={{
-                                  color: '#aaad10',
+                                  padding: '5px 10px',
+                                  backgroundColor: user.isActive === 'Active' ? '#b3ae0f' : '#0d6efd',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
                                   cursor: 'pointer',
                                   marginRight: '10px',
                                 }}
-                                onClick={() => handleEditUserManage(user)}
-                              />
+                                onClick={() => handleToggleStatus(user._id, user.isActive)}
+                              >
+                                {user.isActive === 'Active' ? 'Deactivate' : 'Activate'}
+                              </button>
                               <FontAwesomeIcon
                                 icon={faTrash}
                                 style={{ color: '#f00000', cursor: 'pointer' }}

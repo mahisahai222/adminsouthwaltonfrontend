@@ -167,7 +167,7 @@ const DamageManage = () => {
                           <CTableRow key={damage._id}>
                             <CTableDataCell>{damage.bookingId}</CTableDataCell>
                             <CTableDataCell>{damage.transactionId}</CTableDataCell>
-                            <CTableDataCell>{damage.damage}</CTableDataCell>
+                            <CTableDataCell>{damage.damage ? 'Yes' : 'No'}</CTableDataCell>
                             <CTableDataCell>
                               {damage.images && damage.images.length > 0 ? (
                                 damage.images.map((imgSrc, index) => (
@@ -179,7 +179,7 @@ const DamageManage = () => {
                                   />
                                 ))
                               ) : (
-                                <span>No images available</span>
+                                <span>No Damage</span>
                               )}
                             </CTableDataCell>
                             <CTableDataCell>
@@ -288,7 +288,7 @@ const DamageManage = () => {
                         style={{ width: '200px', height: 'auto', marginTop: '10px' }}
                       />
                     ) : (
-                      <span> No image available</span>
+                      <span> No Damage</span>
                     )}
                   </li>
                 </ul>
@@ -305,7 +305,7 @@ const DamageManage = () => {
                   />
                 ))
               ) : (
-                <span>No images available</span>
+                <span>No Damage</span>
               )}
 
             </div>

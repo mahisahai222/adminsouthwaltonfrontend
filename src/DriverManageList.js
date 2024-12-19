@@ -215,15 +215,15 @@ const DriverManageList = () => {
         <CCardHeader className="d-flex justify-content-between align-items-center">
           <h1 style={{ fontSize: '24px', color: 'indianred' }}>Driver Management</h1>
           <div className="d-flex align-items-center">
-          <CFormInput
-        
-            type="text"
-            placeholder="Search drivers"
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-            className="ms-3"
-            style={{ width: "180px", marginRight: "1rem" }}
-          />
+            <CFormInput
+
+              type="text"
+              placeholder="Search by name"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              className="ms-3"
+              style={{ width: "180px", marginRight: "1rem" }}
+            />
             <CButton
               color="primary"
               size="sm"
@@ -236,16 +236,16 @@ const DriverManageList = () => {
             >
               Add Driver
             </CButton>
-         
+
           </div>
         </CCardHeader>
         <CCardBody>
           <CCardText>
-          {loading ? (
-            <div>Loading...</div>
-          ) : driverManageData.length === 0 ? (
-            <div className="no-data">No driver manage data found.</div>
-          ) : (
+            {loading ? (
+              <div>Loading...</div>
+            ) : driverManageData.length === 0 ? (
+              <div className="no-data">No driver manage data found.</div>
+            ) : (
               <CRow>
                 <CCol>
                   <CTable hover bordered striped responsive>
@@ -255,9 +255,9 @@ const DriverManageList = () => {
                         <CTableHeaderCell>Name</CTableHeaderCell>
                         <CTableHeaderCell>Mobile Number</CTableHeaderCell>
                         <CTableHeaderCell>Email</CTableHeaderCell>
-                        <CTableHeaderCell>Password</CTableHeaderCell>
                         <CTableHeaderCell>Address</CTableHeaderCell>
                         <CTableHeaderCell>Actions</CTableHeaderCell>
+
                       </CTableRow>
                     </CTableHead>
                     <CTableBody>
@@ -280,9 +280,15 @@ const DriverManageList = () => {
                           <CTableDataCell>{driver.name}</CTableDataCell>
                           <CTableDataCell>{driver.mobileNumber}</CTableDataCell>
                           <CTableDataCell>{driver.email}</CTableDataCell>
-                          <CTableDataCell>{driver.password}</CTableDataCell>
                           <CTableDataCell>{driver.address}</CTableDataCell>
                           <CTableDataCell>
+                            <CButton
+                              color="info"
+                              size="sm"
+                              className="me-3" 
+                            >
+                              Send Mail
+                            </CButton>
                             <CButton size="sm" className="me-2" onClick={() => handleEditDriverManage(driver)}>
                               <FontAwesomeIcon icon={faPenToSquare} style={{ color: "#b3ae0f", cursor: "pointer", marginRight: "10px" }} />
                             </CButton>
@@ -300,28 +306,28 @@ const DriverManageList = () => {
             )}
           </CCardText>
           <div className="pagination d-flex">
-          <CButton
-            disabled={currentPage === 1 || driverManageData.length === 0 || loading}
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            color="primary"
-            size="sm"
-          >
-            Previous
-          </CButton>
-          <span style={{ margin: "0 10px" }}>
-            Page {currentPage} of {totalPages}
-          </span>
-          <CButton
-            disabled={
-              currentPage === totalPages || driverManageData.length === 0 || loading
-            }
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            color="primary"
-            size="sm"
-          >
-            Next
-          </CButton>
-        </div>
+            <CButton
+              disabled={currentPage === 1 || driverManageData.length === 0 || loading}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              color="primary"
+              size="sm"
+            >
+              Previous
+            </CButton>
+            <span style={{ margin: "0 10px" }}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <CButton
+              disabled={
+                currentPage === totalPages || driverManageData.length === 0 || loading
+              }
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              color="primary"
+              size="sm"
+            >
+              Next
+            </CButton>
+          </div>
 
         </CCardBody>
       </CCard>

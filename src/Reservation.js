@@ -18,22 +18,33 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 const Reservation = () => {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const itemsPerPage = 8; // Items per page
 
   // Fetch all reservations
-  const fetchReservations = async () => {
+  // Fetch paginated reservations
+  const fetchReservations = async (page = 1) => {
+    setLoading(true);
     try {
-      const response = await axios.get('http://44.196.64.110:8132/api/reserve/reservations');
+      const response = await axios.get(`http://44.196.64.110:8132/api/reserve/reservations`, {
+        params: {
+          page,
+          limit: itemsPerPage,
+        },
+      });
       console.log(response.data);
       if (response.data.success) {
-        const reservationsData = Array.isArray(response.data.data) ? response.data.data : [];
-        setReservations(reservationsData);
-        console.log('Updated Reservations:', reservationsData);
+        const { data, pagination } = response.data;
+        setReservations(Array.isArray(data) ? data : []);
+        setTotalPages(pagination?.totalPages || 0);
+        setCurrentPage(pagination?.currentPage || 1);
       } else {
         console.error('Error fetching reservations: ', response.data.message);
       }
-      setLoading(false);
     } catch (error) {
       console.error('Error fetching reservations:', error);
+    } finally {
       setLoading(false);
     }
   };
@@ -58,7 +69,7 @@ const Reservation = () => {
     try {
       const response = await axios.put(`http://44.196.64.110:8132/api/reserve/reservation/${id}/accept`);
       alert(response.data.message); // Show success message
-  
+
       // Update the state for the specific reservation
       setReservations((prevReservations) =>
         prevReservations.map((reservation) =>
@@ -80,52 +91,68 @@ const Reservation = () => {
         <h1 style={{ fontSize: '24px', color: 'purple' }}>Reservation List</h1>
       </CCardHeader>
       <CCardBody>
-        {reservations.length === 0 ? (
+        {loading ? (
+          <div>Loading...</div>
+        ) : reservations.length === 0 ? (
           <div>No reservations found.</div>
         ) : (
-          <CTable hover bordered striped responsive>
-            <CTableHead>
-              <CTableRow>
-                <CTableHeaderCell scope="col">Pickup</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Drop</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Pick Date</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Drop Date</CTableHeaderCell>
-                {/* <CTableHeaderCell scope="col">Accept</CTableHeaderCell> */}
-                <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
-              </CTableRow>
-            </CTableHead>
-            <CTableBody>
-              {reservations.map((reservation) => (
-                <CTableRow key={reservation._id}>
-                  <CTableDataCell>{reservation.pickup}</CTableDataCell>
-                  <CTableDataCell>{reservation.drop}</CTableDataCell>
-                  <CTableDataCell>{new Date(reservation.pickdate).toLocaleDateString()}</CTableDataCell>
-                  <CTableDataCell>{new Date(reservation.dropdate).toLocaleDateString()}</CTableDataCell>
-                  {/* <CTableDataCell>
-                    {reservation.status === 'ACCEPTED' ? (
-                      <CButton color="secondary" disabled>
-                        ACCEPTED
-                      </CButton>
-                    ) : (
-                      <CButton color="success" onClick={() => handleAcceptReservation(reservation._id)}>
-                        Accept
-                      </CButton>
-                    )}
-                  </CTableDataCell> */}
-                  <CTableDataCell>
-                    <FontAwesomeIcon
-                      icon={faTrash}
-                      style={{ color: '#bb1616', cursor: 'pointer' }}
-                      onClick={() => handleDeleteReservation(reservation._id)}
-                    />
-                  </CTableDataCell>
+          <>
+            <CTable hover bordered striped responsive>
+              <CTableHead>
+                <CTableRow>
+                  <CTableHeaderCell scope="col">Pickup</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Drop</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Pick Date</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Drop Date</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                 </CTableRow>
-              ))}
-            </CTableBody>
-          </CTable>
+              </CTableHead>
+              <CTableBody>
+                {reservations.map((reservation) => (
+                  <CTableRow key={reservation._id}>
+                    <CTableDataCell>{reservation.pickup}</CTableDataCell>
+                    <CTableDataCell>{reservation.drop}</CTableDataCell>
+                    <CTableDataCell>{new Date(reservation.pickdate).toLocaleDateString()}</CTableDataCell>
+                    <CTableDataCell>{new Date(reservation.dropdate).toLocaleDateString()}</CTableDataCell>
+                    <CTableDataCell>
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        style={{ color: '#bb1616', cursor: 'pointer' }}
+                        onClick={() => handleDeleteReservation(reservation._id)}
+                      />
+                    </CTableDataCell>
+                  </CTableRow>
+                ))}
+              </CTableBody>
+            </CTable>
+            <div className="d-flex mt-3">
+              <div className="pagination d-flex align-items-center">
+                <CButton
+                  disabled={currentPage === 1 || loading}
+                  onClick={() => fetchReservations(currentPage - 1)}
+                  color="primary"
+                  size="sm"
+                >
+                  Previous
+                </CButton>
+                <span style={{ margin: '0 10px' }}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <CButton
+                  disabled={currentPage === totalPages || loading}
+                  onClick={() => fetchReservations(currentPage + 1)}
+                  color="primary"
+                  size="sm"
+                >
+                  Next
+                </CButton>
+              </div>
+            </div>
+          </>
         )}
       </CCardBody>
     </CCard>
+
   );
 };
 

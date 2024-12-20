@@ -22,7 +22,7 @@ import {
   CTableHeaderCell,
   CTableBody,
   CTableDataCell,
-  CFormSelect,
+  CFormSelect, CFormText,CFormFeedback
 
 } from '@coreui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -47,6 +47,7 @@ const VehicleManageList = () => {
   const [limit, setLimit] = useState(5);
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(1);
+  const [isValid, setIsValid] = useState(true);
 
 
   const fetchVehicleData = async () => {
@@ -188,6 +189,15 @@ const VehicleManageList = () => {
     setVprice(newPrices);
   };
 
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setPassenger(value);
+
+    // Validate against allowed values
+    const isValidValue = /^(fourPassenger|sixPassenger|eightPassenger)$/.test(value);
+    setIsValid(isValidValue || value === ''); // Allow empty value for incomplete input
+  };
+
 
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -303,7 +313,7 @@ const VehicleManageList = () => {
                     color="secondary"
                     onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
                     disabled={page === 1}
-                     size="sm"
+                    size="sm"
                   >
                     Previous
                   </CButton>
@@ -314,7 +324,7 @@ const VehicleManageList = () => {
                     color="secondary"
                     onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
                     disabled={page === totalPages}
-                     size="sm"
+                    size="sm"
                   >
                     Next
                   </CButton>
@@ -327,7 +337,7 @@ const VehicleManageList = () => {
       </CCard>
 
       {/* Price Modal */}
-      <CModal visible={priceModalVisible} onClose={() => setPriceModalVisible(false)}>
+      <CModal size="lg" visible={priceModalVisible} onClose={() => setPriceModalVisible(false)}>
         <CModalHeader>
           <CModalTitle>Vehicle Price</CModalTitle>
         </CModalHeader>
@@ -354,7 +364,7 @@ const VehicleManageList = () => {
 
 
       {/* Add/Edit Vehicle Modal */}
-      <CModal visible={visible} onClose={() => setVisible(false)}>
+      <CModal size="lg" visible={visible} onClose={() => setVisible(false)}>
         <CModalHeader>
           <CModalTitle>{editMode ? 'Edit Vehicle' : 'Add Vehicle'}</CModalTitle>
         </CModalHeader>
@@ -375,10 +385,15 @@ const VehicleManageList = () => {
                 <CFormInput
                   id="passenger"
                   value={passenger}
-                  onChange={(e) => setPassenger(e.target.value)}
-                  className="mb-3"
+                  onChange={handleInputChange}
+                  className={`mb-3 ${isValid ? '' : 'is-invalid'}`} // Add 'is-invalid' for invalid input
+                  required
                 />
+                <CFormFeedback invalid style={{ color: 'red' }}>
+                  Please enter exactly one of the following: fourPassenger, sixPassenger, or eightPassenger.
+                </CFormFeedback>
               </CCol>
+
               <CCol xs={12}>
                 <CFormLabel htmlFor="tagNumber">Tag Number (Must be Unique )</CFormLabel>
                 <CFormInput
@@ -430,7 +445,7 @@ const VehicleManageList = () => {
                   </div>
                 ))}
                 <CButton size="sm" color="success" onClick={handleAddPrice}>
-                   Add Price
+                  Add Price
                 </CButton>
               </CCol>
 

@@ -48,7 +48,7 @@ const CalendarView = () => {
       console.log("API Response:", response);
 
       if (response.data) {
-        const events = response.data.map(eventData => ({
+        const events = response.data.data.map(eventData => ({
           id: eventData.paymentId,
           title: eventData.bookingDetails?.bname || 'No Title',
           start: new Date(eventData.reservationDetails?.dropdate),

@@ -298,7 +298,7 @@ const DriverManageList = () => {
 
             )}
           </CCardText>
-          <div className="pagination d-flex">
+          <div className="pagination d-flex align-items-center mt-3">
             <CButton
               disabled={currentPage === 1 || driverManageData.length === 0 || loading}
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}

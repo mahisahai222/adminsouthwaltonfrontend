@@ -37,14 +37,17 @@ const DamageManage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5); // Default page size
   const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchDamageManageData = async (page = 1, limit = 5) => {
+  const fetchDamageManageData = async (page = 1, limit = 5, search = '') => {
     try {
-      const response = await axios.get(`http://44.196.64.110:8132/api/damage?page=${page}&limit=${limit}`);
-      const { data, totalPages } = response.data;
-      console.log(response.data.data)
+      setLoading(true);
+      const response = await axios.get(
+        `http://44.196.64.110:8132/api/damage?page=${page}&limit=${limit}&search=${search}`
+      );
+      const { data, pagination } = response.data;
       setDamageManageData(data);
-      setTotalPages(totalPages);
+      setTotalPages(pagination.totalPages);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching damage manage data:', error);
@@ -53,12 +56,21 @@ const DamageManage = () => {
   };
 
   useEffect(() => {
-    fetchDamageManageData(currentPage, pageSize);
-  }, [currentPage, pageSize]);
-
+    fetchDamageManageData(currentPage, pageSize, searchTerm);
+  }, [currentPage, pageSize, searchTerm]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page on search
+  };
+
+  const handlePageSizeChange = (e) => {
+    setPageSize(Number(e.target.value));
+    setCurrentPage(1); // Reset to first page on page size change
   };
 
   const handleDeleteDamageManage = async (id) => {
@@ -142,10 +154,26 @@ const DamageManage = () => {
       <CCard className="d-flex 100%">
         <CCardHeader className="d-flex justify-content-between align-items-center">
           <h1 style={{ fontSize: '24px', color: 'dodgerblue' }}>Damage Management</h1>
+          <div>
+            <input
+              type="text"
+              placeholder="Search by tag or name"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              style={{ marginRight: '10px' }}
+            />
+            <select value={pageSize} onChange={handlePageSizeChange}>
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+            </select>
+          </div>
         </CCardHeader>
         <CCardBody>
           <CCardText>
-            {damageManageData.length === 0 ? (
+            {loading ? (
+              <div>Loading...</div>
+            ) : damageManageData.length === 0 ? (
               <div className="no-data">No damage manage data found.</div>
             ) : (
               <>
@@ -215,6 +243,7 @@ const DamageManage = () => {
                     color="primary"
                     disabled={currentPage === 1}
                     onClick={() => handlePageChange(currentPage - 1)}
+                     size="sm"
                   >
                     Previous
                   </CButton>
@@ -223,6 +252,7 @@ const DamageManage = () => {
                     color="primary"
                     disabled={currentPage === totalPages}
                     onClick={() => handlePageChange(currentPage + 1)}
+                     size="sm"
                   >
                     Next
                   </CButton>

@@ -20,12 +20,29 @@ import {
 const CustDamageManage = () => {
   const [damageManageData, setDamageManageData] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [search, setSearch] = useState(''); // For search query
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 5,
+  });
   const fetchDamageManageData = async () => {
     try {
-      const response = await axios.get('http://44.196.64.110:8132/api/customer-damages/');
-      console.log(response.data.data);
+      const response = await axios.get('http://44.196.64.110:8132/api/customer-damages/', {
+        params: {
+          page: pagination.currentPage,
+          limit: pagination.itemsPerPage,
+          search: search,
+        },
+      });
+
       setDamageManageData(response.data.data);
+      setPagination({
+        ...pagination,
+        totalItems: response.data.pagination.totalItems,
+        totalPages: response.data.pagination.totalPages,
+      });
       setLoading(false);
     } catch (error) {
       console.error('Error fetching damage manage data:', error);
@@ -35,7 +52,7 @@ const CustDamageManage = () => {
 
   useEffect(() => {
     fetchDamageManageData();
-  }, []);
+  }, [pagination.currentPage, search]);
 
   const handleDeleteDamageManage = async (id) => {
     try {
@@ -50,11 +67,28 @@ const CustDamageManage = () => {
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setPagination({ ...pagination, currentPage: 1 }); // Reset to page 1 when search is updated
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      setPagination({ ...pagination, currentPage: newPage });
+    }
+  };
 
   return (
     <CCard className="d-flex 100%">
       <CCardHeader className="d-flex justify-content-between align-items-center">
         <h1 style={{ fontSize: '24px', color: 'dodgerblue' }}>Customer Damage Management</h1>
+        <input
+          type="text"
+          placeholder="Search by vname or tagNumber"
+          value={search}
+          onChange={handleSearchChange}
+          style={{ padding: '5px', marginRight: '10px' }}
+        />
       </CCardHeader>
       <CCardBody>
         <CCardText>
@@ -105,6 +139,25 @@ const CustDamageManage = () => {
                     ))}
                   </CTableBody>
                 </CTable>
+                <div className="pagination d-flex align-items-center mt-3">
+                  <CButton
+                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                    disabled={pagination.currentPage <= 1}
+                    size="sm"
+                    color="primary"
+                  >
+                    Previous
+                  </CButton>
+                  <span style={{ margin: "0 10px" }}>{`Page ${pagination.currentPage} of ${pagination.totalPages}`}</span>
+                  <CButton
+                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                    disabled={pagination.currentPage >= pagination.totalPages}
+                    size="sm"
+                     color="primary"
+                  >
+                    Next
+                  </CButton>
+                </div>
               </CCol>
             </CRow>
           )}

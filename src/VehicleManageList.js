@@ -308,7 +308,7 @@ const VehicleManageList = () => {
                     </CTable>
                   </CCol>
                 </CRow>
-                <div className="pagination d-flex ">
+                <div className="pagination d-flex align-items-center mt-3">
                   <CButton
                     color="secondary"
                     onClick={() => setPage((prev) => Math.max(prev - 1, 1))}

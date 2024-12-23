@@ -279,7 +279,7 @@ const UserManageList = () => {
                               </span>
                             </CTableDataCell>
                             <CTableDataCell>
-                              <button
+                              <CButton  size="sm"
                                 style={{
                                   padding: '5px 10px',
                                   backgroundColor: user.isActive === 'Active' ? '#b3ae0f' : '#0d6efd',
@@ -288,11 +288,12 @@ const UserManageList = () => {
                                   borderRadius: '4px',
                                   cursor: 'pointer',
                                   marginRight: '10px',
+                                  
                                 }}
                                 onClick={() => handleToggleStatus(user._id, user.isActive)}
                               >
                                 {user.isActive === 'Active' ? 'Deactivate' : 'Activate'}
-                              </button>
+                              </CButton>
                               <FontAwesomeIcon
                                 icon={faTrash}
                                 style={{ color: '#f00000', cursor: 'pointer' }}

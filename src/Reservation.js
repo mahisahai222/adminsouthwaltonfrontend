@@ -10,29 +10,31 @@ import {
   CTableRow,
   CTableHeaderCell,
   CTableBody,
-  CTableDataCell,
+  CTableDataCell, CFormInput, CForm
 } from '@coreui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import debounce from 'lodash.debounce';
 
 const Reservation = () => {
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const itemsPerPage = 8; // Items per page
+  const [search, setSearch] = useState('');
+  const itemsPerPage = 8;
 
-  // Fetch all reservations
-  // Fetch paginated reservations
-  const fetchReservations = async (page = 1) => {
+  const fetchReservations = async (page = 1, searchQuery = '') => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://44.196.64.110:8132/api/reserve/reservations`, {
+      const response = await axios.get('http://44.196.64.110:8132/api/reserve/reservations', {
         params: {
           page,
           limit: itemsPerPage,
+          search: searchQuery,
         },
       });
+
       console.log(response.data);
       if (response.data.success) {
         const { data, pagination } = response.data;
@@ -52,6 +54,18 @@ const Reservation = () => {
   useEffect(() => {
     fetchReservations();
   }, []);
+
+
+  const debouncedSearch = debounce((query) => {
+    fetchReservations(1, query);
+  }, 500);
+
+
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearch(query);
+    debouncedSearch(query);
+  };
 
   // Handle delete reservation
   const handleDeleteReservation = async (id) => {
@@ -89,8 +103,18 @@ const Reservation = () => {
     <CCard>
       <CCardHeader className="d-flex justify-content-between align-items-center">
         <h1 style={{ fontSize: '24px', color: 'purple' }}>Reservation List</h1>
+        <div className="d-flex mb-3 align-items-center">
+          <CFormInput
+            type="text"
+            placeholder="Search by vname or tag"
+            value={search}
+            onChange={handleSearchChange} // Handle input change
+            style={{ marginRight: '10px' }}
+          />
+        </div>
       </CCardHeader>
       <CCardBody>
+
         {loading ? (
           <div>Loading...</div>
         ) : reservations.length === 0 ? (
@@ -100,6 +124,8 @@ const Reservation = () => {
             <CTable hover bordered striped responsive>
               <CTableHead>
                 <CTableRow>
+                  <CTableHeaderCell scope="col">Vehicle Name</CTableHeaderCell>
+                  <CTableHeaderCell scope="col">Tag Number</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Pickup</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Drop</CTableHeaderCell>
                   <CTableHeaderCell scope="col">Pick Date</CTableHeaderCell>
@@ -110,6 +136,8 @@ const Reservation = () => {
               <CTableBody>
                 {reservations.map((reservation) => (
                   <CTableRow key={reservation._id}>
+                    <CTableDataCell>{reservation.vehicleDetails.vname}</CTableDataCell>
+                    <CTableDataCell>{reservation.vehicleDetails.tagNumber}</CTableDataCell>
                     <CTableDataCell>{reservation.pickup}</CTableDataCell>
                     <CTableDataCell>{reservation.drop}</CTableDataCell>
                     <CTableDataCell>{new Date(reservation.pickdate).toLocaleDateString()}</CTableDataCell>
@@ -129,7 +157,7 @@ const Reservation = () => {
               <div className="pagination d-flex align-items-center">
                 <CButton
                   disabled={currentPage === 1 || loading}
-                  onClick={() => fetchReservations(currentPage - 1)}
+                  onClick={() => fetchReservations(currentPage - 1, search)}
                   color="primary"
                   size="sm"
                 >
@@ -140,7 +168,7 @@ const Reservation = () => {
                 </span>
                 <CButton
                   disabled={currentPage === totalPages || loading}
-                  onClick={() => fetchReservations(currentPage + 1)}
+                  onClick={() => fetchReservations(currentPage + 1, search)}
                   color="primary"
                   size="sm"
                 >

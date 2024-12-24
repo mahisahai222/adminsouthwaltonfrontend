@@ -211,11 +211,11 @@ const VehicleManageList = () => {
           <div className="d-flex align-items-center">
             <CFormInput
               type="text"
-              placeholder="Search by name"
+              placeholder="Search by vname or tag"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="me-3"
-              style={{ width: "180px", marginRight: "0rem" }}
+              style={{ width: "200px", marginRight: "0rem" }}
             />
             <CButton
               color="primary"

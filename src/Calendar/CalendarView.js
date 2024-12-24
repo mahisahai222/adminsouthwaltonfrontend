@@ -51,13 +51,17 @@ const CalendarView = () => {
         const events = response.data.data.map(eventData => ({
           id: eventData.paymentId,
           title: eventData.bookingDetails?.bname || 'No Title',
-          start: new Date(eventData.reservationDetails?.dropdate),
+          email: eventData.bookingDetails?.bemail || 'No Title',
+          start: new Date(eventData.reservationDetails?.pickdate),
           end: new Date(eventData.reservationDetails?.dropdate),
-          allDay: true,
+          pickup: eventData.reservationDetails?.pickup,
+          drop: eventData.reservationDetails?.drop,
+
           ...eventData,
         }));
         // console.log("Mapped Events:", events); 
         setMyEvents(events);
+        console.log(events)
       } else {
         console.error("No data in API response:", response);
       }
@@ -109,24 +113,28 @@ const CalendarView = () => {
         size="md"
       >
         <CModalHeader closeButton>
-          <CModalTitle>View Event Details</CModalTitle>
+          <CModalTitle>View Booking Details</CModalTitle>
         </CModalHeader>
         <CModalBody>
           {selectedEvent && (
             <CForm>
               <CRow className="mb-3">
                 <CCol sm={6}>
-                  <CFormLabel>Payment ID</CFormLabel>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Payment ID</CFormLabel>
                   <p>{selectedEvent.id || 'N/A'}</p>
                 </CCol>
                 <CCol sm={6}>
-                  <CFormLabel>Title</CFormLabel>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Name</CFormLabel>
                   <p>{selectedEvent.title || 'N/A'}</p>
+                </CCol>
+                <CCol sm={6}>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Email</CFormLabel>
+                  <p>{selectedEvent.email || 'N/A'}</p>
                 </CCol>
               </CRow>
               <CRow className="mb-3">
                 <CCol sm={6}>
-                  <CFormLabel>Start Date</CFormLabel>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Pick date</CFormLabel>
                   <p>
                     {selectedEvent.start
                       ? new Date(selectedEvent.start).toLocaleString()
@@ -134,7 +142,7 @@ const CalendarView = () => {
                   </p>
                 </CCol>
                 <CCol sm={6}>
-                  <CFormLabel>End Date</CFormLabel>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Drop date</CFormLabel>
                   <p>
                     {selectedEvent.end
                       ? new Date(selectedEvent.end).toLocaleString()
@@ -144,11 +152,17 @@ const CalendarView = () => {
               </CRow>
               <CRow className="mb-3">
                 <CCol sm={6}>
-                  <CFormLabel>All Day</CFormLabel>
-                  <p>{selectedEvent.allDay ? 'Yes' : 'No'}</p>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Pick up</CFormLabel>
+                  <p>{selectedEvent.pickup}</p>
+                </CCol>
+                <CCol sm={6}>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Drop</CFormLabel>
+                  <p>{selectedEvent.drop}</p>
                 </CCol>
               </CRow>
             </CForm>
+
+
           )}
         </CModalBody>
         <CModalFooter>

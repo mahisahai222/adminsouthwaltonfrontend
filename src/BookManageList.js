@@ -136,7 +136,7 @@ const BookManageList = () => {
           <CForm className="d-flex align-items-center">
             <CFormInput
               type="text"
-              placeholder="Search by Email"
+              placeholder="Search by email"
               value={searchTerm}
               onChange={handleSearch}
               style={{ marginRight: '10px' }}

@@ -230,7 +230,7 @@ const UserManageList = () => {
           <div className="d-flex align-items-center">
             <CFormInput
               type="text"
-              placeholder="Search users"
+              placeholder="Search by name"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="me-3"

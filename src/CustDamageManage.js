@@ -84,7 +84,7 @@ const CustDamageManage = () => {
         <h1 style={{ fontSize: '24px', color: 'dodgerblue' }}>Customer Damage Management</h1>
         <input
           type="text"
-          placeholder="Search by vname or tagNumber"
+          placeholder="Search by vname or tag"
           value={search}
           onChange={handleSearchChange}
           style={{ padding: '5px', marginRight: '10px' }}

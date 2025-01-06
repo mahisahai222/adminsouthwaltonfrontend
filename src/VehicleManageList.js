@@ -414,9 +414,9 @@ const VehicleManageList = () => {
                       className="mb-3"
                     >
                       <option value="">Select Season</option>
-                      <option value="offseason">Offseason</option>
-                      <option value="secondaryseason">Secondary Season</option>
-                      <option value="peakseason">Peak Season</option>
+                      <option value="offSeason">Off Season</option>
+                      <option value="secondarySeason">Secondary Season</option>
+                      <option value="peakSeason">Peak Season</option>
                     </CFormSelect>
                     <CFormSelect
                       value={price.day}

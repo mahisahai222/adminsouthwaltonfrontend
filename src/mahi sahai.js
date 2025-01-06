@@ -93,7 +93,7 @@ const Season = () => {
           <h1 style={{ fontSize: '24px', color: 'indianred' }}>Season Management</h1>
           <div className="d-flex align-items-center">
             <CButton color="primary" size="sm" className="me-3" onClick={() => handleOpenModal('offSeason')}>
-              Offseason
+              Off Season
             </CButton>
             <CButton color="secondary" size="sm" className="me-3" onClick={() => handleOpenModal('secondarySeason')}>
               Secondary Season

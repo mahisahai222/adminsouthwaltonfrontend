@@ -132,7 +132,7 @@ const BookManageList = () => {
     <>
       <CCard>
         <CCardHeader className="d-flex justify-content-between align-items-center">
-          <h1 style={{ fontSize: '24px', color: 'chocolate' }}>Book Order List</h1>
+          <h1 style={{ fontSize: '24px', color: 'chocolate' }}>Booking List</h1>
           <CForm className="d-flex align-items-center">
             <CFormInput
               type="text"
@@ -152,6 +152,7 @@ const BookManageList = () => {
             <CTable hover bordered striped responsive>
               <CTableHead color="dark">
                 <CTableRow>
+
                   <CTableHeaderCell>Pickup Location</CTableHeaderCell>
                   <CTableHeaderCell>Drop Location</CTableHeaderCell>
                   <CTableHeaderCell>Pick Date</CTableHeaderCell>
@@ -159,8 +160,6 @@ const BookManageList = () => {
                   <CTableHeaderCell>Booking Name</CTableHeaderCell>
                   <CTableHeaderCell>Phone</CTableHeaderCell>
                   <CTableHeaderCell>Email</CTableHeaderCell>
-                  <CTableHeaderCell>Address</CTableHeaderCell>
-                  <CTableHeaderCell>Address H.</CTableHeaderCell>
                   <CTableHeaderCell>Actions</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
@@ -174,8 +173,6 @@ const BookManageList = () => {
                     <CTableDataCell>{booking.bookingDetails.bname}</CTableDataCell>
                     <CTableDataCell>{booking.bookingDetails.bphone}</CTableDataCell>
                     <CTableDataCell>{booking.bookingDetails.bemail}</CTableDataCell>
-                    <CTableDataCell>{booking.bookingDetails.baddress}</CTableDataCell>
-                    <CTableDataCell>{booking.bookingDetails.baddressh}</CTableDataCell>
                     <CTableDataCell>
                       <FontAwesomeIcon
                         icon={faTrash}
@@ -227,17 +224,18 @@ const BookManageList = () => {
           <CModalTitle>Booking Details</CModalTitle>
         </CModalHeader>
         <CModalBody>
+          <h4>Customer Details:</h4>
           <p><strong>Name:</strong> {currentBooking?.bookingDetails.bname}</p>
           <p><strong>Phone:</strong> {currentBooking?.bookingDetails.bphone}</p>
           <p><strong>Email:</strong> {currentBooking?.bookingDetails.bemail}</p>
-          <p><strong>Address:</strong> {currentBooking?.bookingDetails.baddress}</p>
-          <p><strong>Address H:</strong> {currentBooking?.bookingDetails.baddressh}</p>
+          <p><strong>Rental Address:</strong> {currentBooking?.bookingDetails.baddress}</p>
+          <p><strong>Home Address</strong> {currentBooking?.bookingDetails.baddressh}</p>
           <p><strong>Pickup Location:</strong> {currentBooking?.reservationDetails.pickup}</p>
           <p><strong>Drop Location:</strong> {currentBooking?.reservationDetails.drop}</p>
           <p><strong>Pickup Date:</strong> {currentBooking?.reservationDetails.pickdate}</p>
           <p><strong>Drop Date:</strong> {currentBooking?.reservationDetails.dropdate}</p>
 
-          <h5>Customer Driver Details:</h5>
+          <h4>Customer Driver Details:</h4>
           {currentBooking?.bookingDetails.customerDrivers && currentBooking.bookingDetails.customerDrivers.length > 0 ? (
             currentBooking.bookingDetails.customerDrivers.map((driver, index) => (
               <div key={index}>
@@ -254,10 +252,12 @@ const BookManageList = () => {
           )}
         </CModalBody>
         <CModalFooter>
-          <CButton color="secondary" onClick={() => setViewOnlyVisible(false)}>
+          <CButton size="sm" color="secondary" onClick={() => setViewOnlyVisible(false)}>
             Close
           </CButton>
-          <CButton size="sm" onClick={() => { setAssignDriverModalVisible(true); fetchAvailableDrivers(); }}>
+          <CButton size="sm" style={{
+            backgroundColor: '#b3ae0f',
+          }} onClick={() => { setAssignDriverModalVisible(true); fetchAvailableDrivers(); }}>
             Assign Driver
           </CButton>
         </CModalFooter>

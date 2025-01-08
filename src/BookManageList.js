@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { CCard, CCardBody, CCardHeader, CTable, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CButton, CForm, CFormInput, CRow, CCol } from '@coreui/react';
+import { CCard, CCardBody, CFormSelect, CCardHeader, CTable, CFormLabel, CTableHead, CTableRow, CTableHeaderCell, CTableBody, CTableDataCell, CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter, CButton, CForm, CFormInput, CRow, CDropdownItem, CDropdownMenu, CDropdownToggle, CCol, CDropdown } from '@coreui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faEye } from '@fortawesome/free-solid-svg-icons';
 
 const BookManageList = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [bookingVisible, setBookingVisible] = useState(false);
   const [searchName, setSearchName] = useState('');
   const [viewOnlyVisible, setViewOnlyVisible] = useState(false);
   const [currentBooking, setCurrentBooking] = useState(null);
@@ -18,12 +19,34 @@ const BookManageList = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(5); // Fixed limit per page
   const [totalPages, setTotalPages] = useState(1);
+  const [bname, setBname] = useState('');
+  const [bphone, setBphone] = useState('');
+  const [bemail, setBemail] = useState('');
+  const [bsize, setBsize] = useState('');
+  const [baddress, setBaddress] = useState('');
+  const [baddressh, setBaddressh] = useState('');
+  const [reservationId, setReservationId] = useState('');
+  const [customerDrivers, setCustomerDrivers] = useState([{ dname: '', dphone: '', demail: '', dexperience: '', dpolicy: null, dlicense: null }]);
+
+  //panel booking
+  const [panelBookings, setPanelBookings] = useState([]);
+  const [panelLoading, setPanelLoading] = useState(true);
+  const [panelPage, setPanelPage] = useState(1);
+  const [panelLimit, setPanelLimit] = useState(5);
+  const [totalPanelPages, setTotalPanelPages] = useState(1);
+  const [totalBookings, setTotalBookings] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [reservations, setReservations] = useState([]);
+  const [selectedReservation, setSelectedReservation] = useState('');
 
   useEffect(() => {
+    fetchReservations();
     fetchBookings();
-  }, [searchTerm, page]);
+    fetchPanelBookings();
+  }, [searchTerm, page, panelPage, panelLimit, searchQuery]);
 
 
+  // website booking
 
   const fetchBookings = async () => {
     setLoading(true);
@@ -79,13 +102,11 @@ const BookManageList = () => {
     setViewOnlyVisible(true);
   };
 
-
-
-
   const deleteBooking = async (id) => {
     try {
       await axios.delete(`http://44.196.64.110:8132/api/book/${id}`);
       setBookings(bookings.filter(booking => booking._id !== id));
+      fetchPanelBookings();
     } catch (error) {
       console.error('Error deleting booking:', error);
     }
@@ -125,23 +146,154 @@ const BookManageList = () => {
   };
 
 
+  // panel Bookings
+
+  const addDriver = () => {
+    setCustomerDrivers([...customerDrivers, { dname: '', dphone: '', demail: '', dexperience: '', dpolicy: null, dlicense: null }]);
+  };
+
+  const handleDriverChange = (index, field, value) => {
+    const updatedDrivers = [...customerDrivers];
+    updatedDrivers[index][field] = value;
+    setCustomerDrivers(updatedDrivers);
+  };
+
+  const handleFileChange = (index, field, file) => {
+    const updatedDrivers = [...customerDrivers];
+    updatedDrivers[index][field] = file;
+    setCustomerDrivers(updatedDrivers);
+  };
+
+  const handleAddBooking = async () => {
+    if (!bname || !bphone || !bemail || !bsize || !baddress || !baddressh || !reservationId) {
+      alert('Please fill in all required fields!');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('bname', bname);
+    formData.append('bphone', bphone);
+    formData.append('bemail', bemail);
+    formData.append('bsize', bsize);
+    formData.append('baddress', baddress);
+    formData.append('baddressh', baddressh);
+    formData.append('reservationId', reservationId);
+
+    customerDrivers.forEach((driver, index) => {
+      formData.append(`customerDrivers[${index}][dname]`, driver.dname);
+      formData.append(`customerDrivers[${index}][dphone]`, driver.dphone);
+      formData.append(`customerDrivers[${index}][demail]`, driver.demail);
+      formData.append(`customerDrivers[${index}][dexperience]`, driver.dexperience);
+      if (driver.dpolicy) formData.append('images', driver.dpolicy);
+      if (driver.dlicense) formData.append('images', driver.dlicense);
+    });
+
+    try {
+      const response = await axios.post('http://44.196.64.110:8132/api/book/create', formData);
+      console.log('Booking added:', response.data);
+
+      const updateResponse = await axios.put(`http://44.196.64.110:8132/api/reserve/reservation/${reservationId}`, {
+        booking: true
+      });
+      console.log('Reservation updated:', updateResponse.data);
+      fetchPanelBookings();
+      resetForm();
+      setBookingVisible(false);
+      alert('Booking added successfully!');
+     
+    } catch (error) {
+      console.error('Error adding booking:', error);
+      alert('Failed to add booking. Please try again.');
+    }
+  };
+
+  const resetForm = () => {
+    setBname('');
+    setBphone('');
+    setBemail('');
+    setBsize('');
+    setBaddress('');
+    setBaddressh('');
+    setReservationId('');
+    setSelectedReservation('');
+    setCustomerDrivers([{ dname: '', dphone: '', demail: '', dexperience: '', dpolicy: null, dlicense: null }]);
+  };
 
 
+
+  const fetchPanelBookings = async () => {
+    setPanelLoading(true);
+    try {
+      const response = await fetch(`http://44.196.64.110:8132/api/book/bookfromPanel?page=${panelPage}&limit=${panelLimit}&search=${searchQuery}`);
+      const data = await response.json();
+      console.log(response)
+      setPanelBookings(data.bookings);
+      setTotalPanelPages(data.totalPages);
+      setTotalBookings(data.totalBookings);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setPanelLoading(false);
+    }
+  };
+
+  // Handle page change
+  const handlePanelPageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPanelPages) return;
+    setPanelPage(newPage);
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setPanelPage(1); // Reset to page 1 on search query change
+  };
+
+
+  const fetchReservations = async () => {
+    try {
+      const response = await fetch('http://44.196.64.110:8132/api/reserve/reservations/fromPanel'); // Replace with your API URL
+      const data = await response.json();
+      setReservations(data); // Set reservations to state
+    } catch (error) {
+      console.error('Error fetching reservations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReservationChange = (e) => {
+    const selectedId = e.target.value;
+    setSelectedReservation(selectedId);
+    setReservationId(selectedId);
+    const selectedReservation = reservations.find((reservation) => reservation._id === selectedId);
+    if (selectedReservation && selectedReservation.vehicleDetails) {
+      setBsize(selectedReservation.vehicleDetails.passenger || '');
+    } else {
+      setBsize(''); // Clear bsize if no vehicleDetails found
+    }
+  };
+
+  const inProgress = ()=> {
+    alert("Under Development")
+  }
 
   return (
     <>
-      <CCard>
+      <CCard className="mb-4">
         <CCardHeader className="d-flex justify-content-between align-items-center">
-          <h1 style={{ fontSize: '24px', color: 'chocolate' }}>Booking List</h1>
-          <CForm className="d-flex align-items-center">
-            <CFormInput
-              type="text"
-              placeholder="Search by email"
-              value={searchTerm}
-              onChange={handleSearch}
-              style={{ marginRight: '10px' }}
-            />
-          </CForm>
+          <h1 style={{ fontSize: '24px', color: 'chocolate' }}>Booking List from Website</h1>
+          <div className="d-flex mb-3 align-items-center">
+            <CForm className="d-flex align-items-center">
+              <CFormInput
+                type="text"
+                placeholder="Search by email"
+                value={searchTerm}
+                onChange={handleSearch}
+                style={{ marginRight: '10px' }}
+              />
+            </CForm>
+          </div>
         </CCardHeader>
         <CCardBody>
           {loading ? (
@@ -168,21 +320,26 @@ const BookManageList = () => {
                   <CTableRow key={index}>
                     <CTableDataCell>{booking.reservationDetails.pickup}</CTableDataCell>
                     <CTableDataCell>{booking.reservationDetails.drop}</CTableDataCell>
-                    <CTableDataCell>{booking.reservationDetails.pickdate}</CTableDataCell>
-                    <CTableDataCell>{booking.reservationDetails.dropdate}</CTableDataCell>
+                    <CTableDataCell>
+                      {new Date(booking.reservationDetails.pickdate).toLocaleDateString('en-GB')}
+                    </CTableDataCell>
+                    <CTableDataCell>
+                      {new Date(booking.reservationDetails.dropdate).toLocaleDateString('en-GB')}
+                    </CTableDataCell>
                     <CTableDataCell>{booking.bookingDetails.bname}</CTableDataCell>
                     <CTableDataCell>{booking.bookingDetails.bphone}</CTableDataCell>
                     <CTableDataCell>{booking.bookingDetails.bemail}</CTableDataCell>
                     <CTableDataCell>
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        onClick={() => deleteBooking(booking._id)}
-                        style={{ cursor: 'pointer', marginRight: '10px', color: 'red' }}
-                      />
+                  
                       <FontAwesomeIcon
                         icon={faEye}
                         onClick={() => viewBookingDetails(booking)}
-                        style={{ cursor: 'pointer', color: 'green' }}
+                        style={{ cursor: 'pointer', marginRight: '10px', color: 'green' }}
+                      />
+                          <FontAwesomeIcon
+                        icon={faTrash}
+                        onClick={() => deleteBooking(booking._id)}
+                        style={{ cursor: 'pointer', color: 'red' }}
                       />
                     </CTableDataCell>
                   </CTableRow>
@@ -212,6 +369,117 @@ const BookManageList = () => {
             </CButton>
           </div>
 
+        </CCardBody>
+      </CCard>
+      <CCard>
+        <CCardHeader className="d-flex justify-content-between align-items-center">
+          <h1 style={{ fontSize: '24px', color: 'chocolate' }}>Booking List From Panel</h1>
+          <div className="d-flex align-items-center">
+            <CFormInput
+              type="text"
+              placeholder="Search by email"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="ms-3"
+              style={{ width: "180px", marginRight: "1rem" }}
+            />
+            <CButton color="primary" className="me-3" size="sm" onClick={() => { resetForm(); setBookingVisible(true); }}>
+              Add Booking
+            </CButton>
+          </div>
+        </CCardHeader>
+        <CCardBody>
+          {panelLoading ? (
+            <p>Loading...</p>
+          ) : panelBookings.length === 0 ? (
+            <p>No bookings available</p>
+          ) : (
+            <CTable hover bordered striped responsive>
+              <CTableHead color="dark">
+                <CTableRow>
+                  <CTableHeaderCell>Pickup Location</CTableHeaderCell>
+                  <CTableHeaderCell>Drop Location</CTableHeaderCell>
+                  <CTableHeaderCell>Pick Date</CTableHeaderCell>
+                  <CTableHeaderCell>Drop Date</CTableHeaderCell>
+                  <CTableHeaderCell>Booking Name</CTableHeaderCell>
+                  <CTableHeaderCell>Phone</CTableHeaderCell>
+                  <CTableHeaderCell>Email</CTableHeaderCell>
+                  <CTableHeaderCell>Actions</CTableHeaderCell>
+                </CTableRow>
+              </CTableHead>
+              <CTableBody>
+                {panelBookings.map((booking, index) => (
+                  <CTableRow key={index}>
+                    <CTableDataCell>{booking.reservationId.pickup}</CTableDataCell>
+                    <CTableDataCell>{booking.reservationId.drop}</CTableDataCell>
+                    <CTableDataCell>
+                      {new Date(booking.reservationId.pickdate).toLocaleDateString('en-GB')}
+                    </CTableDataCell>
+                    <CTableDataCell>
+                      {new Date(booking.reservationId.dropdate).toLocaleDateString('en-GB')}
+                    </CTableDataCell>
+                    <CTableDataCell>{booking.bname}</CTableDataCell>
+                    <CTableDataCell>{booking.bphone}</CTableDataCell>
+                    <CTableDataCell>{booking.bemail}</CTableDataCell>
+                    <CTableDataCell>
+                    <CButton size="sm"
+                        style={{
+                          padding: '5px 10px',
+                          backgroundColor: '#b3ae0f',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          marginRight: '10px',
+
+                        }}
+                        onClick={() => inProgress()}
+                        
+                      >
+                        Send Payment Mail
+                      </CButton>
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        onClick={() => deleteBooking(booking._id)}
+                        style={{ cursor: 'pointer', marginRight: '10px', color: 'red' }}
+                      />
+
+          
+                      {/* <FontAwesomeIcon
+                        icon={faEye}
+                        onClick={() => viewBookingDetails(booking)}
+                        style={{ cursor: 'pointer', color: 'green' }}
+                      /> */}
+
+                    </CTableDataCell>
+                  </CTableRow>
+                ))}
+              </CTableBody>
+            </CTable>
+          )}
+
+          {/* Pagination Controls */}
+          <div className="pagination d-flex align-items-center mt-3">
+            <CButton
+              disabled={panelPage === 1 || panelBookings.length === 0 || panelLoading}
+              onClick={() => handlePanelPageChange(panelPage - 1)}
+              color="primary"
+              size="sm"
+            >
+              Previous
+            </CButton>
+            <span style={{ margin: '0 10px' }}>
+              Page {panelPage} of {totalPanelPages}
+            </span>
+            <CButton
+              disabled={panelPage === totalPanelPages || panelBookings.length === 0 || panelLoading}
+              onClick={() => handlePanelPageChange(panelPage + 1)}
+              color="primary"
+              size="sm"
+            >
+              Next
+            </CButton>
+          </div>
         </CCardBody>
       </CCard>
 
@@ -294,7 +562,145 @@ const BookManageList = () => {
         </CModalFooter>
       </CModal>
 
+      <CModal size="lg" visible={bookingVisible} onClose={() => setBookingVisible(false)}>
+        <CModalHeader>
+          <CModalTitle>Add Booking</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
 
+          <CForm>
+
+            <h6 className="mb-3">Select Reservation</h6>
+            <CRow>
+              <CCol xs={12}>
+                <CFormLabel htmlFor="reservationId">Reservation ID</CFormLabel>
+                <CFormSelect
+                  id="reservationId"
+                  value={selectedReservation}
+                  onChange={handleReservationChange}
+                  disabled={loading || reservations.length === 0}
+                >
+                  <option value="" disabled>
+                    {loading ? 'Loading...' : reservations.length === 0 ? 'No reservations available' : 'Select a reservation'}
+                  </option>
+                  {reservations.map((reservation) => (
+                    <option key={reservation._id} value={reservation._id}>
+                      {reservation._id}
+                    </option>
+                  ))}
+                </CFormSelect>
+              </CCol>
+            </CRow>
+            {selectedReservation && (
+              <p className="mt-3">
+                Selected Reservation ID: <strong>{reservationId}</strong>
+              </p>
+            )}
+            <CRow className="mt-3 mb-3">
+              <CCol xs={12}>
+                <CFormLabel htmlFor="bsize">Cart Size</CFormLabel>
+                <CFormInput
+                  id="bsize"
+                  value={bsize}
+                  readOnly
+                />
+              </CCol>
+            </CRow>
+
+            <h6 className="mb-3">Customer Details</h6>
+            <CRow>
+              <CCol xs={12}>
+                <CFormLabel htmlFor="bname">Name</CFormLabel>
+                <CFormInput id="bname" value={bname} onChange={(e) => setBname(e.target.value)} />
+              </CCol>
+            </CRow>
+            <CRow>
+              <CCol xs={12}>
+                <CFormLabel htmlFor="bphone">Phone</CFormLabel>
+                <CFormInput id="bphone" type="Number" value={bphone} onChange={(e) => setBphone(e.target.value)} />
+              </CCol>
+            </CRow>
+
+            <CRow>
+              <CCol xs={12}>
+                <CFormLabel htmlFor="bemail">Email</CFormLabel>
+                <CFormInput id="bemail" value={bemail} onChange={(e) => setBemail(e.target.value)} />
+              </CCol>
+            </CRow>
+            <CRow>
+              <CCol xs={12}>
+                <CFormLabel htmlFor="baddress">Rental Address</CFormLabel>
+                <CFormInput id="baddress" value={baddress} onChange={(e) => setBaddress(e.target.value)} />
+              </CCol>
+            </CRow>
+            <CRow className="mb-3">
+              <CCol xs={12}>
+                <CFormLabel htmlFor="baddressh">Home Address</CFormLabel>
+                <CFormInput id="baddressh" value={baddressh} onChange={(e) => setBaddressh(e.target.value)} />
+              </CCol>
+            </CRow>
+
+            {/* Additional form fields for bname, bphone, drivers, etc. */}
+            {customerDrivers.map((driver, index) => (
+              <div key={index} className="mb-4">
+                <h6 className="mb-3">Customer Driver Details {index + 1}</h6>
+                <CFormInput
+                  placeholder="Driver Name"
+                  value={driver.dname}
+                  onChange={(e) => handleDriverChange(index, 'dname', e.target.value)}
+                  className="mb-3"
+                />
+                <CFormInput
+                  placeholder="Driver Phone"
+                  value={driver.dphone}
+                  onChange={(e) => handleDriverChange(index, 'dphone', e.target.value)}
+                  className="mb-3"
+                />
+                <CFormInput
+                  placeholder="Driver Email"
+                  value={driver.demail}
+                  onChange={(e) => handleDriverChange(index, 'demail', e.target.value)}
+                  className="mb-3"
+                />
+                <CFormInput
+                  placeholder="Driver Experience"
+                  value={driver.dexperience}
+                  onChange={(e) => handleDriverChange(index, 'dexperience', e.target.value)}
+                  className="mb-3"
+                />
+                <CRow className="mb-3">
+                  <CCol xs={12}>
+                    <CFormLabel htmlFor={`dpolicy-${index}`}>Policy</CFormLabel>
+                    <CFormInput
+                      type="file"
+                      id={`dpolicy-${index}`}
+                      onChange={(e) => handleFileChange(index, 'dpolicy', e.target.files[0])}
+                    />
+                  </CCol>
+                </CRow>
+                <CRow className="mb-3">
+                  <CCol xs={12}>
+                    <CFormLabel htmlFor={`dlicense-${index}`}>License</CFormLabel>
+                    <CFormInput
+                      type="file"
+                      id={`dlicense-${index}`}
+                      onChange={(e) => handleFileChange(index, 'dlicense', e.target.files[0])}
+                    />
+                  </CCol>
+                </CRow>
+              </div>
+
+            ))}
+            <CButton size="sm" color="secondary" onClick={addDriver}>
+              Add Another Driver
+            </CButton>
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setBookingVisible(false)}>Close</CButton>
+          <CButton color="primary" onClick={handleAddBooking}>Save Booking</CButton>
+        </CModalFooter>
+      </CModal>
 
     </>
   );

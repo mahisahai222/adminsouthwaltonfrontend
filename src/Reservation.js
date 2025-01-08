@@ -201,12 +201,15 @@ const Reservation = () => {
         {
           vehicleId,
           reserveAmount: price,
+          reservation: true
         }
       );
 
       if (response.status === 200) {
-        alert("Reservation updated successfully!");
+        fetchReservations()
         setSelectedVehicleId(vehicleId);
+        setVehicleUpdateModal(false);
+        alert("Reservation updated successfully!");
       } else {
         alert("Failed to update reservation.");
       }
@@ -215,12 +218,6 @@ const Reservation = () => {
       alert("Error occurred while updating reservation.");
     }
   };
-
-
-
-
-
-
 
   // Handle accept reservation
   const handleAcceptReservation = async (id) => {
@@ -266,7 +263,15 @@ const Reservation = () => {
     }
   };
 
+  const handlePickdateChange = (e) => {
+    const selectedPickdate = e.target.value;
+    setPickdate(selectedPickdate);
 
+    // Reset dropdate if it's before the new pickdate
+    if (dropdate && new Date(dropdate) < new Date(selectedPickdate)) {
+      setDropdate('');
+    }
+  };
 
   const resetForm = () => {
     setPickup('');
@@ -316,13 +321,15 @@ const Reservation = () => {
               <CTable hover bordered striped responsive>
                 <CTableHead>
                   <CTableRow>
-                    <CTableHeaderCell scope="col">Vehicle Image</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Vehicle Name</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Tag Number</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Reservation Id</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Pickup</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Drop</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Pick Date</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Drop Date</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Vehicle Image</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Vehicle Name</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Tag Number</CTableHeaderCell>
+
                     <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
@@ -332,22 +339,7 @@ const Reservation = () => {
                     const vehicleImages = vehicleDetails.image || [];
                     return (
                       <CTableRow key={reservation._id}>
-                        <CTableDataCell>
-                          {vehicleImages.length > 0 ? (
-                            vehicleImages.map((imgSrc, index) => (
-                              <img
-                                key={index}
-                                src={imgSrc}
-                                style={{ width: "100px", marginRight: "10px" }}
-                                alt={`Vehicle ${index + 1}`}
-                              />
-                            ))
-                          ) : (
-                            <span>No images available</span>
-                          )}
-                        </CTableDataCell>
-                        <CTableDataCell>{vehicleDetails.vname || 'N/A'}</CTableDataCell>
-                        <CTableDataCell>{vehicleDetails.tagNumber || 'N/A'}</CTableDataCell>
+                        <CTableDataCell>{reservation._id}</CTableDataCell>
                         <CTableDataCell>{reservation.pickup || 'N/A'}</CTableDataCell>
                         <CTableDataCell>{reservation.drop || 'N/A'}</CTableDataCell>
                         <CTableDataCell>
@@ -360,6 +352,27 @@ const Reservation = () => {
                             ? new Date(reservation.dropdate).toLocaleDateString()
                             : 'N/A'}
                         </CTableDataCell>
+                        <CTableDataCell>
+                          {vehicleImages.length > 0 ? (
+                            vehicleImages.map((imgSrc, index) => (
+                              <img
+                                key={index}
+                                src={imgSrc}
+                                style={{ width: "100px", marginRight: "10px" }}
+                                alt={`Vehicle ${index + 1}`}
+                              />
+                            ))
+                          ) : (
+                            <span style={{ color: 'red' }}>Please Select Cart</span>
+                          )}
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          {vehicleDetails.vname || <span style={{ color: 'red' }}>N/A</span>}
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          {vehicleDetails.tagNumber || <span style={{ color: 'red' }}>N/A</span>}
+                        </CTableDataCell>
+
                         <CTableDataCell>
                           <CButton
                             size="sm"
@@ -454,7 +467,7 @@ const Reservation = () => {
                   type="date"
                   id="pickdate"
                   value={pickdate}
-                  onChange={(e) => setPickdate(e.target.value)}
+                  onChange={handlePickdateChange}
                 />
               </CCol>
             </CRow>
@@ -466,6 +479,7 @@ const Reservation = () => {
                   id="dropdate"
                   value={dropdate}
                   onChange={(e) => setDropdate(e.target.value)}
+                  min={pickdate} // Ensure dropdate cannot be before pickdate
                 />
               </CCol>
             </CRow>

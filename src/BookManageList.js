@@ -38,6 +38,7 @@ const BookManageList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [reservations, setReservations] = useState([]);
   const [selectedReservation, setSelectedReservation] = useState('');
+  const [loadingBookingId, setLoadingBookingId] = useState(null); // Tracks which booking is loading
 
   useEffect(() => {
     fetchReservations();
@@ -200,7 +201,7 @@ const BookManageList = () => {
       resetForm();
       setBookingVisible(false);
       alert('Booking added successfully!');
-     
+
     } catch (error) {
       console.error('Error adding booking:', error);
       alert('Failed to add booking. Please try again.');
@@ -274,9 +275,37 @@ const BookManageList = () => {
     }
   };
 
-  const inProgress = ()=> {
-    alert("Under Development")
-  }
+  const sendPaymentMail = async (booking) => {
+    setLoadingBookingId(booking._id);
+    try {
+      const response = await fetch('http://44.196.64.110:8132/api/send-rental-agreement', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          reserveAmount: booking.reservationId.reserveAmount,
+          email: booking.bemail,
+          bookingId: booking._id,
+          reservationId: booking.reservationId._id,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message); // Show success message
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error sending payment mail:', error);
+      alert('Failed to send payment mail.');
+    }
+    finally {
+      setLoadingBookingId(null); // Clear loading state
+    }
+  };
 
   return (
     <>
@@ -330,15 +359,15 @@ const BookManageList = () => {
                     <CTableDataCell>{booking.bookingDetails.bphone}</CTableDataCell>
                     <CTableDataCell>{booking.bookingDetails.bemail}</CTableDataCell>
                     <CTableDataCell>
-                  
+
                       <FontAwesomeIcon
                         icon={faEye}
                         onClick={() => viewBookingDetails(booking)}
                         style={{ cursor: 'pointer', marginRight: '10px', color: 'green' }}
                       />
-                          <FontAwesomeIcon
+                      <FontAwesomeIcon
                         icon={faTrash}
-                        onClick={() => deleteBooking(booking._id)}
+                        onClick={() => deleteBooking(booking.bookingDetails.bookingId)}
                         style={{ cursor: 'pointer', color: 'red' }}
                       />
                     </CTableDataCell>
@@ -422,39 +451,32 @@ const BookManageList = () => {
                     <CTableDataCell>{booking.bphone}</CTableDataCell>
                     <CTableDataCell>{booking.bemail}</CTableDataCell>
                     <CTableDataCell>
-                    <CButton size="sm"
+                      <CButton
+                        size="sm"
                         style={{
                           padding: '5px 10px',
-                          backgroundColor: '#b3ae0f',
-                          color: 'white',
+                          backgroundColor: loadingBookingId === booking._id ? '#ccc' : '#b3ae0f',
+                          color: loadingBookingId === booking._id ? '#666' : 'white',
                           border: 'none',
                           borderRadius: '4px',
-                          cursor: 'pointer',
+                          cursor: loadingBookingId === booking._id ? 'not-allowed' : 'pointer',
                           marginRight: '10px',
-
                         }}
-                        onClick={() => inProgress()}
-                        
+                        onClick={() => sendPaymentMail(booking)}
+                        disabled={loadingBookingId === booking._id} // Disable only the button being processed
                       >
-                        Send Payment Mail
+                        {loadingBookingId === booking._id ? 'Sending...' : 'Send Payment Mail'}
                       </CButton>
                       <FontAwesomeIcon
                         icon={faTrash}
                         onClick={() => deleteBooking(booking._id)}
                         style={{ cursor: 'pointer', marginRight: '10px', color: 'red' }}
                       />
-
-          
-                      {/* <FontAwesomeIcon
-                        icon={faEye}
-                        onClick={() => viewBookingDetails(booking)}
-                        style={{ cursor: 'pointer', color: 'green' }}
-                      /> */}
-
                     </CTableDataCell>
                   </CTableRow>
                 ))}
               </CTableBody>
+
             </CTable>
           )}
 

@@ -44,7 +44,7 @@ const CalendarView = () => {
   const fetchEvents = async () => {
     try {
       console.log("Fetching events...");
-      const response = await axios.get('http://44.196.64.110:8132/api/book');
+      const response = await axios.get('http://44.196.64.110:8132/api/book/calendar');
       console.log("API Response:", response);
 
       if (response.data) {
@@ -56,6 +56,9 @@ const CalendarView = () => {
           end: new Date(eventData.reservationDetails?.dropdate),
           pickup: eventData.reservationDetails?.pickup,
           drop: eventData.reservationDetails?.drop,
+          vname: eventData.reservationDetails.vehicle?.vname,
+          tagNumber: eventData.reservationDetails.vehicle?.tagNumber,
+          passenger: eventData.reservationDetails.vehicle?.passenger,
 
           ...eventData,
         }));
@@ -107,22 +110,16 @@ const CalendarView = () => {
         onSelectEvent={handleViewDetails}
       />
 
-      <CModal
-        visible={modalOpen}
-        onClose={handleModalClose}
-        size="md"
-      >
+      <CModal visible={modalOpen} onClose={handleModalClose} size="md">
         <CModalHeader closeButton>
           <CModalTitle>View Booking Details</CModalTitle>
         </CModalHeader>
         <CModalBody>
           {selectedEvent && (
             <CForm>
-              <CRow className="mb-3">
-                <CCol sm={6}>
-                  <CFormLabel style={{ fontWeight: 'bold' }}>Payment ID</CFormLabel>
-                  <p>{selectedEvent.id || 'N/A'}</p>
-                </CCol>
+              {/* Customer Details */}
+              <h5 className="mb-3" style={{ fontWeight: 'bold', color: '#0066b2' }}>Customer Details</h5>
+              <CRow className="mb-4">
                 <CCol sm={6}>
                   <CFormLabel style={{ fontWeight: 'bold' }}>Name</CFormLabel>
                   <p>{selectedEvent.title || 'N/A'}</p>
@@ -131,10 +128,8 @@ const CalendarView = () => {
                   <CFormLabel style={{ fontWeight: 'bold' }}>Email</CFormLabel>
                   <p>{selectedEvent.email || 'N/A'}</p>
                 </CCol>
-              </CRow>
-              <CRow className="mb-3">
                 <CCol sm={6}>
-                  <CFormLabel style={{ fontWeight: 'bold' }}>Pick date</CFormLabel>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Pick Date</CFormLabel>
                   <p>
                     {selectedEvent.start
                       ? new Date(selectedEvent.start).toLocaleString()
@@ -142,27 +137,40 @@ const CalendarView = () => {
                   </p>
                 </CCol>
                 <CCol sm={6}>
-                  <CFormLabel style={{ fontWeight: 'bold' }}>Drop date</CFormLabel>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Drop Date</CFormLabel>
                   <p>
                     {selectedEvent.end
                       ? new Date(selectedEvent.end).toLocaleString()
                       : 'N/A'}
                   </p>
                 </CCol>
-              </CRow>
-              <CRow className="mb-3">
                 <CCol sm={6}>
-                  <CFormLabel style={{ fontWeight: 'bold' }}>Pick up</CFormLabel>
-                  <p>{selectedEvent.pickup}</p>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Pick Up</CFormLabel>
+                  <p>{selectedEvent.pickup || 'N/A'}</p>
                 </CCol>
                 <CCol sm={6}>
                   <CFormLabel style={{ fontWeight: 'bold' }}>Drop</CFormLabel>
-                  <p>{selectedEvent.drop}</p>
+                  <p>{selectedEvent.drop || 'N/A'}</p>
+                </CCol>
+              </CRow>
+
+              {/* Vehicle Details */}
+              <h5 className="mb-3"style={{ fontWeight: 'bold', color: '#0066b2' }}>Vehicle Details</h5>
+              <CRow className="mb-4">
+                <CCol sm={6}>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Vehicle Name</CFormLabel>
+                  <p>{selectedEvent.vname || 'N/A'}</p>
+                </CCol>
+                <CCol sm={6}>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Tag Number</CFormLabel>
+                  <p>{selectedEvent.tagNumber || 'N/A'}</p>
+                </CCol>
+                <CCol sm={6}>
+                  <CFormLabel style={{ fontWeight: 'bold' }}>Passenger</CFormLabel>
+                  <p>{selectedEvent.passenger || 'N/A'}</p>
                 </CCol>
               </CRow>
             </CForm>
-
-
           )}
         </CModalBody>
         <CModalFooter>
@@ -171,6 +179,7 @@ const CalendarView = () => {
           </CButton>
         </CModalFooter>
       </CModal>
+
     </div>
   );
 };

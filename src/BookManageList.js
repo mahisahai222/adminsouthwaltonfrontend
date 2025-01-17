@@ -11,8 +11,10 @@ const BookManageList = () => {
   const [searchName, setSearchName] = useState('');
   const [viewOnlyVisible, setViewOnlyVisible] = useState(false);
   const [currentBooking, setCurrentBooking] = useState(null);
+  const [newCurrentBooking, setNewCurrentBooking] = useState(null);
   const [availableDrivers, setAvailableDrivers] = useState([]);
   const [assignDriverModalVisible, setAssignDriverModalVisible] = useState(false);
+  const [newAssignDriverModalVisible, setNewAssignDriverModalVisible] = useState(false)
   const [currentDriver, setCurrentDriver] = useState('');
   const [customerDriverDetails, setCustomerDriverDetails] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -144,6 +146,53 @@ const BookManageList = () => {
       console.error("Error assigning driver:", error.response ? error.response.data : error.message);
       alert('Error assigning driver: ' + (error.response?.data?.message || error.message));
     }
+  };
+
+  const assignDriver2 = async () => {
+    if (!currentDriver || !newCurrentBooking) {
+      console.error("Driver or Booking not selected. Current Booking:", newCurrentBooking, "Current Driver:", currentDriver);
+      return;
+    }
+
+    const bookingId = newCurrentBooking._id;
+    if (!bookingId) {
+      console.error("Booking ID is missing for the selected booking.");
+      return;
+    }
+
+    const requestData = {
+      bookingId: bookingId,
+      driverId: currentDriver,
+      paymentId: newCurrentBooking.paymentId || null,
+    };
+
+    console.log("Assigning driver with data:", requestData);
+    try {
+      const response = await axios.post('http://44.196.64.110:8132/api/driver/assignDriver', requestData);
+      window.alert('Driver assigned successfully!')
+      console.log("Response from server:", response.data);
+      setNewAssignDriverModalVisible(false);
+      setCurrentDriver('');
+      setNewCurrentBooking(null);
+      fetchPanelBookings();
+    } catch (error) {
+      console.error("Error assigning driver:", error.response ? error.response.data : error.message);
+      alert('Error assigning driver: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  // const handleAssignClick = (booking) => {
+  //   setCurrentBooking(booking);
+  //   setNewAssignDriverModalVisible(true);
+  //   fetchAvailableDrivers();
+  // };
+
+  const handleAssignClick = async (booking) => {
+    setNewAssignDriverModalVisible(true);
+    console.log("Selected Booking:", booking);
+    setNewCurrentBooking(booking);
+    console.log("Current Booking after setting:", booking);
+    await fetchAvailableDrivers();
   };
 
 
@@ -451,28 +500,37 @@ const BookManageList = () => {
                     <CTableDataCell>{booking.bphone}</CTableDataCell>
                     <CTableDataCell>{booking.bemail}</CTableDataCell>
                     <CTableDataCell>
-                      <CButton
-                        size="sm"
-                        style={{
-                          padding: '5px 10px',
-                          backgroundColor: loadingBookingId === booking._id ? '#ccc' : '#b3ae0f',
-                          color: loadingBookingId === booking._id ? '#666' : 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: loadingBookingId === booking._id ? 'not-allowed' : 'pointer',
-                          marginRight: '10px',
-                        }}
-                        onClick={() => sendPaymentMail(booking)}
-                        disabled={loadingBookingId === booking._id} // Disable only the button being processed
-                      >
-                        {loadingBookingId === booking._id ? 'Sending...' : 'Send Payment Mail'}
-                      </CButton>
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        onClick={() => deleteBooking(booking._id)}
-                        style={{ cursor: 'pointer', marginRight: '10px', color: 'red' }}
-                      />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {booking.reservationId?.accepted ? (
+                          <CButton size="sm" color="info" onClick={() => handleAssignClick(booking)}>
+                            Assign Driver
+                          </CButton>
+                        ) : (
+                          <CButton
+                            size="sm"
+                            style={{
+                              padding: '5px 10px',
+                              backgroundColor: loadingBookingId === booking._id ? '#ccc' : '#b3ae0f',
+                              color: loadingBookingId === booking._id ? '#666' : 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: loadingBookingId === booking._id ? 'not-allowed' : 'pointer',
+                            }}
+                            onClick={() => sendPaymentMail(booking)}
+                            disabled={loadingBookingId === booking._id} // Disable only the button being processed
+                          >
+                            {loadingBookingId === booking._id ? 'Sending...' : 'Send Payment Mail'}
+                          </CButton>
+                        )}
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          onClick={() => deleteBooking(booking._id)}
+                          style={{ cursor: 'pointer', color: 'red' }}
+                        />
+                      </div>
                     </CTableDataCell>
+
+
                   </CTableRow>
                 ))}
               </CTableBody>
@@ -579,6 +637,39 @@ const BookManageList = () => {
             Cancel
           </CButton>
           <CButton size='sm' color="primary" onClick={assignDriver}>
+            Assign Driver
+          </CButton>
+        </CModalFooter>
+      </CModal>
+
+      {/* new Assign */}
+
+      <CModal
+        visible={newAssignDriverModalVisible}
+        onClose={() => setNewAssignDriverModalVisible(false)}
+      >
+        <CModalHeader>
+          <CModalTitle>Assign Driver</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CForm>
+            <CRow>
+              <CCol xs={12}>
+                <select onChange={(e) => setCurrentDriver(e.target.value)} value={currentDriver}>
+                  <option value="">Select Driver</option>
+                  {(availableDrivers || []).map((driver) => (
+                    <option key={driver._id} value={driver._id}>{driver.name}</option>
+                  ))}
+                </select>
+              </CCol>
+            </CRow>
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton size="sm" color="secondary" onClick={() => setNewAssignDriverModalVisible(false)}>
+            Cancel
+          </CButton>
+          <CButton size="sm" color="primary" onClick={assignDriver2}>
             Assign Driver
           </CButton>
         </CModalFooter>

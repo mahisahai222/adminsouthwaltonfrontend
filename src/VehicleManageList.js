@@ -22,7 +22,7 @@ import {
   CTableHeaderCell,
   CTableBody,
   CTableDataCell,
-  CFormSelect, CFormText,CFormFeedback
+  CFormSelect, CFormText, CFormFeedback
 
 } from '@coreui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -35,6 +35,7 @@ const VehicleManageList = () => {
   const [loading, setLoading] = useState(true);
   const [vname, setVname] = useState('');
   const [tagNumber, setTagNumber] = useState('');
+  const [isAvailable, setIsAvailable] = useState(true);
   const [passenger, setPassenger] = useState('');
   const [vprice, setVprice] = useState([]);
   const [image, setImage] = useState(null);
@@ -74,6 +75,7 @@ const VehicleManageList = () => {
     const formData = new FormData();
     formData.append('vname', vname);
     formData.append('tagNumber', tagNumber);
+    formData.append('isAvailable', isAvailable);
     formData.append('passenger', passenger);
     formData.append('vprice', JSON.stringify(vprice));
     if (image) {
@@ -98,6 +100,7 @@ const VehicleManageList = () => {
   const handleEditVehicle = (vehicle) => {
     setVname(vehicle.vname);
     setTagNumber(vehicle.tagNumber);
+    setIsAvailable(vehicle.isAvailable)
     setPassenger(vehicle.passenger);
     setVprice(vehicle.vprice || []);
     setImage(null);
@@ -113,6 +116,7 @@ const VehicleManageList = () => {
     const formData = new FormData();
     formData.append('vname', vname);
     formData.append('tagNumber', tagNumber);
+    formData.append('isAvailable', isAvailable);
     formData.append('passenger', passenger);
     formData.append('vprice', JSON.stringify(vprice));
     if (image) {
@@ -248,6 +252,7 @@ const VehicleManageList = () => {
                           <CTableHeaderCell scope="col">Name</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Passenger</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Tag Number</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Available</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Price</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                         </CTableRow>
@@ -272,6 +277,12 @@ const VehicleManageList = () => {
                             <CTableDataCell>{vehicle.vname}</CTableDataCell>
                             <CTableDataCell>{vehicle.passenger}</CTableDataCell>
                             <CTableDataCell>{vehicle.tagNumber}</CTableDataCell>
+                            <CTableDataCell>
+                              <span style={{ color: vehicle.isAvailable ? "green" : "red" }}>
+                                {vehicle.isAvailable ? "Yes" : "No"}
+                              </span>
+                            </CTableDataCell>
+
                             <CTableDataCell>
                               <CButton
                                 size="sm"

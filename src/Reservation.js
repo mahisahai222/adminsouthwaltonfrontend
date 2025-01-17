@@ -42,9 +42,10 @@ const Reservation = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState('');
   const itemsPerPage = 8;
+  const [fromAdmin, setFromAdmin] = useState(''); 
 
 
-  const fetchReservations = async (page = 1, searchQuery = '') => {
+  const fetchReservations = async (page = 1, searchQuery = '', adminFilter = '') => {
     setLoading(true);
     try {
       const response = await axios.get('http://44.196.64.110:8132/api/reserve/reservations', {
@@ -52,6 +53,7 @@ const Reservation = () => {
           page,
           limit: itemsPerPage,
           search: searchQuery,
+          fromAdmin: adminFilter, // Add the fromAdmin filter here
         },
       });
 
@@ -72,19 +74,23 @@ const Reservation = () => {
   };
 
   useEffect(() => {
-    fetchReservations();
-  }, []);
+    fetchReservations(currentPage, search, fromAdmin);
+  }, [currentPage, search, fromAdmin]);
 
 
   const debouncedSearch = debounce((query) => {
-    fetchReservations(1, query);
+    fetchReservations(1, query, fromAdmin); // Pass fromAdmin with search
   }, 500);
-
 
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearch(query);
     debouncedSearch(query);
+  };
+
+  const handleFromAdminChange = (e) => {
+    setFromAdmin(e.target.value);
+    fetchReservations(1, search, e.target.value); // Refresh list with new filter
   };
 
   // Handle delete reservation
@@ -297,6 +303,15 @@ const Reservation = () => {
               onChange={handleSearchChange} // Handle input change
               style={{ width: "180px", marginRight: "1rem" }}
             />
+             <select
+            value={fromAdmin}
+            onChange={handleFromAdminChange}
+            style={{ marginRight: "1rem" }}
+          >
+            <option value="">All</option>
+            <option value="true">From Admin</option>
+            <option value="false">From Website</option>
+          </select>
             <CButton
               color="primary"
               size="sm"
@@ -328,6 +343,7 @@ const Reservation = () => {
                     <CTableHeaderCell scope="col">Drop Date</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Vehicle Image</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Vehicle Name</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Vehicle Model</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Tag Number</CTableHeaderCell>
 
                     <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
@@ -368,6 +384,9 @@ const Reservation = () => {
                         </CTableDataCell>
                         <CTableDataCell>
                           {vehicleDetails.vname || <span style={{ color: 'red' }}>N/A</span>}
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          {vehicleDetails.model || <span style={{ color: 'red' }}>N/A</span>}
                         </CTableDataCell>
                         <CTableDataCell>
                           {vehicleDetails.tagNumber || <span style={{ color: 'red' }}>N/A</span>}
@@ -508,6 +527,7 @@ const Reservation = () => {
                   <li key={vehicle._id} style={{ marginBottom: "20px" }}>
                     <strong>Name:</strong> {vehicle.vname} <br />
                     <strong>Seats:</strong> {vehicle.passenger} <br />
+                    <strong>Model:</strong> {vehicle.model} <br />
                     <strong>Tag Number:</strong> {vehicle.tagNumber} <br />
                     <strong>Price:</strong> {vehicle.price} <br />
                     <img

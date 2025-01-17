@@ -35,6 +35,7 @@ const VehicleManageList = () => {
   const [loading, setLoading] = useState(true);
   const [vname, setVname] = useState('');
   const [tagNumber, setTagNumber] = useState('');
+  const [model, setModel] = useState('');
   const [isAvailable, setIsAvailable] = useState(true);
   const [passenger, setPassenger] = useState('');
   const [vprice, setVprice] = useState([]);
@@ -48,8 +49,6 @@ const VehicleManageList = () => {
   const [limit, setLimit] = useState(5);
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(1);
-  const [isValid, setIsValid] = useState(true);
-
 
   const fetchVehicleData = async () => {
     try {
@@ -75,6 +74,7 @@ const VehicleManageList = () => {
     const formData = new FormData();
     formData.append('vname', vname);
     formData.append('tagNumber', tagNumber);
+    formData.append('model', model)
     formData.append('isAvailable', isAvailable);
     formData.append('passenger', passenger);
     formData.append('vprice', JSON.stringify(vprice));
@@ -100,6 +100,7 @@ const VehicleManageList = () => {
   const handleEditVehicle = (vehicle) => {
     setVname(vehicle.vname);
     setTagNumber(vehicle.tagNumber);
+    setModel(vehicle.model);
     setIsAvailable(vehicle.isAvailable)
     setPassenger(vehicle.passenger);
     setVprice(vehicle.vprice || []);
@@ -116,6 +117,7 @@ const VehicleManageList = () => {
     const formData = new FormData();
     formData.append('vname', vname);
     formData.append('tagNumber', tagNumber);
+    formData.append('model', model);
     formData.append('isAvailable', isAvailable);
     formData.append('passenger', passenger);
     formData.append('vprice', JSON.stringify(vprice));
@@ -170,6 +172,7 @@ const VehicleManageList = () => {
   const resetForm = () => {
     setVname('');
     setTagNumber('');
+    setModel('');
     setPassenger('');
     setVprice([]);
     setImage(null);
@@ -191,15 +194,6 @@ const VehicleManageList = () => {
     const newPrices = [...vprice];
     newPrices.splice(index, 1);
     setVprice(newPrices);
-  };
-
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setPassenger(value);
-
-    // Validate against allowed values
-    const isValidValue = /^(fourPassenger|sixPassenger|eightPassenger)$/.test(value);
-    setIsValid(isValidValue || value === ''); // Allow empty value for incomplete input
   };
 
 
@@ -252,6 +246,7 @@ const VehicleManageList = () => {
                           <CTableHeaderCell scope="col">Name</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Passenger</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Tag Number</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Model</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Available</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Price</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
@@ -275,8 +270,21 @@ const VehicleManageList = () => {
                               )}
                             </CTableDataCell>
                             <CTableDataCell>{vehicle.vname}</CTableDataCell>
-                            <CTableDataCell>{vehicle.passenger}</CTableDataCell>
+                            <CTableDataCell>
+                              {vehicle.passenger === 'fourPassenger'
+                                ? 'Four Passenger'
+                                : vehicle.passenger === 'sixPassenger'
+                                  ? 'Six Passenger'
+                                  : vehicle.passenger === 'eightPassenger'
+                                    ? 'Eight Passenger'
+                                    : 'Unknown'}
+                            </CTableDataCell>
+
                             <CTableDataCell>{vehicle.tagNumber}</CTableDataCell>
+                            <CTableDataCell>
+                              {vehicle.model === 'gas' ? 'Gas' : vehicle.model === 'electric' ? 'Electric' : 'Unknown'}
+                            </CTableDataCell>
+
                             <CTableDataCell>
                               <span style={{ color: vehicle.isAvailable ? "green" : "red" }}>
                                 {vehicle.isAvailable ? "Yes" : "No"}
@@ -393,17 +401,21 @@ const VehicleManageList = () => {
               </CCol>
               <CCol xs={12}>
                 <CFormLabel htmlFor="passenger">Passenger</CFormLabel>
-                <CFormInput
+                <CFormSelect
                   id="passenger"
                   value={passenger}
-                  onChange={handleInputChange}
-                  className={`mb-3 ${isValid ? '' : 'is-invalid'}`} // Add 'is-invalid' for invalid input
-                  required
-                />
-                <CFormFeedback invalid style={{ color: 'red' }}>
-                  Please enter exactly one of the following: fourPassenger, sixPassenger, or eightPassenger.
-                </CFormFeedback>
+                  onChange={(e) => setPassenger(e.target.value)}
+                  className={`mb-3`}
+                >
+                  <option value="" disabled>
+                    Select Passenger Capacity
+                  </option>
+                  <option value="fourPassenger">Four Passenger</option>
+                  <option value="sixPassenger">Six Passenger</option>
+                  <option value="eightPassenger">Eight Passenger</option>
+                </CFormSelect>
               </CCol>
+
 
               <CCol xs={12}>
                 <CFormLabel htmlFor="tagNumber">Tag Number (Must be Unique )</CFormLabel>
@@ -411,6 +423,30 @@ const VehicleManageList = () => {
                   id="tagNumber"
                   value={tagNumber}
                   onChange={(e) => setTagNumber(e.target.value)}
+                  className="mb-3"
+                />
+              </CCol>
+              <CCol xs={12}>
+                <CFormLabel htmlFor="model">Model</CFormLabel>
+                <CFormSelect
+                  id="model"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  className="mb-3"
+                >
+                  <option value="" disabled>
+                    Select Model
+                  </option>
+                  <option value="gas">Gas</option>
+                  <option value="electric">Electric</option>
+                </CFormSelect>
+              </CCol>
+              <CCol xs={12}>
+                <CFormLabel htmlFor="image">Upload Image</CFormLabel>
+                <CFormInput
+                  id="image"
+                  type="file"
+                  onChange={(e) => setImage(e.target.files[0])}
                   className="mb-3"
                 />
               </CCol>
@@ -455,20 +491,12 @@ const VehicleManageList = () => {
                     </CButton>
                   </div>
                 ))}
-                <CButton size="sm" color="success" onClick={handleAddPrice}>
+                <CButton size="sm" style={{ marginLeft: "1rem" }} color="success" onClick={handleAddPrice}>
                   Add Price
                 </CButton>
               </CCol>
 
-              <CCol xs={12}>
-                <CFormLabel htmlFor="image">Upload Image</CFormLabel>
-                <CFormInput
-                  id="image"
-                  type="file"
-                  onChange={(e) => setImage(e.target.files[0])}
-                  className="mb-3"
-                />
-              </CCol>
+
             </CRow>
           </CForm>
         </CModalBody>

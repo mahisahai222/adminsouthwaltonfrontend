@@ -42,10 +42,8 @@ const Reservation = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState('');
   const itemsPerPage = 8;
-  const [fromAdmin, setFromAdmin] = useState(''); 
 
-
-  const fetchReservations = async (page = 1, searchQuery = '', adminFilter = '') => {
+  const fetchReservations = async (page = 1, searchQuery = '') => {
     setLoading(true);
     try {
       const response = await axios.get('http://44.196.64.110:8132/api/reserve/reservations', {
@@ -53,7 +51,7 @@ const Reservation = () => {
           page,
           limit: itemsPerPage,
           search: searchQuery,
-          fromAdmin: adminFilter, // Add the fromAdmin filter here
+
         },
       });
 
@@ -74,12 +72,11 @@ const Reservation = () => {
   };
 
   useEffect(() => {
-    fetchReservations(currentPage, search, fromAdmin);
-  }, [currentPage, search, fromAdmin]);
-
+    fetchReservations();
+  }, []);
 
   const debouncedSearch = debounce((query) => {
-    fetchReservations(1, query, fromAdmin); // Pass fromAdmin with search
+    fetchReservations(1, query);
   }, 500);
 
   const handleSearchChange = (e) => {
@@ -88,10 +85,7 @@ const Reservation = () => {
     debouncedSearch(query);
   };
 
-  const handleFromAdminChange = (e) => {
-    setFromAdmin(e.target.value);
-    fetchReservations(1, search, e.target.value); // Refresh list with new filter
-  };
+
 
   // Handle delete reservation
   const handleDeleteReservation = async (id) => {
@@ -303,15 +297,6 @@ const Reservation = () => {
               onChange={handleSearchChange} // Handle input change
               style={{ width: "180px", marginRight: "1rem" }}
             />
-             <select
-            value={fromAdmin}
-            onChange={handleFromAdminChange}
-            style={{ marginRight: "1rem" }}
-          >
-            <option value="">All</option>
-            <option value="true">From Admin</option>
-            <option value="false">From Website</option>
-          </select>
             <CButton
               color="primary"
               size="sm"

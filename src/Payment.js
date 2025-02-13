@@ -132,6 +132,7 @@ const Payment = () => {
                     <CTableHeaderCell>Amount</CTableHeaderCell>
                     <CTableHeaderCell>Transaction ID</CTableHeaderCell>
                     <CTableHeaderCell>Email</CTableHeaderCell>
+                    <CTableHeaderCell>Type</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
 
                   </CTableRow>
@@ -141,10 +142,14 @@ const Payment = () => {
                     <CTableRow key={payment._id}> {/* Use _id as unique key */}
                       <CTableDataCell>{payment._id}</CTableDataCell> {/* MongoDB's unique ID */}
                       {/* <CTableDataCell>{(payment.amount / 100).toFixed(2)} USD</CTableDataCell> */}
-                      <CTableDataCell>{payment.amount} USD</CTableDataCell>
-                      <CTableDataCell>{payment.transactionId || 'N/A'}</CTableDataCell>
-                      <CTableDataCell>{payment.email || 'N/A'}</CTableDataCell> {/* Adjusted field for email */}
-                      <CTableDataCell style={{marginRight: '10px'}}>    <CButton size="sm" color="info" onClick={() => handleViewPayment(payment)}>
+                      <CTableDataCell>
+                        {(payment.paymentDetails.transactionDetails.amount / 100).toFixed(2)} USD
+                      </CTableDataCell>
+
+                      <CTableDataCell>{payment.paymentDetails.paymentId || 'N/A'}</CTableDataCell>
+                      <CTableDataCell>{payment.paymentDetails.transactionDetails.payment_method.billing_details.email || 'N/A'}</CTableDataCell> {/* Adjusted field for email */}
+                      <CTableDataCell>{payment.paymentType || 'N/A'}</CTableDataCell>
+                      <CTableDataCell style={{ marginRight: '10px' }}>    <CButton size="sm" color="info" onClick={() => handleViewPayment(payment)}>
                         View
                       </CButton>
                         <CButton
@@ -199,10 +204,10 @@ const Payment = () => {
               {viewPayment.bookingDetails && (
                 <ul>
                   <li>Payment ID: {viewPayment.payment._id}</li>
-                  <li>Transaction ID: {viewPayment.payment.transactionId}</li>
-                  <li>Amount: {viewPayment.payment.amount}</li>
-                  <li>Email: {viewPayment.payment.email}</li>
-                  <li>Phone: {viewPayment.payment.phone}</li>
+                  <li>Transaction ID: {viewPayment.payment.paymentDetails.paymentId}</li>
+                  <li>Amount: {(viewPayment.payment.paymentDetails.transactionDetails.amount / 100).toFixed(2)} USD</li>
+                  <li>Email: {viewPayment.payment.paymentDetails.transactionDetails.payment_method.billing_details.email || 'N/A'}</li>
+                  <li>Phone: {viewPayment.payment.phone || 'N/A'}</li>
                 </ul>
               )}
               <h5>Booking Details:</h5>

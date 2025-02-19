@@ -24,7 +24,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 
-const stripePromise = loadStripe('pk_test_51QV6moK0VXG1vNgVD9gZwP9UC2dR2ztmamIu1r8kMvNMWq5sy3TFwTdZXoGaAXCU4f23Ug7OOn81zPLcWWljboe0000j4sl0Qi');
+const stripePromise = loadStripe('pk_test_51Px48IHrMJArnuTlyXynQWb7bamh1ZH6jOlbg6anUY5HSq0TrcBRb0TO5yOu6e39vXmJpCPkaiFNSgCxBNeUK1CB00ckW9Tphf');
 
 const DamageManage = () => {
   const [damageManageData, setDamageManageData] = useState([]);

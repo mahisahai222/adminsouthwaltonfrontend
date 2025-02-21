@@ -29,7 +29,7 @@ const CustDamageManage = () => {
   });
   const fetchDamageManageData = async () => {
     try {
-      const response = await axios.get('http://44.196.64.110:8132/api/customer-damages/', {
+      const response = await axios.get('http://54.236.98.193:8132/api/customer-damages/', {
         params: {
           page: pagination.currentPage,
           limit: pagination.itemsPerPage,
@@ -56,7 +56,7 @@ const CustDamageManage = () => {
 
   const handleDeleteDamageManage = async (id) => {
     try {
-      await axios.delete(`http://44.196.64.110:8132/api/customer-damages/${id}`);
+      await axios.delete(`http://54.236.98.193:8132/api/customer-damages/${id}`);
       setDamageManageData(damageManageData.filter((damage) => damage._id !== id));
       window.alert('Customer damage successfully deleted');
     } catch (error) {

@@ -46,7 +46,7 @@ const Reservation = () => {
   const fetchReservations = async (page = 1, searchQuery = '') => {
     setLoading(true);
     try {
-      const response = await axios.get('http://54.236.98.193:8132/api/reserve/reservations', {
+      const response = await axios.get('http://3.223.253.106:8132/api/reserve/reservations', {
         params: {
           page,
           limit: itemsPerPage,
@@ -90,7 +90,7 @@ const Reservation = () => {
   // Handle delete reservation
   const handleDeleteReservation = async (id) => {
     try {
-      await axios.delete(`http://54.236.98.193:8132/api/reserve/reservation/${id}`); // Adjust the API URL
+      await axios.delete(`http://3.223.253.106:8132/api/reserve/reservation/${id}`); // Adjust the API URL
       setReservations(reservations.filter((reservation) => reservation._id !== id));
       window.alert('Reservation successfully deleted');
     } catch (error) {
@@ -102,7 +102,7 @@ const Reservation = () => {
   const handleReservationById = async (reservation) => {
     try {
       const response = await axios.get(
-        `http://54.236.98.193:8132/api/reserve/reservation/${reservation._id}`
+        `http://3.223.253.106:8132/api/reserve/reservation/${reservation._id}`
       );
 
       if (response) {
@@ -141,7 +141,7 @@ const Reservation = () => {
    */
   const getSeasonAndDays = async (pickdate, dropdate) => {
     try {
-      const response = await axios.post("http://54.236.98.193:8132/api/seasons/season-details", {
+      const response = await axios.post("http://3.223.253.106:8132/api/seasons/season-details", {
         pickdate,
         dropdate,
       });
@@ -164,7 +164,7 @@ const Reservation = () => {
   const fetchVehiclesBySeasonAndDay = async (season, day) => {
     try {
       const response = await axios.get(
-        `http://54.236.98.193:8132/api/vehicle/by-season-and-day`,
+        `http://3.223.253.106:8132/api/vehicle/by-season-and-day`,
         {
           params: { season, day },
         }
@@ -197,7 +197,7 @@ const Reservation = () => {
     }
     try {
       const response = await axios.put(
-        `http://54.236.98.193:8132/api/reserve/reservation/${reservationId}`,
+        `http://3.223.253.106:8132/api/reserve/reservation/${reservationId}`,
         {
           vehicleId,
           reserveAmount: price,
@@ -222,7 +222,7 @@ const Reservation = () => {
   // Handle accept reservation
   const handleAcceptReservation = async (id) => {
     try {
-      const response = await axios.put(`http://54.236.98.193:8132/api/reserve/reservation/${id}/accept`);
+      const response = await axios.put(`http://3.223.253.106:8132/api/reserve/reservation/${id}/accept`);
       alert(response.data.message); // Show success message
 
       // Update the state for the specific reservation
@@ -250,7 +250,7 @@ const Reservation = () => {
     };
 
     try {
-      const response = await axios.post('http://54.236.98.193:8132/api/reserve/reservation', reservationData);
+      const response = await axios.post('http://3.223.253.106:8132/api/reserve/reservation', reservationData);
 
       fetchReservations()
       resetForm();

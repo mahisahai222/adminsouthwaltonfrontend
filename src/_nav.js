@@ -168,6 +168,19 @@ const _nav = [
     },
   },
 
+
+  {
+    component: CNavItem,
+    name: 'New Vehicle Management',
+    to: '/NewVehicleManage',
+    icon: <FontAwesomeIcon icon={faCar} style={{ color: '#9b8799', fontSize: '1.5rem', marginRight: '0.5rem'}} />,
+    badge: {
+      color: 'info',
+      // text: 'NEW',
+    },
+  },
+
+
   // {
   //   component: CNavItem,
   //   name: 'Static Content Management',

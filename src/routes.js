@@ -4,6 +4,7 @@ const CalendarView = React.lazy(() => import('./Calendar/CalendarView'))
 const AuthList = React.lazy(() => import('./AuthList'))
 const UserManageList = React.lazy(() => import('./UserManageList'))
 const VehicleManageList = React.lazy(() => import('./VehicleManageList'))
+const NewVehicleManage = React.lazy(() => import('./NewVehicleManage'))
 const BookManageList = React.lazy(() => import('./BookManageList'))
 const TransacManageList = React.lazy(() => import('./TransacManageList'))
 const ProductManageList = React.lazy(() => import('./ProductManageList'))
@@ -25,6 +26,7 @@ const routes = [
   { path: '/AuthList', name: 'AuthList', element: AuthList },
   { path: '/UserManageList', name: 'User Management', element: UserManageList },
   { path: '/VehicleManageList', name: 'Vehicle Management', element: VehicleManageList },
+  { path: '/NewVehicleManage', name: 'Vehicle Management', element: NewVehicleManage },
   { path: '/BookManageList', name: 'Booking Management', element: BookManageList },
   { path: '/TransacManageList', name: 'Transaction Management', element: TransacManageList },
   { path: '/ProductManageList', name: 'Product Management', element: ProductManageList },

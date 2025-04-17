@@ -245,7 +245,7 @@ const Payment = () => {
                     Image:
                     {viewPayment.vehicleDetails.image && viewPayment.vehicleDetails.image.length > 0 ? (
                       <img
-                        src={viewPayment.vehicleDetails.image[0]}
+                        src={viewPayment.vehicleDetails.image}
                         alt="Vehicle"
                         style={{ width: '200px', height: 'auto', marginTop: '10px' }}
                       />

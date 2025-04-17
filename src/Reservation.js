@@ -25,6 +25,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import debounce from 'lodash.debounce';
+import { Autocomplete } from '@react-google-maps/api';
 
 const Reservation = () => {
   const [reservations, setReservations] = useState([]);
@@ -42,6 +43,9 @@ const Reservation = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState('');
   const itemsPerPage = 8;
+  const [pickupAutocomplete, setPickupAutocomplete] = useState(null);
+  const [dropAutocomplete, setDropAutocomplete] = useState(null);
+
 
   const fetchReservations = async (page = 1, searchQuery = '') => {
     setLoading(true);
@@ -108,24 +112,25 @@ const Reservation = () => {
       if (response) {
         setReservationId(reservation._id);
         const { pickdate, dropdate, vehicleId } = response.data; // Adjust based on response structure
-
+        console.log(pickdate, dropdate)
         setSelectedVehicleId(vehicleId || null);
 
         if (pickdate && dropdate) {
+
+          const pickDateObj = new Date(pickdate);
+          const dropDateObj = new Date(dropdate);
+
+          const timeDifference = dropDateObj - pickDateObj;
+          const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24)) + 1; // +1 for inclusivity
+
+          console.log(`Inclusive days difference: ${days}`);
+
           // Get season and days difference
-          const seasonAndDays = await getSeasonAndDays(pickdate, dropdate);
-
-          if (seasonAndDays) {
-            // Fetch vehicles based on season and days
-            const vehicles = await fetchVehiclesBySeasonAndDay(
-              seasonAndDays.season,
-              seasonAndDays.day
-            );
-
-            if (vehicles) {
-              setViewVehicles(vehicles); // Set vehicles in state
-            }
+          const vehicles = await getSeasonAndDays(days, pickdate, dropdate);
+          if (vehicles) {
+            setViewVehicles(vehicles.results); // Set vehicles in state
           }
+          console.log(vehicles)
         }
         setVehicleUpdateModal(true);
       } else {
@@ -139,11 +144,14 @@ const Reservation = () => {
   /**
    * Function to calculate season and days difference
    */
-  const getSeasonAndDays = async (pickdate, dropdate) => {
+  const getSeasonAndDays = async (days, pickdate, dropdate) => {
     try {
-      const response = await axios.post("http://3.223.253.106:8132/api/seasons/season-details", {
-        pickdate,
-        dropdate,
+      const response = await axios.get("http://3.223.253.106:8132/api/newVehicle/vehicleData", {
+        params: {
+          days,
+          pickdate,
+          dropdate,
+        },
       });
 
       if (response.data) {
@@ -158,32 +166,7 @@ const Reservation = () => {
     }
   };
 
-  /**
-   * Function to fetch vehicles by season and day
-   */
-  const fetchVehiclesBySeasonAndDay = async (season, day) => {
-    try {
-      const response = await axios.get(
-        `http://3.223.253.106:8132/api/vehicle/by-season-and-day`,
-        {
-          params: { season, day },
-        }
-      );
-
-      if (response.data) {
-
-        return response.data; // Array of vehicles
-      } else {
-        console.warn("No vehicles found for the selected season and day.");
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching vehicles by season and day:", error);
-      return null;
-    }
-  };
-
-  const handleUpdateReservation = async (vehicleId, price) => {
+  const handleUpdateReservation = async (vehicleId, totalPrice) => {
     if (selectedVehicleId === vehicleId) {
       // Unbook the current vehicle
       setSelectedVehicleId(null);
@@ -200,7 +183,7 @@ const Reservation = () => {
         `http://3.223.253.106:8132/api/reserve/reservation/${reservationId}`,
         {
           vehicleId,
-          reserveAmount: price,
+          reserveAmount: totalPrice,
           reservation: true
         }
       );
@@ -284,8 +267,42 @@ const Reservation = () => {
     return <div className="loading">Loading...</div>;
   }
 
+  const handlePlaceSelected = (autocomplete, setField) => {
+    const place = autocomplete.getPlace();
+    if (place && place.formatted_address) {
+      setField(place.formatted_address);
+    }
+  };
+
+  const repositionDropdown = () => {
+    const pacContainers = document.querySelectorAll('.pac-container');
+    pacContainers.forEach((container) => {
+      container.style.zIndex = '1051'; // Ensure it’s above the modal
+      container.style.position = 'absolute';
+      container.style.transform = 'translateY(0px)'; // Optional: Tweak based on alignment
+    });
+  };
+
   return (
     <>
+      <style>
+        {`
+          .pac-container {
+              z-index: 9999 !important; /* Ensures the dropdown appears above everything */
+  position: absolute !important;
+          }
+          .modal {
+            overflow: visible !important;
+          }
+          .modal-dialog {
+            overflow: visible !important;
+          }
+            .hidden-row {
+  display: none;
+}
+
+        `}
+      </style>
       <CCard>
         <CCardHeader className="d-flex justify-content-between align-items-center">
           <h1 style={{ fontSize: '24px', color: 'purple' }}>Reservation List</h1>
@@ -337,7 +354,11 @@ const Reservation = () => {
                 <CTableBody>
                   {reservations.map((reservation) => {
                     const vehicleDetails = reservation.vehicleDetails || {};
-                    const vehicleImages = vehicleDetails.image || [];
+                    const vehicleImages = Array.isArray(vehicleDetails.image)
+                      ? vehicleDetails.image
+                      : vehicleDetails.image
+                        ? [vehicleDetails.image]
+                        : [];
                     return (
                       <CTableRow key={reservation._id}>
                         <CTableDataCell>{reservation._id}</CTableDataCell>
@@ -445,23 +466,45 @@ const Reservation = () => {
             <CRow>
               <CCol xs={12}>
                 <CFormLabel htmlFor="pickup">Pickup</CFormLabel>
-                <CFormInput
-                  type="text"
-                  id="pickup"
-                  value={pickup}
-                  onChange={(e) => setPickup(e.target.value)}
-                />
+                <Autocomplete
+                  onLoad={(autocomplete) => {
+                    setPickupAutocomplete(autocomplete);
+                    repositionDropdown(); // Reposition dropdown on load
+                  }}
+                  onPlaceChanged={() => {
+                    handlePlaceSelected(pickupAutocomplete, setPickup);
+                    repositionDropdown(); // Reposition dropdown after place change
+                  }}
+                >
+                  <CFormInput
+                    type="text"
+                    id="pickup"
+                    value={pickup}
+                    onChange={(e) => setPickup(e.target.value)}
+                  />
+                </Autocomplete>
               </CCol>
             </CRow>
             <CRow>
               <CCol xs={12}>
                 <CFormLabel htmlFor="drop">Drop</CFormLabel>
-                <CFormInput
-                  type="text"
-                  id="drop"
-                  value={drop}
-                  onChange={(e) => setDrop(e.target.value)}
-                />
+                <Autocomplete
+                  onLoad={(autocomplete) => {
+                    setDropAutocomplete(autocomplete);
+                    repositionDropdown(); // Reposition dropdown on load
+                  }}
+                  onPlaceChanged={() => {
+                    handlePlaceSelected(dropAutocomplete, setDrop);
+                    repositionDropdown(); // Reposition dropdown after place change
+                  }}
+                >
+                  <CFormInput
+                    type="text"
+                    id="drop"
+                    value={drop}
+                    onChange={(e) => setDrop(e.target.value)}
+                  />
+                </Autocomplete>
               </CCol>
             </CRow>
             <CRow>
@@ -499,7 +542,7 @@ const Reservation = () => {
 
         </CModalFooter>
       </CModal>
-      <CModal visible={vehicleUpdateModal} size="l" onClose={() => setVehicleUpdateModal(false)}>
+      <CModal visible={vehicleUpdateModal} size="lg" onClose={() => setVehicleUpdateModal(false)}>
         <CModalHeader>
           <CModalTitle>Choose Vehicle</CModalTitle>
         </CModalHeader>
@@ -509,12 +552,12 @@ const Reservation = () => {
               <h5>Vehicle Details:</h5>
               <ul>
                 {viewVehicles.map((vehicle) => (
-                  <li key={vehicle._id} style={{ marginBottom: "20px" }}>
+                  <li key={vehicle.vehicleId} style={{ marginBottom: "20px" }}>
                     <strong>Name:</strong> {vehicle.vname} <br />
                     <strong>Seats:</strong> {vehicle.passenger} <br />
                     <strong>Model:</strong> {vehicle.model} <br />
                     <strong>Tag Number:</strong> {vehicle.tagNumber} <br />
-                    <strong>Price:</strong> {vehicle.price} <br />
+                    <strong>Price:</strong> {vehicle.totalPrice} <br />
                     <img
                       src={vehicle.image}
                       alt={vehicle.vname}
@@ -522,12 +565,12 @@ const Reservation = () => {
                     />
                     <br />
                     <CButton
-                      color={selectedVehicleId === vehicle._id ? "danger" : "primary"}
+                      color={selectedVehicleId === vehicle.vehicleId ? "danger" : "primary"}
                       style={{ marginTop: "10px" }}
-                      onClick={() => handleUpdateReservation(vehicle._id, vehicle.price)}
-                      disabled={selectedVehicleId && selectedVehicleId !== vehicle._id}
+                      onClick={() => handleUpdateReservation(vehicle.vehicleId, vehicle.totalPrice)}
+                      disabled={selectedVehicleId && selectedVehicleId !== vehicle.vehicleId}
                     >
-                      {selectedVehicleId === vehicle._id ? "Unbook" : "Book"}
+                      {selectedVehicleId === vehicle.vehicleId ? "Unbook" : "Book"}
                     </CButton>
                   </li>
                 ))}

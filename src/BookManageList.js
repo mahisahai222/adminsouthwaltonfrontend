@@ -276,7 +276,6 @@ const BookManageList = () => {
     try {
       const response = await fetch(`http://3.223.253.106:8132/api/book/bookfromPanel?page=${panelPage}&limit=${panelLimit}&search=${searchQuery}`);
       const data = await response.json();
-      console.log(response)
       setPanelBookings(data.bookings);
       setTotalPanelPages(data.totalPages);
       setTotalBookings(data.totalBookings);

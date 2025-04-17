@@ -167,7 +167,7 @@ const CalendarView = () => {
         />
   
         {/* Modal */}
-        <CModal visible={modalOpen} onClose={handleModalClose} size="md">
+        <CModal visible={modalOpen} onClose={handleModalClose} size="lg">
           <CModalHeader closeButton>
             <CModalTitle>View Booking Details</CModalTitle>
           </CModalHeader>

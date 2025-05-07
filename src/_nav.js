@@ -52,27 +52,25 @@ const _nav = [
     },
   },
 
-  {
-    component: CNavItem,
-    name: 'Season Management',
-    to: '/Season',
-    icon: <FontAwesomeIcon icon={faCar} style={{ color: '#9b8799', fontSize: '1.5rem', marginRight: '0.5rem'}} />,
-    badge: {
-      color: 'info',
-      // text: 'NEW',
-    },
-  },
+  // {
+  //   component: CNavItem,
+  //   name: 'Season Management',
+  //   to: '/Season',
+  //   icon: <FontAwesomeIcon icon={faCar} style={{ color: '#9b8799', fontSize: '1.5rem', marginRight: '0.5rem'}} />,
+  //   badge: {
+  //     color: 'info',
+  //   },
+  // },
 
-  {
-    component: CNavItem,
-    name: 'Vehicle Management',
-    to: '/VehicleManageList',
-    icon: <FontAwesomeIcon icon={faCar} style={{ color: '#9b8799', fontSize: '1.5rem', marginRight: '0.5rem'}} />,
-    badge: {
-      color: 'info',
-      // text: 'NEW',
-    },
-  },
+  // {
+  //   component: CNavItem,
+  //   name: 'Vehicle Management',
+  //   to: '/VehicleManageList',
+  //   icon: <FontAwesomeIcon icon={faCar} style={{ color: '#9b8799', fontSize: '1.5rem', marginRight: '0.5rem'}} />,
+  //   badge: {
+  //     color: 'info',
+  //   },
+  // },
 
   {
     component: CNavItem,
@@ -91,6 +89,16 @@ const _nav = [
     icon: <FontAwesomeIcon icon={faSquareCheck} style={{ color: '#4ce637' , fontSize: '1.5rem', marginRight: '0.5rem' }} />,
     badge: {
       color: 'info',
+    },
+  },
+  {
+    component: CNavItem,
+    name: 'Vehicle Management',
+    to: '/NewVehicleManage',
+    icon: <FontAwesomeIcon icon={faCar} style={{ color: '#9b8799', fontSize: '1.5rem', marginRight: '0.5rem'}} />,
+    badge: {
+      color: 'info',
+       text: 'NEW',
     },
   },
 
@@ -169,16 +177,7 @@ const _nav = [
   },
 
 
-  {
-    component: CNavItem,
-    name: 'New Vehicle Management',
-    to: '/NewVehicleManage',
-    icon: <FontAwesomeIcon icon={faCar} style={{ color: '#9b8799', fontSize: '1.5rem', marginRight: '0.5rem'}} />,
-    badge: {
-      color: 'info',
-      // text: 'NEW',
-    },
-  },
+
 
 
   // {

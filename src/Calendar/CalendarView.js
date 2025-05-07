@@ -46,7 +46,7 @@ const CalendarView = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get('http://3.223.253.106:8132/api/book/calendar');
+      const response = await axios.get('http://18.209.91.97:8132/api/book/calendar');
       if (response.data) {
         const events = response.data.data.map(eventData => ({
           id: eventData.paymentId,

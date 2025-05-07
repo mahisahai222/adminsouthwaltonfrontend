@@ -27,7 +27,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
-const BASE_URL = 'http://3.223.253.106:8132/api/newVehicle'; // Update with your API base URL
+const BASE_URL = 'http://18.209.91.97:8132/api/newVehicle'; // Update with your API base URL
 
 const NewVehicleManage = () => {
   const [vehicles, setVehicles] = useState([]);

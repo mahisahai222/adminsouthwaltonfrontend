@@ -23,9 +23,10 @@ import {
   CTableBody,
   CTableDataCell,
   CFormSelect,
+  CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem
 } from '@coreui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPenToSquare,faDownload } from '@fortawesome/free-solid-svg-icons';
 
 const BASE_URL = 'http://18.209.91.97:8132/api/newVehicle'; // Update with your API base URL
 
@@ -155,11 +156,11 @@ const NewVehicleManage = () => {
     <>
       <CCard className="d-flex w-100">
         <CCardHeader className="d-flex justify-content-between align-items-center">
-          <h1 style={{ fontSize: '24px', color: 'indianred' }}>New Vehicle Management</h1>
+          <h1 style={{ fontSize: '24px', color: 'indianred' }}> Vehicle Management</h1>
           <CButton color="primary" size="sm" onClick={() => {
-                resetForm();
-                setModalOpen(true)
-              }}>
+            resetForm();
+            setModalOpen(true)
+          }}>
             Add Vehicle
           </CButton>
         </CCardHeader>
@@ -176,6 +177,7 @@ const NewVehicleManage = () => {
                       <CTableHeaderCell>Tag Number</CTableHeaderCell>
                       <CTableHeaderCell>Model</CTableHeaderCell>
                       <CTableHeaderCell>Passengers</CTableHeaderCell>
+                      <CTableHeaderCell>Pricings</CTableHeaderCell>
                       <CTableHeaderCell>Actions</CTableHeaderCell>
                     </CTableRow>
                   </CTableHead>
@@ -194,6 +196,35 @@ const NewVehicleManage = () => {
                         <CTableDataCell>{vehicle.tagNumber}</CTableDataCell>
                         <CTableDataCell>{vehicle.model}</CTableDataCell>
                         <CTableDataCell>{vehicle.passenger}</CTableDataCell>
+                        <CTableDataCell>
+                          <CDropdown>
+                            <CDropdownToggle color="primary" size="sm">
+                              Download Pricing Files
+                            </CDropdownToggle>
+                            <CDropdownMenu>
+                              <CDropdownItem href={vehicle.dailyPricingFile} target="_blank">
+                                <FontAwesomeIcon icon={faDownload} className="me-2" />
+                                Daily Pricing
+                              </CDropdownItem>
+                              <CDropdownItem href={vehicle.twoToFourDaysPricingFile} target="_blank">
+                                <FontAwesomeIcon icon={faDownload} className="me-2" />
+                                2-4 Days Pricing
+                              </CDropdownItem>
+                              <CDropdownItem href={vehicle.fiveToSevenDaysPricingFile} target="_blank">
+                                <FontAwesomeIcon icon={faDownload} className="me-2" />
+                                5-7 Days Pricing
+                              </CDropdownItem>
+                              <CDropdownItem href={vehicle.eightToTwentySevenDaysPricingFile} target="_blank">
+                                <FontAwesomeIcon icon={faDownload} className="me-2" />
+                                8-27 Days Pricing
+                              </CDropdownItem>
+                              <CDropdownItem href={vehicle.twentyEightPlusPricingFile} target="_blank">
+                                <FontAwesomeIcon icon={faDownload} className="me-2" />
+                                28+ Days Pricing
+                              </CDropdownItem>
+                            </CDropdownMenu>
+                          </CDropdown>
+                        </CTableDataCell>
                         <CTableDataCell>
                           <CButton
                             color="warning"

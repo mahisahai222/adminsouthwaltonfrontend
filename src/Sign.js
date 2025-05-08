@@ -15,7 +15,7 @@ import {
   CTableDataCell,
 } from '@coreui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
 
 const Sign = () => {
   const [signatureData, setSignatureData] = useState([]);
@@ -106,21 +106,25 @@ const Sign = () => {
                   <CTable hover bordered striped responsive>
                     <CTableHead>
                       <CTableRow>
+                      <CTableHeaderCell scope="col">User Name</CTableHeaderCell>
                         <CTableHeaderCell scope="col">User Email</CTableHeaderCell>
-                        <CTableHeaderCell scope="col">Signature</CTableHeaderCell>
+                        <CTableHeaderCell scope="col">Agreement</CTableHeaderCell>
                         <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                       </CTableRow>
                     </CTableHead>
                     <CTableBody>
                       {signatureData.map((signature) => (
                         <CTableRow key={signature._id}>
+                            <CTableDataCell>{signature.userDetails.fullName}</CTableDataCell>
                           <CTableDataCell>{signature.userDetails.email}</CTableDataCell>
                           <CTableDataCell>
-                            <img
-                              src={signature.image}
-                              alt="Signature"
-                              style={{ width: '100px', height: 'auto' }}
-                            />
+                            {signature.pdf ? (
+                              <a href={signature.pdf} target="_blank" rel="noopener noreferrer" title="Download Agreement">
+                                <FontAwesomeIcon icon={faDownload} size="lg" />
+                              </a>
+                            ) : (
+                              <span>No Agreement</span>
+                            )}
                           </CTableDataCell>
                           <CTableDataCell>
                             <FontAwesomeIcon
